@@ -1,12 +1,12 @@
 :root {
-  --color-bg: #070708;
-  --color-card: #171719;
+  --color-bg: #030304;
+  --color-card: #111113;
   --color-text: #f7efe5;
   --color-muted: #b9aa9c;
   --color-border: #2c2a2d;
   --color-accent: #b9a7ff;
   --color-accent-soft: #d4c9ff;
-  --color-paper-warm: #202024;
+  --color-paper-warm: #18181b;
   --shadow-card: 0 14px 30px rgba(0, 0, 0, 0.24);
   --shadow-card-hover: 0 20px 42px rgba(0, 0, 0, 0.34);
   --radius-card: 24px;
@@ -31,7 +31,7 @@ body {
   color: var(--color-text);
   font-family: var(--font-base);
   background:
-    linear-gradient(rgba(7, 7, 8, 0.88), rgba(7, 7, 8, 0.88)),
+    linear-gradient(rgba(3, 3, 4, 0.92), rgba(3, 3, 4, 0.92)),
     url("assets/kinari-fabric.svg"),
     var(--color-bg);
   background-size: auto, 180px 180px, auto;
