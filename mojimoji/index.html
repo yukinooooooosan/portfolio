@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>もじもじアドベンチャー</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <a class="home-link" href="../index.html">Yukino's Folio</a>
+    <div class="game-container">
+        <header>
+            <h1>もじもじアドベンチャー</h1>
+        </header>
+
+        <main id="main-area">
+            <div id="emoji-display"></div>
+            <div id="word-display"></div>
+            <div id="ja-word-display"></div>
+            <div id="target-key"></div>
+        </main>
+
+        <div id="feedback-area">
+            <!-- 正解・不正解のエフェクト表示用 -->
+        </div>
+
+        <div id="keyboard-area">
+            <!-- JavaScriptで動的に生成 -->
+        </div>
+
+        <div class="controls" id="start-controls">
+            <button id="start-standard-btn" class="mode-btn">どうぶつ・たべもの</button>
+            <button id="start-flag-btn" class="mode-btn">こっきアドベンチャー</button>
+        </div>
+    </div>
+
+    <!-- 音声用Audio要素 (WebAudioがなくても簡単な正解音を鳴らすフォールバック用) -->
+    <!-- 実際の音声はWeb Speech APIとAudioContextで生成予定ですが、シンプルにしています -->
+    <script src="script.js"></script>
+</body>
+
+</html>

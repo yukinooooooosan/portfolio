@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Font Pairing Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=EB+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Kaisei+Decol:wght@400;500;700&family=Kaisei+Opti:wght@400;500;700&family=Klee+One:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&family=M+PLUS+Rounded+1c:wght@400;500;700&family=Marcellus&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&family=Prata&family=Shippori+Mincho:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&family=Syne:wght@400;500;600;700;800&family=Yeseva+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;500;700&family=Zen+Old+Mincho:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="font-preview.css">
+  </head>
+  <body>
+    <main class="preview-shell">
+      <header class="preview-header">
+        <p class="eyebrow">Font Preview</p>
+        <h1>Font Pairing Preview</h1>
+        <p>
+          英字フォントと日本語フォントの組み合わせを、好きな文字列で見比べるための小さなツールです。
+        </p>
+        <a href="index.html">トップへ戻る</a>
+      </header>
+
+      <section class="live-preview" aria-labelledby="live-preview-title">
+        <div class="preview-control">
+          <div class="control-row text-row" aria-label="入力設定">
+            <p class="control-section-title">入力</p>
+            <div class="control-field text-field">
+              <label for="preview-text-input">表示文字列</label>
+              <input id="preview-text-input" type="text" value="これはTestです。">
+            </div>
+          </div>
+
+          <div class="control-row color-row" aria-label="色設定">
+            <p class="control-section-title">色</p>
+            <div class="control-field color-field">
+              <label for="text-color-picker">文字色</label>
+              <input id="text-color-picker" type="color" value="#2f2a24">
+            </div>
+            <div class="control-field color-field">
+              <label for="card-color-picker">カード背景</label>
+              <input id="card-color-picker" type="color" value="#fffdf8">
+            </div>
+            <div class="control-field color-field">
+              <label for="page-color-picker">ページ背景</label>
+              <input id="page-color-picker" type="color" value="#f6f0e6">
+            </div>
+            <div class="preview-actions color-actions" aria-label="色操作">
+              <button type="button" id="clear-colors">Clear</button>
+              <button type="button" id="load-color-defaults">デフォルト読み込み</button>
+              <button type="button" id="save-color-defaults">デフォルト登録</button>
+            </div>
+            <div class="default-swatches" aria-label="登録中のデフォルト色">
+              <span>
+                文字
+                <i id="default-text-swatch" aria-hidden="true"></i>
+              </span>
+              <span>
+                カード
+                <i id="default-card-swatch" aria-hidden="true"></i>
+              </span>
+              <span>
+                背景
+                <i id="default-page-swatch" aria-hidden="true"></i>
+              </span>
+            </div>
+          </div>
+
+          <div class="control-row font-row" aria-label="フォント設定">
+            <p class="control-section-title">フォント</p>
+            <div class="control-group" aria-label="英語系フォント">
+              <p class="control-group-title">英語系</p>
+              <div class="control-subrow">
+                <div class="control-field">
+                  <label for="script-picker">文字対応</label>
+                  <select id="script-picker">
+                    <option value="all">All</option>
+                    <option value="latin">英語オンリー</option>
+                    <option value="jp">日本語+英語</option>
+                  </select>
+                </div>
+                <div class="control-field">
+                  <label for="category-picker">カテゴリ</label>
+                  <select id="category-picker">
+                    <option value="system">System Fonts</option>
+                    <option value="google">Google Fonts Recommended</option>
+                    <option value="all">All</option>
+                  </select>
+                </div>
+                <div class="control-field font-field-wide">
+                  <label for="font-picker">表示フォント</label>
+                  <select id="font-picker"></select>
+                </div>
+              </div>
+              <div class="control-subrow">
+                <div class="control-field control-field-compact">
+                  <label for="weight-picker">太さ</label>
+                  <select id="weight-picker"></select>
+                </div>
+                <div class="control-field control-field-compact">
+                  <label for="style-picker">スタイル</label>
+                  <select id="style-picker"></select>
+                </div>
+                <div class="control-field control-field-compact">
+                  <label for="en-size-input">英字サイズ%</label>
+                  <input id="en-size-input" type="number" min="20" max="200" step="1" value="100">
+                </div>
+              </div>
+            </div>
+
+            <div class="control-group" aria-label="フォールバック系フォント">
+              <p class="control-group-title">フォールバック系</p>
+              <div class="control-subrow">
+                <div class="control-field font-field-wide" id="fallback-font-field">
+                  <label for="jp-font-picker">フォールバックフォント</label>
+                  <select id="jp-font-picker"></select>
+                </div>
+                <label class="match-switch">
+                  <input id="match-jp-font" type="checkbox">
+                  <span class="match-toggle-track" aria-hidden="true"></span>
+                  <span>英字に合わせる</span>
+                </label>
+              </div>
+              <div class="control-subrow">
+                <div class="control-field control-field-compact">
+                  <label for="jp-weight-picker">太さ</label>
+                  <select id="jp-weight-picker"></select>
+                </div>
+                <div class="control-field control-field-compact">
+                  <label for="jp-style-picker">スタイル</label>
+                  <select id="jp-style-picker"></select>
+                </div>
+                <div class="control-field control-field-compact">
+                  <label for="jp-size-input">日本語サイズ%</label>
+                  <input id="jp-size-input" type="number" min="20" max="200" step="1" value="42">
+                </div>
+                <label class="match-switch">
+                  <input id="show-role-underlines" type="checkbox" checked>
+                  <span class="match-toggle-track" aria-hidden="true"></span>
+                  <span>下線表示</span>
+                </label>
+                <label class="match-switch">
+                  <input id="punctuation-as-jp" type="checkbox" checked>
+                  <span class="match-toggle-track" aria-hidden="true"></span>
+                  <span>句読点は日本語</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-row action-row preview-actions" aria-label="フォント操作">
+            <p class="control-section-title">比較</p>
+            <button type="button" id="prev-font" title="ArrowLeft">戻る ←</button>
+            <button type="button" id="next-font" title="ArrowRight">次へ →</button>
+            <button type="button" class="keep-button" id="keep-font" title="Space">Keep Space</button>
+            <fieldset class="operation-switch" aria-label="操作対象">
+              <label>
+                <input id="operate-en" name="operate-target" type="radio" value="en" checked>
+                <span>英字</span>
+              </label>
+              <label>
+                <input id="operate-jp" name="operate-target" type="radio" value="jp">
+                <span>日本語</span>
+              </label>
+            </fieldset>
+            <span class="shortcut-hint">右Shift: 一括Italic</span>
+          </div>
+        </div>
+        <article class="font-card live-card" id="live-font-card">
+          <p class="font-name" id="live-preview-title"></p>
+          <div class="font-role-strip" id="live-role-strip" aria-label="適用中のフォント"></div>
+          <h2>これはTestです。</h2>
+          <p class="font-stack" id="live-font-stack"></p>
+          <p class="variant-note" id="live-variant-note" hidden></p>
+          <p class="sample-copy">Keepした候補からCSSをコピーできます。</p>
+        </article>
+      </section>
+
+      <section class="kept-section" aria-labelledby="kept-title">
+        <div class="section-heading">
+          <p class="eyebrow">Kept Fonts</p>
+          <h2 id="kept-title">Keepした候補</h2>
+        </div>
+        <div class="font-grid kept-grid" id="kept-grid" aria-live="polite">
+          <p class="empty-message" id="empty-message">
+            気になるフォントでKeepを押すと、ここに比較カードが追加されます。候補ごとにCSSもコピーできます。
+          </p>
+        </div>
+      </section>
+
+      <section class="candidate-section" aria-labelledby="candidate-title">
+        <div class="section-heading">
+          <p class="eyebrow">All Candidates</p>
+          <h2 id="candidate-title">候補一覧</h2>
+        </div>
+        <div class="font-grid" id="candidate-grid" aria-label="フォント候補"></div>
+      </section>
+    </main>
+    <script src="font-preview.js"></script>
+  </body>
+</html>

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="手の届く場所に、好きなものを。ゲーム・小説・写真・制作メモを置いている個人サイトです。"
+    >
+    <title>Yukino's Folio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Spectral:ital,wght@1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="site-shell" aria-labelledby="site-title">
+      <header class="site-header">
+        <div class="site-header-copy">
+          <h1 id="site-title">Yukino's Folio</h1>
+          <p class="lead">手の届く場所に、好きなものを。</p>
+        </div>
+        <div class="site-portrait" aria-hidden="true">
+          <span class="site-portrait-mask">
+            <img src="assets/profile-cutout-nohand.png" alt="">
+          </span>
+        </div>
+      </header>
+
+      <section class="workbench-grid" aria-label="Yukino's Folio">
+        <section class="card card-wide exhibition-card" aria-labelledby="exhibition-title">
+          <div class="section-heading">
+            <p class="label">Works</p>
+            <h2 id="exhibition-title">展示中</h2>
+            <p class="section-description">
+              遊ぶ・読む・見る・試す入口を、ここにまとめています。
+            </p>
+          </div>
+
+          <div class="filter-tabs" role="group" aria-label="展示カテゴリ">
+            <button class="filter-tab is-active" type="button" data-filter="all" aria-pressed="true">
+              すべて
+            </button>
+            <button class="filter-tab" type="button" data-filter="play" aria-pressed="false">
+              遊ぶ
+            </button>
+            <button class="filter-tab" type="button" data-filter="read" aria-pressed="false">
+              読む
+            </button>
+            <button class="filter-tab" type="button" data-filter="look" aria-pressed="false">
+              見る
+            </button>
+            <button class="filter-tab" type="button" data-filter="tool" aria-pressed="false">
+              試す
+            </button>
+          </div>
+
+          <div class="work-list" aria-live="polite">
+            <a class="work-item card-link is-live" href="mojimoji/index.html" data-category="play">
+              <span class="work-thumb work-thumb-game" aria-hidden="true"></span>
+              <span class="work-kicker">Play</span>
+              <span class="work-meta">
+                <span class="work-title">Mojimoji</span>
+                <span class="work-text">英語とキー入力で遊ぶミニゲーム</span>
+              </span>
+            </a>
+
+            <a class="work-item card-link" href="#" data-category="read">
+              <span class="work-thumb work-thumb-story" aria-hidden="true"></span>
+              <span class="work-kicker">Read</span>
+              <span class="work-meta">
+                <span class="work-title">短編小説</span>
+                <span class="work-text">短い物語の置き場</span>
+              </span>
+            </a>
+
+            <a class="work-item card-link" href="#" data-category="look">
+              <span class="work-thumb work-thumb-photo" aria-hidden="true"></span>
+              <span class="work-kicker">Look</span>
+              <span class="work-meta">
+                <span class="work-title">Photo Gallery</span>
+                <span class="work-text">写真とビジュアル</span>
+              </span>
+            </a>
+
+            <a class="work-item card-link" href="#" data-category="read">
+              <span class="work-thumb work-thumb-book" aria-hidden="true"></span>
+              <span class="work-kicker">Read</span>
+              <span class="work-meta">
+                <span class="work-title">長編置き場</span>
+                <span class="work-text">連載と準備中の物語</span>
+              </span>
+            </a>
+
+            <a class="work-item card-link is-live" href="font-preview.html" data-category="tool">
+              <span class="work-thumb work-thumb-tool" aria-hidden="true"></span>
+              <span class="work-kicker">Tool</span>
+              <span class="work-meta">
+                <span class="work-title">Font Preview</span>
+                <span class="work-text">書体を試す簡易ツール</span>
+              </span>
+            </a>
+          </div>
+        </section>
+
+        <a
+          class="card card-link notes-card"
+          href="#"
+          aria-label="制作メモまたはnoteのページへ移動する"
+        >
+          <p class="label">Notes</p>
+          <h2 class="card-title">制作メモ</h2>
+          <span class="card-text">
+            創作、ゲーム制作、AI活用、Web制作について、たまに書いています。
+          </span>
+          <span class="cta">メモを見る <span aria-hidden="true">→</span></span>
+        </a>
+
+        <section class="card card-static about-card" aria-labelledby="about-title">
+          <p class="label">About</p>
+          <h2 id="about-title">作っている人</h2>
+          <p class="card-body-text">
+            ゲーム、小説、写真などを作っています。
+          </p>
+          <p class="card-body-text">
+            構造を考えて、小さく作って、公開するのが好きです。
+          </p>
+        </section>
+
+        <section class="card card-static links-card" aria-labelledby="links-title">
+          <p class="label">Links</p>
+          <h2 id="links-title">外部リンク</h2>
+          <p class="card-body-text">GitHub / note / 小説投稿サイト / SNS など。</p>
+          <nav class="link-list" aria-label="外部リンク">
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="GitHubを新しいタブで開く">GitHub</a>
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="noteを新しいタブで開く">note</a>
+            <a href="https://x.com/yukinooooooosan" target="_blank" rel="noopener noreferrer" aria-label="Xを新しいタブで開く">X</a>
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="カクヨムを新しいタブで開く">カクヨム</a>
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="野いちごを新しいタブで開く">野いちご</a>
+            <a href="#" target="_blank" rel="noopener noreferrer" aria-label="QuizShootを新しいタブで開く">QuizShoot</a>
+          </nav>
+        </section>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
