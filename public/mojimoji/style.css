@@ -128,6 +128,7 @@ header h1 {
     cursor: pointer;
     box-shadow: 0 4px 0 #ccc;
     transition: all 0.1s;
+    -webkit-user-select: none;
     user-select: none;
 }
 
