@@ -310,7 +310,7 @@ h2,
 
 .work-list {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -412,6 +412,12 @@ h2,
 .work-thumb-game {
   background:
     url("assets/work-mojimoji-bg.jpg") center 42% / cover no-repeat,
+    var(--color-paper-warm);
+}
+
+.work-thumb-wolffac {
+  background:
+    url("assets/work-wolffac-bg.png") center / cover no-repeat,
     var(--color-paper-warm);
 }
 
