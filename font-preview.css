@@ -54,6 +54,12 @@ body {
   line-height: 1.8;
 }
 
+.preview-header-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+
 .preview-header a {
   color: var(--color-text);
   font-weight: 800;

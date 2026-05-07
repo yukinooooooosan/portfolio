@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>使い方 — Font Pairing Preview</title>
+    <link rel="stylesheet" href="font-preview.css">
+    <style>
+      .manual-shell {
+        width: min(820px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 48px 0 80px;
+      }
+
+      .manual-header {
+        margin-bottom: 48px;
+      }
+
+      .manual-header h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2rem, 5vw, 3.6rem);
+        line-height: 1.08;
+      }
+
+      .manual-header p {
+        max-width: 620px;
+        margin: 0 0 18px;
+        color: var(--color-muted);
+        line-height: 1.8;
+      }
+
+      .manual-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 48px;
+        padding: 18px 20px;
+        border: 1px solid var(--color-border);
+        border-radius: 18px;
+        background: rgba(255, 253, 248, 0.6);
+      }
+
+      .manual-nav a {
+        padding: 6px 14px;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        background: var(--color-card);
+        color: var(--color-text);
+        font-size: 0.88rem;
+        font-weight: 800;
+        text-decoration: none;
+        transition: border-color 160ms ease, background-color 160ms ease;
+      }
+
+      .manual-nav a:hover {
+        border-color: rgba(123, 97, 255, 0.42);
+        background: #f2ecff;
+        color: var(--color-accent);
+      }
+
+      .manual-section {
+        margin-bottom: 48px;
+      }
+
+      .manual-section-title {
+        margin: 0 0 6px;
+        color: var(--color-accent);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .manual-section h2 {
+        margin: 0 0 20px;
+        font-size: 1.5rem;
+        line-height: 1.2;
+        border-bottom: 2px solid var(--color-border);
+        padding-bottom: 12px;
+      }
+
+      .manual-section h3 {
+        margin: 28px 0 10px;
+        font-size: 1.05rem;
+      }
+
+      .manual-section p {
+        margin: 0 0 14px;
+        line-height: 1.85;
+        color: var(--color-text);
+      }
+
+      .manual-section ul,
+      .manual-section ol {
+        margin: 0 0 14px;
+        padding-left: 1.4em;
+        line-height: 1.85;
+      }
+
+      .manual-section li {
+        margin-bottom: 6px;
+      }
+
+      .manual-section li:last-child {
+        margin-bottom: 0;
+      }
+
+      .item-card {
+        margin-bottom: 12px;
+        padding: 16px 18px;
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        background: rgba(255, 253, 248, 0.6);
+      }
+
+      .item-card-title {
+        margin: 0 0 6px;
+        font-size: 0.95rem;
+        font-weight: 800;
+      }
+
+      .item-card p {
+        margin: 0;
+        font-size: 0.94rem;
+        color: var(--color-muted);
+        line-height: 1.75;
+      }
+
+      .shortcut-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.94rem;
+      }
+
+      .shortcut-table th,
+      .shortcut-table td {
+        padding: 10px 14px;
+        border: 1px solid var(--color-border);
+        text-align: left;
+        line-height: 1.6;
+      }
+
+      .shortcut-table th {
+        background: rgba(255, 253, 248, 0.6);
+        font-weight: 800;
+        font-size: 0.82rem;
+        letter-spacing: 0.06em;
+        color: var(--color-muted);
+      }
+
+      .shortcut-table tr:nth-child(even) td {
+        background: rgba(246, 240, 230, 0.3);
+      }
+
+      kbd {
+        display: inline-block;
+        padding: 2px 8px;
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        background: var(--color-card);
+        font-family: "SF Mono", Menlo, Consolas, monospace;
+        font-size: 0.82em;
+        font-weight: 800;
+        box-shadow: 0 1px 3px rgba(47, 42, 36, 0.1);
+      }
+
+      .chip-example {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+
+      .chip-en {
+        border-color: rgba(123, 97, 255, 0.32);
+        background: rgba(242, 236, 255, 0.78);
+        color: #5540c7;
+      }
+
+      .chip-ja {
+        border-color: rgba(217, 142, 76, 0.34);
+        background: rgba(255, 244, 232, 0.86);
+        color: #8f5520;
+      }
+
+      .callout {
+        margin: 18px 0;
+        padding: 14px 18px;
+        border-left: 3px solid var(--color-accent);
+        border-radius: 0 12px 12px 0;
+        background: rgba(242, 236, 255, 0.5);
+        color: var(--color-text);
+        font-size: 0.94rem;
+        line-height: 1.8;
+      }
+
+      .manual-back {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 28px;
+      }
+
+      .manual-back a {
+        color: var(--color-text);
+        font-weight: 800;
+        text-decoration-color: var(--color-accent);
+        text-decoration-thickness: 2px;
+        text-underline-offset: 5px;
+      }
+
+      @media (max-width: 640px) {
+        .manual-shell {
+          width: min(100% - 24px, 100%);
+          padding: 24px 0 60px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="manual-shell">
+      <header class="manual-header">
+        <p class="eyebrow">Manual</p>
+        <h1>Font Pairing Preview<br>使い方</h1>
+        <p>英字フォントと日本語フォントの組み合わせを確認・比較するツールです。このページでは各コントロールの意味と操作方法を説明します。</p>
+        <nav class="manual-back" aria-label="ページナビ">
+          <a href="font-preview.html">← Font Pairing Preview に戻る</a>
+          <a href="index.html">トップへ戻る</a>
+        </nav>
+      </header>
+
+      <nav class="manual-nav" aria-label="目次">
+        <a href="#overview">概要</a>
+        <a href="#input">入力</a>
+        <a href="#color">色設定</a>
+        <a href="#font-en">英語系フォント</a>
+        <a href="#font-jp">フォールバック系フォント</a>
+        <a href="#compare">比較操作</a>
+        <a href="#kept">Keepした候補</a>
+        <a href="#candidates">候補一覧</a>
+        <a href="#shortcuts">キーボードショートカット</a>
+      </nav>
+
+      <!-- 概要 -->
+      <section class="manual-section" id="overview">
+        <p class="manual-section-title">Section 01</p>
+        <h2>概要</h2>
+        <p>
+          日本語テキストには英字フォントがそのまま使えないことがほとんどです。このツールでは、英字部分と日本語部分にそれぞれ別のフォントを指定し、混在テキストでの見た目を一覧・比較できます。
+        </p>
+        <h3>ページの構成</h3>
+        <ul>
+          <li><strong>コントロールパネル</strong> — フォント・色・表示文字列を調整する操作エリア</li>
+          <li><strong>ライブプレビューカード</strong> — 現在の設定を反映してリアルタイムで更新されるプレビュー</li>
+          <li><strong>Keepした候補</strong> — 気になった組み合わせをピン留めして比較するエリア</li>
+          <li><strong>候補一覧</strong> — フィルター条件に一致する全フォントのカード一覧</li>
+        </ul>
+        <h3>文字の塗り分けについて</h3>
+        <p>
+          表示文字列はひらがな・カタカナ・漢字・一部記号を「日本語」、それ以外を「英字」として1文字ずつ判定し、それぞれ別のフォントで描画します。
+          「下線表示」をオンにすると、<span class="chip-example chip-en">EN 英字部分（紫）</span> と <span class="chip-example chip-ja">JA 日本語部分（オレンジ）</span> の割り当てが色で確認できます。
+        </p>
+      </section>
+
+      <!-- 入力 -->
+      <section class="manual-section" id="input">
+        <p class="manual-section-title">Section 02</p>
+        <h2>入力</h2>
+        <div class="item-card">
+          <p class="item-card-title">表示文字列</p>
+          <p>プレビューと候補一覧に表示するテキストを自由に入力できます。日本語と英字が混在する文章にすると、フォントの組み合わせ具合が確認しやすくなります。空欄にすると「これはTestです。」にフォールバックします。</p>
+        </div>
+      </section>
+
+      <!-- 色設定 -->
+      <section class="manual-section" id="color">
+        <p class="manual-section-title">Section 03</p>
+        <h2>色設定</h2>
+        <div class="item-card">
+          <p class="item-card-title">文字色 / カード背景 / ページ背景</p>
+          <p>カラーピッカーで文字色・カード背景色・ページ背景色を個別に変更できます。ブランドカラーや実際の使用環境に合わせて調整することで、より実践的なフォント比較ができます。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">デフォルト登録 / デフォルト読み込み</p>
+          <p>「デフォルト登録」を押すと、現在の3色をお気に入りとして記憶します。「デフォルト読み込み」で登録した色に戻せます。登録した色はスウォッチ（小さな色見本の丸）で確認できます。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">Clear</p>
+          <p>文字色を黒、カード・ページ背景を白にリセットします。</p>
+        </div>
+      </section>
+
+      <!-- 英語系フォント -->
+      <section class="manual-section" id="font-en">
+        <p class="manual-section-title">Section 04</p>
+        <h2>英語系フォント</h2>
+        <p>英字部分（ラテン文字など）に適用するフォントを設定します。</p>
+        <div class="item-card">
+          <p class="item-card-title">文字対応</p>
+          <p>フォントリストを絞り込みます。<br>
+          「All」— 全フォント表示<br>
+          「英語オンリー」— 日本語グリフを持たないラテン系フォントのみ<br>
+          「日本語+英語」— 日本語グリフも内包するフォントのみ（この場合フォールバックなしで使えます）</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">カテゴリ</p>
+          <p>「System Fonts」— macOS / Windows にプリインストールされているフォント<br>
+          「Google Fonts Recommended」— Google Fontsから読み込む厳選フォント<br>
+          「All」— 両方</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">表示フォント</p>
+          <p>現在のフィルター条件に一致するフォントの一覧です。選択するとライブプレビューとフォント候補一覧が更新されます。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">太さ</p>
+          <p>選択中のフォントが持つウェイト（400・600・700 など）を選択します。フォントによって選択肢が変わります。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">スタイル</p>
+          <p>「Normal」または「Italic」を選択します。フォントにItalicの実体がない場合は「Italic（擬似）」と表示され、ブラウザの変換で斜体になります（実体italicとは字形が異なります）。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">英字サイズ%</p>
+          <p>英字部分のフォントサイズを親要素比のパーセントで指定します。日本語フォントとのスケール感を揃えるために調整します。初期値は 100%。</p>
+        </div>
+      </section>
+
+      <!-- フォールバック系フォント -->
+      <section class="manual-section" id="font-jp">
+        <p class="manual-section-title">Section 05</p>
+        <h2>フォールバック系フォント</h2>
+        <p>日本語部分に適用するフォントを設定します。「フォールバック」と呼ぶのは、英字フォントが日本語グリフを持たない場合にここで指定したフォントが代わりに表示されるためです。</p>
+        <div class="item-card">
+          <p class="item-card-title">フォールバックフォント</p>
+          <p>日本語グリフに使うフォントを選択します。System Japanese Sans / Serif のほか、Shippori Mincho・Noto Serif JP などのGoogle Fontsも選択できます。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">英字に合わせる（トグル）</p>
+          <p>オンにすると、選択中の英字フォントが日本語グリフも持つ場合（「日本語+英語」フォント）は英字と同じフォントを日本語にも使い、フォールバックフォントの指定を無視します。英字フォントが日本語非対応の場合は自動的にフォールバックフォントが使われます。ロールストリップの「JA」チップに状態が表示されます。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">太さ / スタイル</p>
+          <p>日本語フォント側のウェイトとスタイルを英字から独立して設定できます。日本語フォントの多くはItalicの実体を持たないため「Italic（擬似）」と表示されます。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">日本語サイズ%</p>
+          <p>日本語部分のフォントサイズを親要素比のパーセントで指定します。英字フォントのxハイトに合わせてスケールを調整します。初期値は 42%。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">下線表示（トグル）</p>
+          <p>オンにすると、英字部分に紫の下線・日本語部分にオレンジの下線が表示され、文字ごとのフォント割り当てを視覚的に確認できます。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">句読点は日本語（トグル）</p>
+          <p>オンにすると、全角句読点（。、！？など）を日本語文字として扱い、フォールバックフォントを適用します。オフにすると英字フォント側で描画されます。</p>
+        </div>
+      </section>
+
+      <!-- 比較操作 -->
+      <section class="manual-section" id="compare">
+        <p class="manual-section-title">Section 06</p>
+        <h2>比較操作</h2>
+        <div class="item-card">
+          <p class="item-card-title">戻る ← / 次へ →</p>
+          <p>現在のフィルター条件に一致するフォントリストを前後に移動します。「操作対象」で英字・日本語を切り替えることで、どちらのフォントを送るかを選べます。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">Keep Space</p>
+          <p>現在のプレビューの状態（英字フォント・日本語フォント・色・サイズすべて）をスナップショットとして「Keepした候補」エリアに保存します。同一の組み合わせは重複して追加されません。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">操作対象（英字 / 日本語）</p>
+          <p>「戻る/次へ」ボタンおよびキーボードの矢印キーが操作するフォントを選択します。<br>
+          「英字」— 英字フォントのみを切り替え<br>
+          「日本語」— 日本語フォールバックフォントのみを切り替え<br>
+          どちらも未選択の状態では両方を同時に切り替えます。</p>
+        </div>
+        <div class="callout">
+          <strong>Tip:</strong> 操作対象を「英字」に固定してフォントを送りながら、気になったところで日本語側を手動で変えると、ペアの組み合わせを効率的に探せます。
+        </div>
+        <h3>右Shift: 一括Italic</h3>
+        <p>右Shiftキーを押すと、英字・日本語の両スタイルを Normal ↔ Italic で一括切り替えします。Italicの比較に便利です（フォールバックフォントはItalic非対応のものが多いため「擬似Italic」になります）。</p>
+      </section>
+
+      <!-- Keepした候補 -->
+      <section class="manual-section" id="kept">
+        <p class="manual-section-title">Section 07</p>
+        <h2>Keepした候補</h2>
+        <p>Keepしたカードが横2列で並びます。カードをクリック（またはEnter/Space）すると、その設定をライブプレビューに呼び出せます。</p>
+        <div class="item-card">
+          <p class="item-card-title">CSSをコピー</p>
+          <p>英字・日本語フォントの font-family / font-weight / font-style / font-size と、色設定をまとめたCSSスニペットをクリップボードにコピーします。コピー後 1.6秒ほど「コピー済み」と表示されます。</p>
+        </div>
+        <div class="item-card">
+          <p class="item-card-title">削除ボタン（ゴミ箱アイコン）</p>
+          <p>カード右上のボタンでそのカードをKeptリストから削除します。</p>
+        </div>
+      </section>
+
+      <!-- 候補一覧 -->
+      <section class="manual-section" id="candidates">
+        <p class="manual-section-title">Section 08</p>
+        <h2>候補一覧</h2>
+        <p>現在のフィルター（文字対応・カテゴリ）に一致するすべてのフォントが2列グリッドで表示されます。カードをクリックするとそのフォントをライブプレビューに表示し、カード内の「Keep」ボタンでKeptリストに追加できます。表示文字列・色・サイズの変更はリアルタイムで全カードに反映されます。</p>
+      </section>
+
+      <!-- キーボードショートカット -->
+      <section class="manual-section" id="shortcuts">
+        <p class="manual-section-title">Section 09</p>
+        <h2>キーボードショートカット</h2>
+        <p>テキスト入力・セレクト・ボタンにフォーカスがある間はショートカットは無効になります。</p>
+        <table class="shortcut-table">
+          <thead>
+            <tr>
+              <th>キー</th>
+              <th>動作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><kbd>←</kbd> ArrowLeft</td>
+              <td>操作対象のフォントを前へ</td>
+            </tr>
+            <tr>
+              <td><kbd>→</kbd> ArrowRight</td>
+              <td>操作対象のフォントを次へ</td>
+            </tr>
+            <tr>
+              <td><kbd>Space</kbd></td>
+              <td>現在のプレビューをKeep</td>
+            </tr>
+            <tr>
+              <td><kbd>Right Shift</kbd></td>
+              <td>英字・日本語を一括でItalic切り替え</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <nav class="manual-back" aria-label="フッターナビ">
+        <a href="font-preview.html">← Font Pairing Preview に戻る</a>
+        <a href="index.html">トップへ戻る</a>
+      </nav>
+    </main>
+  </body>
+</html>
