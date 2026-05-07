@@ -87,12 +87,12 @@ a {
 
 .site-portrait {
   position: relative;
-  width: min(100%, 320px);
+  width: min(100%, 300px);
   aspect-ratio: 1;
   justify-self: end;
   align-self: center;
   min-height: 0;
-  transform: translateY(-22px);
+  transform: translateY(-6px);
   pointer-events: none;
 }
 
@@ -113,23 +113,23 @@ a {
   inset: 0;
   overflow: hidden;
   background: transparent;
-  mask-image: radial-gradient(ellipse at 58% 44%,
-    #000 46%,
-    rgba(0, 0, 0, 0.78) 58%,
-    rgba(0, 0, 0, 0.24) 70%,
-    transparent 82%);
-  -webkit-mask-image: radial-gradient(ellipse at 58% 44%,
-    #000 46%,
-    rgba(0, 0, 0, 0.78) 58%,
-    rgba(0, 0, 0, 0.24) 70%,
-    transparent 82%);
+  mask-image: radial-gradient(ellipse at 55% 48%,
+    #000 48%,
+    rgba(0, 0, 0, 0.8) 60%,
+    rgba(0, 0, 0, 0.25) 72%,
+    transparent 84%);
+  -webkit-mask-image: radial-gradient(ellipse at 55% 48%,
+    #000 48%,
+    rgba(0, 0, 0, 0.8) 60%,
+    rgba(0, 0, 0, 0.25) 72%,
+    transparent 84%);
 }
 
 .site-portrait-mask img {
   position: absolute;
-  right: -6px;
-  bottom: -154px;
-  width: 100%;
+  right: 2px;
+  bottom: -116px;
+  width: 96%;
   max-height: none;
   object-fit: contain;
   object-position: bottom right;
@@ -623,16 +623,17 @@ h2,
   }
 
   .site-portrait {
-    width: min(72vw, 290px);
+    width: min(68vw, 270px);
     min-height: 0;
     overflow: hidden;
-    transform: translateY(-8px);
+    justify-self: center;
+    transform: translateY(-4px);
   }
 
   .site-portrait-mask img {
-    right: -4px;
-    bottom: -138px;
-    width: 100%;
+    right: 0;
+    bottom: -106px;
+    width: 96%;
     max-height: none;
   }
 
@@ -694,15 +695,15 @@ h2,
   }
 
   .site-portrait {
-    width: min(78vw, 240px);
+    width: min(70vw, 220px);
     min-height: 0;
     transform: translateY(0);
   }
 
   .site-portrait-mask img {
-    width: 100%;
-    right: -2px;
-    bottom: -118px;
+    width: 96%;
+    right: 0;
+    bottom: -88px;
   }
 }
 
