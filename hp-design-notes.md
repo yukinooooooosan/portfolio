@@ -4,7 +4,7 @@
 
 - サイト名: `Yukino's Folio`
 - 本番URL: `https://portfolio-dwx.pages.dev`
-- GitHub Pages標準URL候補: `https://yukinooooooosan.github.io/portfolio/`
+- GitHub Pages URL: `https://yukinooooooosan.github.io/portfolio/`
 - GitHubリポジトリ: `https://github.com/yukinooooooosan/portfolio`
 - ローカル確認ファイル: `/Users/yukino/Desktop/mypofile/public/index.html`
 - 公開ディレクトリ: `public/`
@@ -30,7 +30,7 @@
 
 今後確認したいこと:
 
-- GitHub Pages標準URLも使い続けるのか。
+- GitHub PagesはGitHub Actionsで `public/` を公開する。
 - Cloudflare Pagesを本番公開先として固定するのか。
 - 独自ドメインをCloudflare DNSで管理しているのか。
 - 独自ドメインを使う場合、`CNAME` ファイルが必要か。
