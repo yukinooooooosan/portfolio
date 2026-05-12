@@ -70,18 +70,44 @@ a {
 
 .site-header {
   width: 100%;
-  min-height: 0;
+  min-height: 168px;
   display: grid;
   grid-template-columns: 1fr;
   align-items: end;
   gap: 0;
   position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: -28px -36px -16px;
+  z-index: 0;
+  background:
+    linear-gradient(90deg, rgba(1, 1, 2, 0.92), rgba(1, 1, 2, 0.42) 48%, rgba(1, 1, 2, 0.88)),
+    linear-gradient(180deg, rgba(1, 1, 2, 0.48), rgba(1, 1, 2, 0.9)),
+    url("assets/header-water.jpeg") center 48% / cover no-repeat;
+  filter: saturate(0.62) contrast(0.82) brightness(0.72);
+  opacity: 0.48;
+}
+
+.site-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 30% 56%, rgba(185, 167, 255, 0.16), transparent 48%),
+    linear-gradient(180deg, transparent 42%, rgba(1, 1, 2, 0.82));
 }
 
 .site-header-copy {
   position: relative;
   z-index: 1;
-  padding: 8px 0 6px;
+  padding: 44px 0 24px;
   align-self: center;
 }
 
@@ -608,13 +634,13 @@ h2,
   }
 
   .site-header {
-    min-height: auto;
+    min-height: 146px;
     grid-template-columns: 1fr;
     gap: 10px;
   }
 
   .site-header-copy {
-    padding: 0;
+    padding: 34px 0 20px;
   }
 
   .workbench-grid {
@@ -650,6 +676,23 @@ h2,
   .card {
     padding: 22px;
     border-radius: 20px;
+  }
+
+  .site-header {
+    min-height: 132px;
+    border-radius: 20px;
+  }
+
+  .site-header::before {
+    inset: -18px -24px -14px;
+    background:
+      linear-gradient(90deg, rgba(1, 1, 2, 0.9), rgba(1, 1, 2, 0.48) 54%, rgba(1, 1, 2, 0.86)),
+      linear-gradient(180deg, rgba(1, 1, 2, 0.52), rgba(1, 1, 2, 0.9)),
+      url("assets/header-water.jpeg") center 50% / cover no-repeat;
+  }
+
+  .site-header-copy {
+    padding: 28px 0 18px;
   }
 
   .work-list {
