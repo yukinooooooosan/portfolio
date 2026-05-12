@@ -413,13 +413,13 @@ h2,
 
 .work-thumb-wolffac {
   background:
-    url("assets/work-ookami-factory-bg.png") center / cover no-repeat,
+    url("assets/work-ookami-factory-bg.jpg") center / cover no-repeat,
     var(--color-paper-warm);
 }
 
 .work-thumb-chara-baton {
   background:
-    url("assets/work-chara-baton-bg.png") center / cover no-repeat,
+    url("assets/work-chara-baton-bg.jpg") center 38% / cover no-repeat,
     var(--color-paper-warm);
 }
 
