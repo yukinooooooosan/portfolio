@@ -417,6 +417,12 @@ h2,
     var(--color-paper-warm);
 }
 
+.work-thumb-chara-baton {
+  background:
+    url("assets/work-chara-baton-bg.png") center / cover no-repeat,
+    var(--color-paper-warm);
+}
+
 .work-thumb-story {
   background:
     linear-gradient(90deg, rgba(123, 97, 255, 0.24) 0 18%, transparent 18%),
