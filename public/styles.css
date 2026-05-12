@@ -86,9 +86,10 @@ a {
   inset: -28px -36px -16px;
   z-index: 0;
   background:
-    linear-gradient(90deg, rgba(1, 1, 2, 0.92), rgba(1, 1, 2, 0.42) 48%, rgba(1, 1, 2, 0.88)),
-    linear-gradient(180deg, rgba(1, 1, 2, 0.48), rgba(1, 1, 2, 0.9)),
-    url("assets/header-water.jpeg") center 48% / cover no-repeat;
+    radial-gradient(ellipse at 64% 24%, rgba(1, 1, 2, 0.08), rgba(1, 1, 2, 0.62) 52%, rgba(1, 1, 2, 0.96) 84%),
+    linear-gradient(90deg, rgba(1, 1, 2, 0.96), rgba(1, 1, 2, 0.46) 52%, rgba(1, 1, 2, 0.92)),
+    linear-gradient(180deg, rgba(1, 1, 2, 0.58), rgba(1, 1, 2, 0.94)),
+    url("assets/header-water.jpeg") 68% 44% / cover no-repeat;
   filter: saturate(0.62) contrast(0.82) brightness(0.72);
   opacity: 0.48;
 }
@@ -100,8 +101,9 @@ a {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 30% 56%, rgba(185, 167, 255, 0.16), transparent 48%),
-    linear-gradient(180deg, transparent 42%, rgba(1, 1, 2, 0.82));
+    radial-gradient(ellipse at 65% 28%, rgba(255, 250, 242, 0.1), transparent 30%),
+    radial-gradient(ellipse at 50% 50%, transparent 34%, rgba(1, 1, 2, 0.72) 78%),
+    linear-gradient(180deg, transparent 32%, rgba(1, 1, 2, 0.86));
 }
 
 .site-header-copy {
@@ -686,9 +688,10 @@ h2,
   .site-header::before {
     inset: -18px -24px -14px;
     background:
-      linear-gradient(90deg, rgba(1, 1, 2, 0.9), rgba(1, 1, 2, 0.48) 54%, rgba(1, 1, 2, 0.86)),
-      linear-gradient(180deg, rgba(1, 1, 2, 0.52), rgba(1, 1, 2, 0.9)),
-      url("assets/header-water.jpeg") center 50% / cover no-repeat;
+      radial-gradient(ellipse at 68% 24%, rgba(1, 1, 2, 0.12), rgba(1, 1, 2, 0.64) 52%, rgba(1, 1, 2, 0.96) 84%),
+      linear-gradient(90deg, rgba(1, 1, 2, 0.94), rgba(1, 1, 2, 0.48) 56%, rgba(1, 1, 2, 0.9)),
+      linear-gradient(180deg, rgba(1, 1, 2, 0.58), rgba(1, 1, 2, 0.92)),
+      url("assets/header-water.jpeg") 72% 48% / cover no-repeat;
   }
 
   .site-header-copy {
