@@ -468,9 +468,9 @@ h2,
 .work-kicker {
   position: absolute;
   z-index: 2;
-  top: 10px;
-  left: 10px;
-  max-width: calc(100% - 20px);
+  top: 8px;
+  left: 8px;
+  max-width: calc(100% - 16px);
   min-height: 28px;
   padding: 6px 9px;
   display: inline-flex;
