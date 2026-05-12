@@ -673,7 +673,7 @@ h2,
   .site-header::before {
     inset: 0;
     background:
-      url("assets/header-waterv3.jpg") center / cover no-repeat;
+      url("assets/header-waterv3.jpg") right center / cover no-repeat;
   }
 
   .site-header-copy {
