@@ -105,7 +105,7 @@ a {
 .site-header-copy {
   position: relative;
   z-index: 1;
-  padding: 44px 0 24px;
+  padding: 44px 0 24px 48px;
   align-self: center;
 }
 
@@ -638,7 +638,7 @@ h2,
   }
 
   .site-header-copy {
-    padding: 34px 0 20px;
+    padding: 34px 0 20px 32px;
   }
 
   .workbench-grid {
@@ -689,7 +689,7 @@ h2,
   }
 
   .site-header-copy {
-    padding: 28px 0 18px;
+    padding: 28px 0 18px 20px;
   }
 
   .work-list {
