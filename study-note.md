@@ -292,7 +292,8 @@ Webページに動きや操作を加えるための言語。
 このHPでは:
 
 - `public/index.html` がサイトのトップ。
-- `public/mojimoji/index.html` はMojimojiページのトップ。
+- `apps/mojimoji/index.html` はMojimojiアプリのトップ。
+- `apps/font-preview/index.html` はFont Previewアプリのトップ。
 
 ### アセット
 

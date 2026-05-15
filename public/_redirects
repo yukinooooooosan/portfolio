@@ -1,0 +1,6 @@
+/mojimoji https://mojimoji.yukinooooooosan.cc/ 301
+/mojimoji/* https://mojimoji.yukinooooooosan.cc/:splat 301
+/font-preview https://font-preview.yukinooooooosan.cc/ 301
+/font-preview/ https://font-preview.yukinooooooosan.cc/ 301
+/font-preview.html https://font-preview.yukinooooooosan.cc/ 301
+/font-preview-manual.html https://font-preview.yukinooooooosan.cc/manual.html 301
