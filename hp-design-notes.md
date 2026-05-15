@@ -3,6 +3,7 @@
 ## 概要
 
 - サイト名: `Yukino's Folio`
+- 本館URL: `https://yukinooooooosan.cc`
 - Cloudflare Pages URL: `https://portfolio-dwx.pages.dev`
 - GitHub Pages URL: `https://yukinooooooosan.github.io/portfolio/`
 - GitHubリポジトリ: `https://github.com/yukinooooooosan/portfolio`
@@ -70,12 +71,29 @@ GitHub Pagesの初回設定では、リポジトリの `Settings > Pages` で So
 
 Cloudflare Pagesも `public/` を公開ディレクトリとして配信する。
 
-- 公開URL: `https://portfolio-dwx.pages.dev`
+- 本館URL: `https://yukinooooooosan.cc`
+- Cloudflare Pages URL: `https://portfolio-dwx.pages.dev`
 - 出力ディレクトリ: `public`
 - ビルドコマンド: なし
 
 Cloudflare Pagesは指定した出力ディレクトリの中身を公開する仕組み。
 今回のような素のHTML/CSS/JSサイトでは、ビルドせずに `public/` をそのまま公開する構成にすると分かりやすい。
+
+### ドメイン運用
+
+本館は独自ドメイン `https://yukinooooooosan.cc` で公開する。
+Cloudflare Pages標準URL `https://portfolio-dwx.pages.dev` は内部的な配信元・予備URLとして扱う。
+
+展示作品は、独立性が高いものだけサブドメイン化する。
+
+- 本館: `https://yukinooooooosan.cc`
+- 創作キャラバトン: `https://chara-baton.yukinooooooosan.cc/`
+- オオカミ工場: `https://yukinooooooosan.github.io/wolffac/`
+- Mojimoji: `https://yukinooooooosan.cc/mojimoji/`
+- Font Preview: `https://yukinooooooosan.cc/font-preview.html`
+
+`chara-baton` は別のCloudflare Pagesプロジェクトなので、サブドメインで独立させる。
+`Mojimoji` と `Font Preview` は現時点では本館リポジトリ内の作品として、パス配下に置く。
 
 ## 目的
 
@@ -306,7 +324,7 @@ open /Users/yukino/Desktop/mypofile/public/index.html
 
 公開URLで確認する場合:
 
-- `https://portfolio-dwx.pages.dev`
+- `https://yukinooooooosan.cc`
 - `https://yukinooooooosan.github.io/portfolio/`
 
 確認する観点:
