@@ -18,12 +18,18 @@
 - `apps/mojimoji/index.html`
 - `apps/font-preview/index.html`
 - `apps/font-preview/manual.html`
+- `apps/nomi-party/index.html`
+
+関連メモ:
+
+- `nomi-party-notes.md`
 
 ## 公開構成
 
 このHPは、ビルドツールなしの静的サイト。
 本館は `public/` 配下のHTML、CSS、JavaScript、画像をそのまま公開する。
-独立アプリは `apps/` 配下に切り出し、Cloudflare Pages側でアプリごとに公開ディレクトリを変える。
+軽量な独立アプリは `apps/` 配下に切り出し、Cloudflare Pages側でアプリごとに公開ディレクトリを変える。
+DB、API、認証、重い依存関係、専用CIなどが必要な重めのアプリは、このリポジトリに同居させず、リポジトリごと分離する。
 
 主な公開対象:
 
@@ -33,7 +39,7 @@
 - `public/_redirects`
 - `public/assets/` 配下の画像、SVGなど
 
-独立アプリ:
+このリポジトリ内の軽量アプリ:
 
 - `apps/mojimoji/index.html`
 - `apps/mojimoji/style.css`
@@ -42,11 +48,23 @@
 - `apps/font-preview/manual.html`
 - `apps/font-preview/font-preview.css`
 - `apps/font-preview/font-preview.js`
+- `apps/nomi-party/index.html`
+- `apps/nomi-party/style.css`
+
+このリポジトリ外の独立アプリ:
+
+- `chara-baton`
+  - 公開URL: `https://chara-baton.yukinooooooosan.cc/`
+  - 管理方針: 重めの独立アプリとして、別リポジトリ・別Cloudflare Pagesプロジェクトで管理する。
+- `wolffac`
+  - 公開URL: `https://yukinooooooosan.github.io/wolffac/`
+  - 管理方針: 別リポジトリのGitHub Pagesで公開する。
 
 注意:
 
 - 新しいHTML、CSS、JS、画像を公開したい場合は `public/` 配下に置く。
-- 独立アプリとして公開したい場合は `apps/` 配下に置き、Cloudflare Pagesの公開ディレクトリをアプリのフォルダにする。
+- 軽量な独立アプリとして公開したい場合は `apps/` 配下に置き、Cloudflare Pagesの公開ディレクトリをアプリのフォルダにする。
+- 重めのアプリは `apps/` に置かず、別リポジトリ・別Cloudflare Pagesプロジェクトとして管理する。
 - `.git/`、`.gitignore`、ルート直下のメモ類は公開用ファイルとして扱わない。
 - Cloudflare Pages と GitHub Pages の両方で、公開対象は `public/` の中身に揃える。
 
@@ -97,9 +115,10 @@ Cloudflare Pages標準URL `https://portfolio-dwx.pages.dev` は内部的な配�
 - オオカミ工場: `https://yukinooooooosan.github.io/wolffac/`
 - Mojimoji: `https://mojimoji.yukinooooooosan.cc/`
 - Font Preview: `https://font-preview.yukinooooooosan.cc/`
+- 夜のまわしスマホ: `https://nomi-party.yukinooooooosan.cc/`
 
-`chara-baton` は別のCloudflare Pagesプロジェクトなので、サブドメインで独立させる。
-`Mojimoji` と `Font Preview` は同じGitHubリポジトリ内の `apps/` 配下に切り出し、Cloudflare Pagesプロジェクトを分けてサブドメインで公開する。
+`chara-baton` は重めの独立アプリなので、別リポジトリ・別Cloudflare Pagesプロジェクトとしてサブドメインで独立させる。
+`Mojimoji`、`Font Preview`、`夜のまわしスマホ` は軽量な独立アプリなので、同じGitHubリポジトリ内の `apps/` 配下に切り出し、Cloudflare Pagesプロジェクトを分けてサブドメインで公開する。
 
 ## 目的
 

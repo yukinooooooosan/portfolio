@@ -13,7 +13,9 @@ HTML、CSS、JavaScript、画像などのファイルをそのまま配信する
 このHPでは:
 
 - ビルドツールを使わない静的サイトとして作っている。
-- `public/` 配下のファイルをそのまま公開する。
+- 本館は `public/` 配下のファイルをそのまま公開する。
+- 軽量な独立アプリは `apps/` 配下に切り出し、Cloudflare Pages側でアプリごとに公開ディレクトリを変える。
+- 重めのアプリは、このリポジトリに入れず、リポジトリごと分離して管理する。
 - トップページは `public/index.html`。
 
 ### `public/`
@@ -24,8 +26,25 @@ Webに公開するファイルをまとめるディレクトリ。
 このHPでは:
 
 - Cloudflare Pages と GitHub Pages の両方で公開対象にしている。
-- HTML、CSS、JavaScript、画像は基本的に `public/` 配下に置く。
+- 本館のHTML、CSS、JavaScript、画像は基本的に `public/` 配下に置く。
+- 軽量な独立アプリ本体は `apps/` 配下に置き、本館からは作品カードでリンクする。
+- 重めのアプリは別リポジトリで管理し、本館からは外部作品としてリンクする。
 - ルート直下の `hp-design-notes.md` や `study-note.md` は公開対象ではない。
+
+### `apps/`
+
+独立した小さなアプリや作品をまとめるディレクトリ。
+本館 `Yukino's Folio` とは別の公開単位として扱いたいものを置く。
+ただし、ここに置くのは軽量な静的アプリに限る。
+
+このHPでは:
+
+- `apps/mojimoji/` はMojimojiアプリ。
+- `apps/font-preview/` はFont Previewアプリ。
+- `apps/nomi-party/` は飲み会向けパーティゲーム集。
+- Cloudflare Pages側でアプリごとに公開ディレクトリを指定し、必要に応じてサブドメインで公開する。
+- GitHub Pagesの本館デプロイでは `apps/` は公開対象に含めない。
+- DB、API、認証、重い依存関係、専用CIなどが必要なアプリは `apps/` に置かず、別リポジトリで管理する。
 
 ### トップページ
 
@@ -35,7 +54,8 @@ Webサイトにアクセスしたとき最初に表示されるページ。
 このHPでは:
 
 - `public/index.html` がトップページ。
-- `Yukino's Folio` のタイトル、作品カード、制作メモ、About、外部リンクを置いている。
+- `Yukino's Folio` のタイトル、作品カード、About、外部リンクを置いている。
+- 独立アプリへの入口も作品カードとして置く。
 
 ## Git / GitHub
 
@@ -71,6 +91,8 @@ Gitで変更内容をひとまとまりとして記録すること。
 - `main` にpushするとGitHub Actionsが自動で動く。
 - GitHub Pagesに `public/` の内容が反映される。
 - Cloudflare Pages側もGitHub連携により反映される構成。
+- 軽量な独立アプリはCloudflare Pages側で公開ディレクトリを `apps/mojimoji` や `apps/nomi-party` のように指定する。
+- 重めのアプリは別リポジトリで管理し、そのリポジトリ側のデプロイ設定を使う。
 
 ### リポジトリ
 
@@ -102,6 +124,8 @@ Gitリポジトリの中心になるブランチ。
 
 - `public/` の中身をGitHub PagesとCloudflare Pagesへデプロイしている。
 - GitHub PagesはGitHub Actionsで自動デプロイする。
+- 軽量な独立アプリはCloudflare Pagesのプロジェクトを分け、`apps/` 配下の各ディレクトリを公開対象にする。
+- 重めのアプリは別リポジトリ・別Cloudflare Pagesプロジェクトとしてデプロイする。
 
 ### GitHub Pages
 
@@ -167,6 +191,8 @@ GitHubリポジトリと連携し、指定したディレクトリを公開で�
 - Cloudflare Pages標準URLは `https://portfolio-dwx.pages.dev`。
 - 出力ディレクトリは `public`。
 - ビルドコマンドなしで配信する構成。
+- 軽量な独立アプリは別のCloudflare Pagesプロジェクトとして、`apps/` 配下のディレクトリを公開する。
+- 重めのアプリは、そのアプリ専用のリポジトリをCloudflare Pagesに接続する。
 
 ### 出力ディレクトリ
 
@@ -175,8 +201,11 @@ GitHubリポジトリと連携し、指定したディレクトリを公開で�
 
 このHPでは:
 
-- 出力ディレクトリは `public/`。
-- Cloudflare PagesもGitHub Pagesも `public/` の中身を公開する。
+- 本館の出力ディレクトリは `public/`。
+- GitHub Pagesは `public/` の中身を公開する。
+- Cloudflare Pagesの本館プロジェクトも `public/` を公開する。
+- 軽量アプリ用のCloudflare Pagesプロジェクトでは、`apps/mojimoji`、`apps/font-preview`、`apps/nomi-party` などを公開ディレクトリにする。
+- 重めのアプリ用のCloudflare Pagesプロジェクトでは、別リポジトリ側の公開ディレクトリやビルド設定を使う。
 
 ### ビルド
 
@@ -219,6 +248,8 @@ Webページやファイルの場所を示す住所のようなもの。
 - Cloudflare Pages URLは `https://portfolio-dwx.pages.dev`。
 - GitHub Pages URLは `https://yukinooooooosan.github.io/portfolio/`。
 - GitHubリポジトリURLは `https://github.com/yukinooooooosan/portfolio`。
+- 軽量な独立アプリは `https://mojimoji.yukinooooooosan.cc/` や `https://nomi-party.yukinooooooosan.cc/` のようなサブドメインで公開する。
+- 重めの独立アプリもサブドメインで公開できるが、リポジトリとデプロイ設定は分ける。
 
 ### ドメイン
 
@@ -231,6 +262,8 @@ Webサイトの住所として使う名前。
 - Cloudflare Pagesでは `portfolio-dwx.pages.dev` の下にも公開される。
 - 本館の独自ドメインとして `yukinooooooosan.cc` を使う。
 - 独立性が高い作品は、必要に応じて `chara-baton.yukinooooooosan.cc` のようなサブドメインにする。
+- 同じリポジトリ内の独立アプリも、Cloudflare Pagesプロジェクトを分けて `mojimoji.yukinooooooosan.cc`、`font-preview.yukinooooooosan.cc`、`nomi-party.yukinooooooosan.cc` のように公開する。
+- 重めの独立アプリは、サブドメインは同じように使いつつ、リポジトリとデプロイ設定を分ける。
 
 ### DNS
 
@@ -241,6 +274,8 @@ Webサイトの住所として使う名前。
 
 - `yukinooooooosan.cc` はCloudflare Pagesの本館に向ける。
 - `chara-baton.yukinooooooosan.cc` は別のCloudflare Pagesプロジェクト `chara-baton` に向ける。
+- `mojimoji.yukinooooooosan.cc`、`font-preview.yukinooooooosan.cc`、`nomi-party.yukinooooooosan.cc` は、このリポジトリ内の `apps/` 配下を公開する各Cloudflare Pagesプロジェクトに向ける。
+- 重めのアプリのサブドメインは、そのアプリ専用リポジトリに接続したCloudflare Pagesプロジェクトへ向ける。
 - Cloudflare Registrarで取得したドメインなので、Cloudflare内でDNSとPagesの連携を管理できる。
 
 ### CNAME
@@ -294,6 +329,7 @@ Webページに動きや操作を加えるための言語。
 - `public/index.html` がサイトのトップ。
 - `apps/mojimoji/index.html` はMojimojiアプリのトップ。
 - `apps/font-preview/index.html` はFont Previewアプリのトップ。
+- `apps/nomi-party/index.html` は飲み会向けパーティゲーム集のトップ。
 
 ### アセット
 
@@ -303,6 +339,8 @@ Webサイトで使う画像、フォント、SVG、音声などの素材ファ�
 
 - 画像やSVGは `public/assets/` に置いている。
 - `work-ookami-factory-bg.png`、`profile-cutout-nohand.png`、`kinari-fabric.svg` などがある。
+- 本館の作品カード画像は `public/assets/` に置く。
+- 独立アプリ専用の素材が増えた場合は、各アプリ配下に `assets/` を作ることもできる。
 
 ### CSS Grid
 
@@ -387,6 +425,7 @@ CSSで画面幅や環境に応じたスタイルを指定するための構文�
 - `Mojimoji`
 - `オオカミ工場`
 - `Font Preview`
+- `夜のまわしスマホ`
 
 などへの入口として使っている。
 
@@ -613,13 +652,30 @@ macOS標準の画像操作コマンド。
 
 ## 運用メモ
 
-### 新しいページを追加するとき
+### 本館に新しいページを追加するとき
 
 1. `public/` 配下にHTMLや関連ファイルを置く。
 2. トップページからリンクする。
 3. ローカルで表示を確認する。
 4. commitしてpushする。
 5. GitHub ActionsとCloudflare Pagesの反映を確認する。
+
+### 軽量な独立アプリを追加するとき
+
+1. `apps/` 配下にアプリ用ディレクトリを作る。
+2. `index.html`、CSS、JavaScriptなどをそのディレクトリ内に置く。
+3. 本館の `public/index.html` に作品カードを追加し、公開予定のサブドメインへリンクする。
+4. Cloudflare Pagesで、そのアプリディレクトリを公開ディレクトリにしたプロジェクトを作る。
+5. 必要に応じて `*.yukinooooooosan.cc` のサブドメインを割り当てる。
+6. ローカルと公開URLの両方で表示を確認する。
+
+### 重めの独立アプリを追加するとき
+
+1. このリポジトリの `apps/` には置かず、新しいリポジトリを作る。
+2. そのアプリに必要なビルド、API、DB、認証、環境変数、CIを専用リポジトリ側で管理する。
+3. Cloudflare Pagesなどの公開プロジェクトも、そのリポジトリに接続する。
+4. 本館の `public/index.html` には作品カードだけを追加し、公開URLへリンクする。
+5. 必要に応じて `*.yukinooooooosan.cc` のサブドメインを割り当てる。
 
 ### 新しい画像を追加するとき
 
