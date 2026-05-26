@@ -104,6 +104,7 @@ a {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-areas:
+    "spotlight spotlight"
     "exhibition exhibition"
     "notes notes"
     "about links";
@@ -155,6 +156,16 @@ a {
   grid-area: links;
 }
 
+.spotlight-card {
+  grid-area: spotlight;
+  min-height: 180px;
+  gap: 20px;
+  background:
+    linear-gradient(90deg, rgba(185, 167, 255, 0.12), transparent 58%),
+    linear-gradient(135deg, rgba(210, 98, 143, 0.08), transparent 42%),
+    var(--color-card);
+}
+
 .notes-card {
   grid-area: notes;
   min-height: 190px;
@@ -181,6 +192,7 @@ a {
 }
 
 .card-link:focus-visible,
+.spotlight-link:focus-visible,
 .link-list a:focus-visible,
 .filter-tab:focus-visible,
 .work-item:focus-visible,
@@ -301,6 +313,55 @@ h2,
   color: var(--color-muted);
   font-size: 0.95rem;
   line-height: 1.75;
+}
+
+.spotlight-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 18px;
+}
+
+.spotlight-text {
+  max-width: 720px;
+  margin-bottom: 0;
+  color: var(--color-text);
+  font-size: 1.02rem;
+  font-weight: 650;
+  line-height: 1.85;
+}
+
+.spotlight-link {
+  min-height: 48px;
+  padding: 11px 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-paper-warm);
+  color: var(--color-text);
+  font-size: 0.92rem;
+  font-weight: 750;
+  line-height: 1.35;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.spotlight-link:hover {
+  border-color: var(--color-accent-soft);
+  background: rgba(185, 167, 255, 0.18);
+  transform: translateY(-2px);
+}
+
+.spotlight-link span {
+  color: rgba(255, 250, 242, 0.68);
+}
+
+.spotlight-link strong {
+  color: var(--color-text);
+  font-weight: 850;
 }
 
 .filter-tabs {
@@ -702,6 +763,7 @@ h2,
   .workbench-grid {
     grid-template-columns: 1fr;
     grid-template-areas:
+      "spotlight"
       "exhibition"
       "notes"
       "about"
@@ -712,6 +774,7 @@ h2,
 
   .card,
   .card-wide,
+  .spotlight-card,
   .about-card,
   .links-card {
     grid-column: 1;
@@ -721,6 +784,18 @@ h2,
 
   .work-list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .spotlight-body {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .spotlight-link {
+    justify-content: center;
+    width: fit-content;
+    max-width: 100%;
+    white-space: normal;
   }
 }
 
