@@ -105,6 +105,7 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-areas:
     "exhibition exhibition"
+    "notes notes"
     "about links";
   grid-auto-rows: minmax(190px, auto);
   gap: 20px;
@@ -154,6 +155,16 @@ a {
   grid-area: links;
 }
 
+.notes-card {
+  grid-area: notes;
+  min-height: 190px;
+  gap: 22px;
+  background:
+    linear-gradient(90deg, rgba(210, 98, 143, 0.1), transparent 54%),
+    linear-gradient(145deg, rgba(185, 167, 255, 0.08), transparent 48%),
+    var(--color-card);
+}
+
 .card-link {
   text-decoration: none;
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
@@ -172,7 +183,8 @@ a {
 .card-link:focus-visible,
 .link-list a:focus-visible,
 .filter-tab:focus-visible,
-.work-item:focus-visible {
+.work-item:focus-visible,
+.note-link:focus-visible {
   outline: 3px solid rgba(185, 167, 255, 0.44);
   outline-offset: 4px;
 }
@@ -555,6 +567,58 @@ h2,
   transform: translateY(6px) scale(0.985);
 }
 
+.note-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.note-link {
+  min-width: 0;
+  min-height: 126px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(185, 167, 255, 0.28);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(255, 250, 242, 0.06), transparent 46%),
+    rgba(255, 249, 239, 0.045);
+  color: inherit;
+  box-shadow:
+    0 1px 0 rgba(255, 250, 242, 0.14) inset,
+    0 14px 24px rgba(0, 0, 0, 0.2);
+}
+
+.note-link:hover {
+  border-color: rgba(185, 167, 255, 0.72);
+}
+
+.note-kicker {
+  color: var(--color-accent);
+  font-size: 0.72rem;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.note-title {
+  margin-top: 16px;
+  color: #fffaf2;
+  font-size: 1.02rem;
+  line-height: 1.35;
+  font-weight: 850;
+}
+
+.note-text {
+  margin-top: 8px;
+  color: rgba(255, 250, 242, 0.72);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
 .about-card {
   justify-content: flex-start;
   gap: 2px;
@@ -643,6 +707,7 @@ h2,
     grid-template-columns: 1fr;
     grid-template-areas:
       "exhibition"
+      "notes"
       "about"
       "links";
     grid-auto-rows: auto;
@@ -660,6 +725,10 @@ h2,
 
   .work-list {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .note-list {
+    grid-template-columns: 1fr;
   }
 }
 
