@@ -262,7 +262,6 @@ h1 {
     0 2px 4px rgba(4, 3, 8, 0.92),
     0 7px 16px rgba(8, 5, 18, 0.74),
     0 12px 26px rgba(18, 10, 36, 0.52);
-  text-wrap: balance;
 }
 
 h2,
@@ -628,6 +627,7 @@ h2,
   line-height: 1;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
 }
@@ -828,7 +828,7 @@ h2,
   .links-card {
     grid-column: 1;
     grid-row: auto;
-    min-height: auto;
+    min-height: 0;
   }
 
   .work-list {
