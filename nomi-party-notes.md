@@ -4,8 +4,7 @@
 
 - 仮タイトル: `夜のまわしスマホ`
 - 管理方針: 別リポジトリで管理する
-- 現在の仮置きディレクトリ: `apps/nomi-party/`
-- 移行後の想定リポジトリ名: `nomi-party`
+- 現在のリポジトリ名: `nomi-party`
 - 想定URL: `https://nomi-party.yukinooooooosan.cc/`
 - 位置づけ: 飲み会向けの独立パーティゲーム集
 - 公開方針: 専用リポジトリをCloudflare Pagesへ接続し、`nomi-party.yukinooooooosan.cc` で公開する
@@ -33,8 +32,8 @@
 - 本館 `Yukino's Folio` は入口だけを持ち、ゲーム本体の変更履歴を分ける。
 - 将来、DB、API、管理画面、お題管理などが必要になっても移行事故を起こしにくい。
 
-このリポジトリ内の `apps/nomi-party/` は、別リポジトリへ移すための仮置き・移行元として扱う。
-移行後は、このリポジトリからゲーム本体を削除し、本館の作品カードだけを残す。
+このリポジトリ内にあった `apps/nomi-party/` は削除済み。
+本館には作品カードだけを残し、ゲーム本体は別リポジトリで管理する。
 
 ## フォルダ構成
 
@@ -318,33 +317,21 @@ HEX値は画面には表示しない。
 
 ## 実装メモ
 
-- まずは `index.html` と `style.css` だけでリンク集を作る。
-- 次に `script.js` を追加して、最初のゲームを実装する。
-- 最初の実装候補は `少数派を探せ`。
-- お題データは最初はJavaScript内の配列で持つ。
+- 実装は別リポジトリ `nomi-party` 側で管理する。
+- 現在はReact/Vite構成。
+- ローカル確認は、別リポジトリ `nomi-party/` のルートで開発サーバーを立てる。
 - DBや外部APIは使わない。
-- 移行前のローカル確認は `apps/nomi-party/` をルートとして静的サーバーを立てる。
-- 移行後のローカル確認は、別リポジトリ `nomi-party/` のルートで静的サーバーまたは開発サーバーを立てる。
 
 例:
 
 ```bash
-cd apps/nomi-party
-python3 -m http.server 8090
-```
-
-確認URL:
-
-```text
-http://localhost:8090/
+npm run dev
 ```
 
 ## 今後やること
 
-- `apps/nomi-party/` の内容を別リポジトリへ移す。
-- 別リポジトリのCloudflare Pagesプロジェクトを作る。
+- 別リポジトリのCloudflare Pagesプロジェクトを確認する。
 - `nomi-party.yukinooooooosan.cc` を別リポジトリ側のCloudflare Pagesへ向ける。
-- 移行後、このリポジトリから `apps/nomi-party/` を削除する。
 - `少数派を探せ` のルールを確定する。
 - 人数設定画面を作る。
 - お題確認画面を作る。

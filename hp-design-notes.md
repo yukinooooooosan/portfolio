@@ -60,7 +60,7 @@ DB、API、認証、重い依存関係、専用CIなどが必要な重めのア�
   - 公開URL: `https://nomi-party.yukinooooooosan.cc/`
   - 表示名: `夜のまわしスマホ`
   - 管理方針: 飲み会向けゲーム集として、別リポジトリ・別Cloudflare Pagesプロジェクトで管理する。
-  - 備考: 現在このリポジトリ内にある `apps/nomi-party/` は移行元の仮置き。移行後は削除する。
+  - 備考: 旧移行元の `apps/nomi-party/` は削除済み。
 
 注意:
 
