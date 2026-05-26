@@ -28,7 +28,7 @@ Webに公開するファイルをまとめるディレクトリ。
 - Cloudflare Pages と GitHub Pages の両方で公開対象にしている。
 - 本館のHTML、CSS、JavaScript、画像は基本的に `public/` 配下に置く。
 - 軽量な独立アプリ本体は `apps/` 配下に置き、本館からは作品カードでリンクする。
-- 重めのアプリは別リポジトリで管理し、本館からは外部作品としてリンクする。
+- 重めのアプリや今後大きく育つ可能性が高いアプリは別リポジトリで管理し、本館からは外部作品としてリンクする。
 - ルート直下の `hp-design-notes.md` や `study-note.md` は公開対象ではない。
 
 ### `apps/`
@@ -41,10 +41,10 @@ Webに公開するファイルをまとめるディレクトリ。
 
 - `apps/mojimoji/` はMojimojiアプリ。
 - `apps/font-preview/` はFont Previewアプリ。
-- `apps/nomi-party/` は飲み会向けパーティゲーム集。
 - Cloudflare Pages側でアプリごとに公開ディレクトリを指定し、必要に応じてサブドメインで公開する。
 - GitHub Pagesの本館デプロイでは `apps/` は公開対象に含めない。
 - DB、API、認証、重い依存関係、専用CIなどが必要なアプリは `apps/` に置かず、別リポジトリで管理する。
+- `nomi-party` は飲み会向けゲーム集として育つ見込みがあるため、`apps/` ではなく別リポジトリで管理する。
 
 ### トップページ
 
@@ -91,7 +91,7 @@ Gitで変更内容をひとまとまりとして記録すること。
 - `main` にpushするとGitHub Actionsが自動で動く。
 - GitHub Pagesに `public/` の内容が反映される。
 - Cloudflare Pages側もGitHub連携により反映される構成。
-- 軽量な独立アプリはCloudflare Pages側で公開ディレクトリを `apps/mojimoji` や `apps/nomi-party` のように指定する。
+- 軽量な独立アプリはCloudflare Pages側で公開ディレクトリを `apps/mojimoji` や `apps/font-preview` のように指定する。
 - 重めのアプリは別リポジトリで管理し、そのリポジトリ側のデプロイ設定を使う。
 
 ### リポジトリ
@@ -204,7 +204,7 @@ GitHubリポジトリと連携し、指定したディレクトリを公開で�
 - 本館の出力ディレクトリは `public/`。
 - GitHub Pagesは `public/` の中身を公開する。
 - Cloudflare Pagesの本館プロジェクトも `public/` を公開する。
-- 軽量アプリ用のCloudflare Pagesプロジェクトでは、`apps/mojimoji`、`apps/font-preview`、`apps/nomi-party` などを公開ディレクトリにする。
+- 軽量アプリ用のCloudflare Pagesプロジェクトでは、`apps/mojimoji`、`apps/font-preview` などを公開ディレクトリにする。
 - 重めのアプリ用のCloudflare Pagesプロジェクトでは、別リポジトリ側の公開ディレクトリやビルド設定を使う。
 
 ### ビルド
@@ -248,7 +248,7 @@ Webページやファイルの場所を示す住所のようなもの。
 - Cloudflare Pages URLは `https://portfolio-dwx.pages.dev`。
 - GitHub Pages URLは `https://yukinooooooosan.github.io/portfolio/`。
 - GitHubリポジトリURLは `https://github.com/yukinooooooosan/portfolio`。
-- 軽量な独立アプリは `https://mojimoji.yukinooooooosan.cc/` や `https://nomi-party.yukinooooooosan.cc/` のようなサブドメインで公開する。
+- 軽量な独立アプリは `https://mojimoji.yukinooooooosan.cc/` や `https://font-preview.yukinooooooosan.cc/` のようなサブドメインで公開する。
 - 重めの独立アプリもサブドメインで公開できるが、リポジトリとデプロイ設定は分ける。
 
 ### ドメイン
@@ -262,7 +262,7 @@ Webサイトの住所として使う名前。
 - Cloudflare Pagesでは `portfolio-dwx.pages.dev` の下にも公開される。
 - 本館の独自ドメインとして `yukinooooooosan.cc` を使う。
 - 独立性が高い作品は、必要に応じて `chara-baton.yukinooooooosan.cc` のようなサブドメインにする。
-- 同じリポジトリ内の独立アプリも、Cloudflare Pagesプロジェクトを分けて `mojimoji.yukinooooooosan.cc`、`font-preview.yukinooooooosan.cc`、`nomi-party.yukinooooooosan.cc` のように公開する。
+- 同じリポジトリ内の独立アプリも、Cloudflare Pagesプロジェクトを分けて `mojimoji.yukinooooooosan.cc`、`font-preview.yukinooooooosan.cc` のように公開する。
 - 重めの独立アプリは、サブドメインは同じように使いつつ、リポジトリとデプロイ設定を分ける。
 
 ### DNS
@@ -274,8 +274,8 @@ Webサイトの住所として使う名前。
 
 - `yukinooooooosan.cc` はCloudflare Pagesの本館に向ける。
 - `chara-baton.yukinooooooosan.cc` は別のCloudflare Pagesプロジェクト `chara-baton` に向ける。
-- `mojimoji.yukinooooooosan.cc`、`font-preview.yukinooooooosan.cc`、`nomi-party.yukinooooooosan.cc` は、このリポジトリ内の `apps/` 配下を公開する各Cloudflare Pagesプロジェクトに向ける。
-- 重めのアプリのサブドメインは、そのアプリ専用リポジトリに接続したCloudflare Pagesプロジェクトへ向ける。
+- `mojimoji.yukinooooooosan.cc`、`font-preview.yukinooooooosan.cc` は、このリポジトリ内の `apps/` 配下を公開する各Cloudflare Pagesプロジェクトに向ける。
+- `nomi-party.yukinooooooosan.cc` や重めのアプリのサブドメインは、そのアプリ専用リポジトリに接続したCloudflare Pagesプロジェクトへ向ける。
 - Cloudflare Registrarで取得したドメインなので、Cloudflare内でDNSとPagesの連携を管理できる。
 
 ### CNAME
@@ -329,7 +329,7 @@ Webページに動きや操作を加えるための言語。
 - `public/index.html` がサイトのトップ。
 - `apps/mojimoji/index.html` はMojimojiアプリのトップ。
 - `apps/font-preview/index.html` はFont Previewアプリのトップ。
-- `apps/nomi-party/index.html` は飲み会向けパーティゲーム集のトップ。
+- `nomi-party` のトップは別リポジトリ側で管理する。
 
 ### アセット
 

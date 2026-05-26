@@ -18,7 +18,6 @@
 - `apps/mojimoji/index.html`
 - `apps/font-preview/index.html`
 - `apps/font-preview/manual.html`
-- `apps/nomi-party/index.html`
 
 関連メモ:
 
@@ -48,8 +47,6 @@ DB、API、認証、重い依存関係、専用CIなどが必要な重めのア�
 - `apps/font-preview/manual.html`
 - `apps/font-preview/font-preview.css`
 - `apps/font-preview/font-preview.js`
-- `apps/nomi-party/index.html`
-- `apps/nomi-party/style.css`
 
 このリポジトリ外の独立アプリ:
 
@@ -59,6 +56,11 @@ DB、API、認証、重い依存関係、専用CIなどが必要な重めのア�
 - `wolffac`
   - 公開URL: `https://yukinooooooosan.github.io/wolffac/`
   - 管理方針: 別リポジトリのGitHub Pagesで公開する。
+- `nomi-party`
+  - 公開URL: `https://nomi-party.yukinooooooosan.cc/`
+  - 表示名: `夜のまわしスマホ`
+  - 管理方針: 飲み会向けゲーム集として、別リポジトリ・別Cloudflare Pagesプロジェクトで管理する。
+  - 備考: 現在このリポジトリ内にある `apps/nomi-party/` は移行元の仮置き。移行後は削除する。
 
 注意:
 
@@ -117,8 +119,8 @@ Cloudflare Pages標準URL `https://portfolio-dwx.pages.dev` は内部的な配�
 - Font Preview: `https://font-preview.yukinooooooosan.cc/`
 - 夜のまわしスマホ: `https://nomi-party.yukinooooooosan.cc/`
 
-`chara-baton` は重めの独立アプリなので、別リポジトリ・別Cloudflare Pagesプロジェクトとしてサブドメインで独立させる。
-`Mojimoji`、`Font Preview`、`夜のまわしスマホ` は軽量な独立アプリなので、同じGitHubリポジトリ内の `apps/` 配下に切り出し、Cloudflare Pagesプロジェクトを分けてサブドメインで公開する。
+`chara-baton` と `nomi-party` は重めの独立アプリなので、別リポジトリ・別Cloudflare Pagesプロジェクトとしてサブドメインで独立させる。
+`Mojimoji` と `Font Preview` は軽量な独立アプリなので、同じGitHubリポジトリ内の `apps/` 配下に切り出し、Cloudflare Pagesプロジェクトを分けてサブドメインで公開する。
 
 ## 目的
 
