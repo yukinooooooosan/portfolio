@@ -1,6 +1,7 @@
 const filterTabs = document.querySelectorAll(".filter-tab");
 const workList = document.querySelector(".work-list");
 const workItems = document.querySelectorAll(".work-item");
+const spotlightCard = document.querySelector(".spotlight-card");
 const spotlightText = document.querySelector("[data-spotlight-text]");
 const spotlightLink = document.querySelector("[data-spotlight-link]");
 const spotlightName = document.querySelector("[data-spotlight-name]");
@@ -38,9 +39,14 @@ function parseSpotlightCsv(csvText) {
     .filter((line) => line.trim() !== "");
 
   return lines.slice(1).map((line) => {
-    const [name, href, text] = parseCsvLine(line);
+    const [name, href, image, text] = parseCsvLine(line);
 
-    return { name, href, text };
+    return {
+      name,
+      href,
+      image,
+      text: text.replaceAll("\\n", "\n")
+    };
   }).filter((item) => item.name && item.href && item.text);
 }
 
@@ -57,6 +63,14 @@ function showDailySpotlight(spotlightItems) {
   spotlightText.textContent = spotlight.text;
   spotlightLink.href = spotlight.href;
   spotlightName.textContent = spotlight.name;
+
+  if (spotlightCard && spotlight.image) {
+    spotlightCard.classList.add("has-spotlight-image");
+    spotlightCard.style.setProperty("--spotlight-image", `url("${spotlight.image}")`);
+  } else if (spotlightCard) {
+    spotlightCard.classList.remove("has-spotlight-image");
+    spotlightCard.style.removeProperty("--spotlight-image");
+  }
 }
 
 fetch("spotlight-guides.csv")
