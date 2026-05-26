@@ -1,39 +1,54 @@
 const filterTabs = document.querySelectorAll(".filter-tab");
 const workList = document.querySelector(".work-list");
 const workItems = document.querySelectorAll(".work-item");
-const spotlightItems = [
-  {
-    name: "創作キャラバトン",
-    href: "https://chara-baton.yukinooooooosan.cc/",
-    text: "物語と物語がすれ違ったときに、思いがけない会話が生まれる場所を作りたくて作りました。"
-  },
-  {
-    name: "夜のまわしスマホ",
-    href: "https://nomi-party.yukinooooooosan.cc/",
-    text: "一台のスマホを回しているうちに、少しだけ距離が近くなる感じを作りたくて作りました。"
-  },
-  {
-    name: "オオカミ工場",
-    href: "https://yukinooooooosan.github.io/wolffac/",
-    text: "疑うことと働くことが同じ場所にあると、ちょっと変な緊張感が出るなと思って作りました。"
-  },
-  {
-    name: "Mojimoji",
-    href: "https://mojimoji.yukinooooooosan.cc/",
-    text: "英語を正しく打つだけの時間に、少しだけゲームの手触りを混ぜたくて作りました。"
-  },
-  {
-    name: "Font Preview",
-    href: "https://font-preview.yukinooooooosan.cc/",
-    text: "書体を選ぶ前の、ちょっとした迷いをその場で試せるようにしたくて作りました。"
-  }
-];
-
 const spotlightText = document.querySelector("[data-spotlight-text]");
 const spotlightLink = document.querySelector("[data-spotlight-link]");
 const spotlightName = document.querySelector("[data-spotlight-name]");
 
-if (spotlightText && spotlightLink && spotlightName && spotlightItems.length > 0) {
+function parseCsvLine(line) {
+  const cells = [];
+  let cell = "";
+  let inQuotes = false;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    const nextChar = line[index + 1];
+
+    if (char === '"' && nextChar === '"') {
+      cell += '"';
+      index += 1;
+    } else if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      cells.push(cell.trim());
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+
+  cells.push(cell.trim());
+  return cells;
+}
+
+function parseSpotlightCsv(csvText) {
+  const lines = csvText
+    .trim()
+    .split(/\r?\n/)
+    .filter((line) => line.trim() !== "");
+
+  return lines.slice(1).map((line) => {
+    const [name, href, text] = parseCsvLine(line);
+
+    return { name, href, text };
+  }).filter((item) => item.name && item.href && item.text);
+}
+
+function showDailySpotlight(spotlightItems) {
+  if (!spotlightText || !spotlightLink || !spotlightName || spotlightItems.length === 0) {
+    return;
+  }
+
   const now = new Date();
   const startOfYear = new Date(now.getFullYear(), 0, 0);
   const dayOfYear = Math.floor((now - startOfYear) / 86400000);
@@ -43,6 +58,21 @@ if (spotlightText && spotlightLink && spotlightName && spotlightItems.length > 0
   spotlightLink.href = spotlight.href;
   spotlightName.textContent = spotlight.name;
 }
+
+fetch("spotlight-guides.csv")
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error("Failed to load spotlight guides.");
+    }
+
+    return response.text();
+  })
+  .then((csvText) => {
+    showDailySpotlight(parseSpotlightCsv(csvText));
+  })
+  .catch(() => {
+    // Keep the static fallback in index.html when the CSV cannot be loaded.
+  });
 
 filterTabs.forEach((tab) => {
   tab.addEventListener("click", () => {
