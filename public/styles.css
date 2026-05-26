@@ -893,6 +893,7 @@ h2,
   }
 
   .spotlight-mascot {
+    align-self: end;
     width: 76px;
     opacity: 0.76;
   }
