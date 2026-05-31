@@ -218,7 +218,8 @@ a {
 .spotlight-mascot.is-kiss-releasing .spotlight-mascot-base,
 .spotlight-mascot.is-kissing .spotlight-mascot-half,
 .spotlight-mascot.is-kiss-releasing .spotlight-mascot-half,
-.spotlight-mascot.is-kissing .spotlight-mascot-blink {
+.spotlight-mascot.is-kissing .spotlight-mascot-blink,
+.spotlight-mascot.is-kiss-releasing .spotlight-mascot-blink {
   opacity: 0;
 }
 

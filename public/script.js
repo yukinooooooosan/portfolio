@@ -9,10 +9,31 @@ const spotlightMascot = document.querySelector(".spotlight-mascot");
 const bunnyHalfOverlay = document.querySelector("[data-bunny-half-overlay]");
 const bunnyBlinkOverlay = document.querySelector("[data-bunny-blink-overlay]");
 const bunnyKissOverlay = document.querySelector("[data-bunny-kiss-overlay]");
+const bunnyMotionTimers = [];
+
+function setBunnyMotionTimer(callback, delay) {
+  const timerId = window.setTimeout(() => {
+    const index = bunnyMotionTimers.indexOf(timerId);
+
+    if (index !== -1) {
+      bunnyMotionTimers.splice(index, 1);
+    }
+
+    callback();
+  }, delay);
+
+  bunnyMotionTimers.push(timerId);
+  return timerId;
+}
 
 function clearBunnyMotion() {
+  bunnyMotionTimers.forEach((timerId) => {
+    window.clearTimeout(timerId);
+  });
+  bunnyMotionTimers.length = 0;
   spotlightMascot.classList.remove("is-half-blinking");
   spotlightMascot.classList.remove("is-blinking");
+  spotlightMascot.classList.remove("is-kissing");
   spotlightMascot.classList.remove("is-kiss-releasing");
 }
 
@@ -36,17 +57,25 @@ function startBunnyBlink() {
 
     spotlightMascot.classList.add("is-half-blinking");
 
-    window.setTimeout(() => {
+    setBunnyMotionTimer(() => {
+      if (spotlightMascot.classList.contains("is-kissing")) {
+        return;
+      }
+
       spotlightMascot.classList.remove("is-half-blinking");
       spotlightMascot.classList.add("is-blinking");
     }, 70);
 
-    window.setTimeout(() => {
+    setBunnyMotionTimer(() => {
+      if (spotlightMascot.classList.contains("is-kissing")) {
+        return;
+      }
+
       spotlightMascot.classList.remove("is-blinking");
       spotlightMascot.classList.add("is-half-blinking");
     }, 160);
 
-    window.setTimeout(() => {
+    setBunnyMotionTimer(() => {
       spotlightMascot.classList.remove("is-half-blinking");
       spotlightMascot.classList.remove("is-blinking");
     }, 240);
@@ -92,12 +121,12 @@ function startBunnyKiss() {
     clearBunnyMotion();
     spotlightMascot.classList.add("is-kissing");
 
-    window.setTimeout(() => {
+    setBunnyMotionTimer(() => {
       spotlightMascot.classList.remove("is-kissing");
       spotlightMascot.classList.add("is-kiss-releasing");
     }, 360);
 
-    window.setTimeout(() => {
+    setBunnyMotionTimer(() => {
       spotlightMascot.classList.remove("is-kiss-releasing");
     }, 1120);
   };
