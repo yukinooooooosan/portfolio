@@ -187,10 +187,97 @@ a {
 .spotlight-mascot {
   grid-row: 1 / 4;
   align-self: start;
+  position: relative;
+  display: block;
   width: clamp(112px, 14vw, 148px);
+  height: auto;
+  aspect-ratio: 1;
   max-width: none;
   pointer-events: none;
   filter: drop-shadow(0 14px 22px rgba(4, 3, 8, 0.42));
+}
+
+.spotlight-mascot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.spotlight-mascot-kiss-base,
+.spotlight-mascot-kiss,
+.spotlight-mascot-kiss-hand,
+.spotlight-mascot-half,
+.spotlight-mascot-blink {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.spotlight-mascot.is-kissing .spotlight-mascot-base,
+.spotlight-mascot.is-kiss-releasing .spotlight-mascot-base,
+.spotlight-mascot.is-kissing .spotlight-mascot-half,
+.spotlight-mascot.is-kiss-releasing .spotlight-mascot-half,
+.spotlight-mascot.is-kissing .spotlight-mascot-blink {
+  opacity: 0;
+}
+
+.spotlight-mascot.is-kissing .spotlight-mascot-kiss-base,
+.spotlight-mascot.is-kissing .spotlight-mascot-kiss,
+.spotlight-mascot.is-kiss-releasing .spotlight-mascot-kiss-base,
+.spotlight-mascot.is-kiss-releasing .spotlight-mascot-kiss-hand,
+.spotlight-mascot.is-half-blinking .spotlight-mascot-half,
+.spotlight-mascot.is-blinking .spotlight-mascot-blink {
+  opacity: 1;
+}
+
+.spotlight-kiss-heart {
+  position: absolute;
+  top: 34%;
+  left: 69%;
+  width: 26px;
+  height: 26px;
+  background: url("assets/bunny/kiss-heart-sheet.png") 0 0 / 400% 100% no-repeat;
+  opacity: 0;
+  transform: translate(0, 0) scale(0.6);
+  pointer-events: none;
+}
+
+.spotlight-mascot.is-kiss-releasing .spotlight-kiss-heart {
+  animation:
+    kiss-heart-pop 760ms steps(4) both,
+    kiss-heart-float 760ms ease-out both;
+}
+
+@keyframes kiss-heart-pop {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 100% 0;
+  }
+}
+
+@keyframes kiss-heart-float {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.55) rotate(-8deg);
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  72% {
+    opacity: 0.95;
+    transform: translate(34px, -24px) scale(1) rotate(7deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(52px, -38px) scale(0.82) rotate(13deg);
+  }
 }
 
 .notes-card {

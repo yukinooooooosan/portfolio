@@ -5,6 +5,53 @@ const spotlightCard = document.querySelector(".spotlight-card");
 const spotlightText = document.querySelector("[data-spotlight-text]");
 const spotlightLink = document.querySelector("[data-spotlight-link]");
 const spotlightName = document.querySelector("[data-spotlight-name]");
+const spotlightMascot = document.querySelector(".spotlight-mascot");
+const bunnyHalfOverlay = document.querySelector("[data-bunny-half-overlay]");
+const bunnyBlinkOverlay = document.querySelector("[data-bunny-blink-overlay]");
+const bunnyKissOverlay = document.querySelector("[data-bunny-kiss-overlay]");
+
+function clearBunnyMotion() {
+  spotlightMascot.classList.remove("is-half-blinking");
+  spotlightMascot.classList.remove("is-blinking");
+  spotlightMascot.classList.remove("is-kiss-releasing");
+}
+
+function startBunnyBlink() {
+  if (
+    !spotlightMascot ||
+    !bunnyHalfOverlay ||
+    !bunnyBlinkOverlay ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    return;
+  }
+
+  window.setInterval(() => {
+    if (
+      spotlightMascot.classList.contains("is-kissing") ||
+      spotlightMascot.classList.contains("is-kiss-releasing")
+    ) {
+      return;
+    }
+
+    spotlightMascot.classList.add("is-half-blinking");
+
+    window.setTimeout(() => {
+      spotlightMascot.classList.remove("is-half-blinking");
+      spotlightMascot.classList.add("is-blinking");
+    }, 70);
+
+    window.setTimeout(() => {
+      spotlightMascot.classList.remove("is-blinking");
+      spotlightMascot.classList.add("is-half-blinking");
+    }, 160);
+
+    window.setTimeout(() => {
+      spotlightMascot.classList.remove("is-half-blinking");
+      spotlightMascot.classList.remove("is-blinking");
+    }, 240);
+  }, 4200);
+}
 
 function parseCsvLine(line) {
   const cells = [];
@@ -30,6 +77,64 @@ function parseCsvLine(line) {
 
   cells.push(cell.trim());
   return cells;
+}
+
+function startBunnyKiss() {
+  if (
+    !spotlightMascot ||
+    !bunnyKissOverlay ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    return;
+  }
+
+  const playKiss = () => {
+    clearBunnyMotion();
+    spotlightMascot.classList.add("is-kissing");
+
+    window.setTimeout(() => {
+      spotlightMascot.classList.remove("is-kissing");
+      spotlightMascot.classList.add("is-kiss-releasing");
+    }, 360);
+
+    window.setTimeout(() => {
+      spotlightMascot.classList.remove("is-kiss-releasing");
+    }, 1120);
+  };
+
+  if (!("IntersectionObserver" in window)) {
+    window.setTimeout(playKiss, 2600);
+    return;
+  }
+
+  let hasPlayedWhileVisible = false;
+  let kissDelayTimer = null;
+
+  const observer = new IntersectionObserver((entries) => {
+    const isVisible = entries.some((entry) => entry.isIntersecting);
+
+    if (isVisible && !hasPlayedWhileVisible) {
+      hasPlayedWhileVisible = true;
+      kissDelayTimer = window.setTimeout(() => {
+        kissDelayTimer = null;
+        playKiss();
+      }, 1000);
+      return;
+    }
+
+    if (!isVisible) {
+      hasPlayedWhileVisible = false;
+      if (kissDelayTimer) {
+        window.clearTimeout(kissDelayTimer);
+        kissDelayTimer = null;
+      }
+      clearBunnyMotion();
+    }
+  }, {
+    threshold: 0.45
+  });
+
+  observer.observe(spotlightMascot);
 }
 
 function parseSpotlightCsv(csvText) {
@@ -87,6 +192,9 @@ fetch("spotlight-guides.csv")
   .catch(() => {
     // Keep the static fallback in index.html when the CSV cannot be loaded.
   });
+
+startBunnyBlink();
+startBunnyKiss();
 
 filterTabs.forEach((tab) => {
   tab.addEventListener("click", () => {
