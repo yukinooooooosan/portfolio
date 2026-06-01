@@ -428,6 +428,7 @@ h2,
   color: var(--color-muted);
   font-size: 0.95rem;
   line-height: 1.75;
+  overflow-wrap: anywhere;
 }
 
 .spotlight-body {
@@ -461,6 +462,7 @@ h2,
   line-height: 1.85;
   text-indent: 1em;
   white-space: pre-line;
+  overflow-wrap: anywhere;
 }
 
 .spotlight-link {
@@ -648,10 +650,8 @@ h2,
 
 .work-thumb-party {
   background:
-    radial-gradient(circle at 24% 18%, rgba(255, 196, 120, 0.38), transparent 22%),
-    radial-gradient(circle at 82% 20%, rgba(255, 122, 168, 0.34), transparent 26%),
-    linear-gradient(135deg, rgba(255, 250, 242, 0.08), transparent 36%),
-    linear-gradient(160deg, #2a101f 0%, #12050f 54%, #070408 100%);
+    url("assets/work-nomi-party-bg.jpg") center 48% / cover no-repeat,
+    var(--color-paper-warm);
 }
 
 .work-thumb-story {
