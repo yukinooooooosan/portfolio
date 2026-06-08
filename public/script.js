@@ -240,7 +240,9 @@ filterTabs.forEach((tab) => {
     window.setTimeout(() => {
       workItems.forEach((item) => {
         const shouldShow =
-          activeFilter === "all" || item.dataset.category === activeFilter;
+          activeFilter === "all"
+            ? item.dataset.category !== "prototype"
+            : item.dataset.category === activeFilter;
         item.hidden = !shouldShow;
       });
 

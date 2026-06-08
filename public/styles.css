@@ -681,6 +681,20 @@ h2,
     var(--color-paper-warm);
 }
 
+.work-thumb-eventswiper {
+  background:
+    radial-gradient(circle at 22% 18%, rgba(204, 251, 241, 0.36), transparent 0 28%),
+    linear-gradient(135deg, rgba(15, 118, 110, 0.88), rgba(8, 47, 73, 0.78)),
+    repeating-linear-gradient(135deg, rgba(255, 250, 242, 0.18) 0 1px, transparent 1px 14px),
+    var(--color-paper-warm);
+}
+
+.work-item.is-prototype .work-kicker {
+  border-color: rgba(153, 246, 228, 0.5);
+  background: rgba(15, 118, 110, 0.42);
+  color: #ccfbf1;
+}
+
 .work-meta {
   position: relative;
   z-index: 1;
