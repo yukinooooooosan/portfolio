@@ -28,6 +28,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Include app prototypes
+        run: |
+          mkdir -p public/apps
+          cp -R apps/eventswiper public/apps/eventswiper
+
       - name: Upload public directory
         uses: actions/upload-pages-artifact@v3
         with:
