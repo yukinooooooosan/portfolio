@@ -1,27 +1,27 @@
 const sampleEvents = [
   {
-    title: "浴衣パーティー",
+    title: "サンプルイベントA",
     date_text: "2026年7月11日（土）",
     time_text: "18:00-22:00",
-    place_text: "大阪 パレットハウス",
-    area: "大阪",
+    place_text: "架空会場A",
+    area: "サンプル市",
     price_text: "3000円",
-    description: "浴衣パーティー。参加募集中。初参加歓迎の交流イベントです。",
-    source_tweet_url: "https://x.com/example/status/123",
+    description: "サンプル用の交流イベントです。実在のイベントではありません。",
+    source_tweet_url: "https://x.com/example_event/status/1000000000000000001",
     detail_url: null,
     confidence: 0.86,
-    notes: "日付と会場が明確"
+    notes: "サンプルデータ"
   },
   {
-    title: "週末メイク交流会",
+    title: "サンプルイベントB",
     date_text: "今週土曜",
     time_text: null,
-    place_text: "都内某所",
-    area: "東京",
+    place_text: "架空会場B",
+    area: "サンプル市",
     price_text: null,
-    description: "メイク好き向けの交流会。詳細は元ポスト参照。",
-    source_tweet_url: "https://x.com/example/status/456",
-    detail_url: "https://example.com/events/makeup",
+    description: "カード表示確認用のサンプルです。詳細URLありの例です。",
+    source_tweet_url: "https://x.com/example_event/status/1000000000000000002",
+    detail_url: "https://example.com/events/sample",
     confidence: 0.64,
     notes: "時刻が不明"
   }
