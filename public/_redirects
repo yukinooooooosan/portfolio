@@ -4,3 +4,6 @@
 /font-preview/ https://font-preview.yukinooooooosan.cc/ 301
 /font-preview.html https://font-preview.yukinooooooosan.cc/ 301
 /font-preview-manual.html https://font-preview.yukinooooooosan.cc/manual.html 301
+/apps/eventswiper /prototypes/eventswiper/ 302
+/apps/eventswiper/ /prototypes/eventswiper/ 302
+/apps/eventswiper/* /prototypes/eventswiper/:splat 302

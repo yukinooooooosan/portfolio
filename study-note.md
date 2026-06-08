@@ -28,6 +28,7 @@ Webに公開するファイルをまとめるディレクトリ。
 - Cloudflare Pages と GitHub Pages の両方で公開対象にしている。
 - 本館のHTML、CSS、JavaScript、画像は基本的に `public/` 配下に置く。
 - 軽量な独立アプリ本体は `apps/` 配下に置き、本館からは作品カードでリンクする。
+- `public/prototypes/` は、まだサブドメイン化していない試作中アプリを本館配下で一時公開する棚として使う。
 - 重めのアプリや今後大きく育つ可能性が高いアプリは別リポジトリで管理し、本館からは外部作品としてリンクする。
 - ルート直下の `hp-design-notes.md` や `study-note.md` は公開対象ではない。
 
@@ -45,6 +46,19 @@ Webに公開するファイルをまとめるディレクトリ。
 - GitHub Pagesの本館デプロイでは `apps/` は公開対象に含めない。
 - DB、API、認証、重い依存関係、専用CIなどが必要なアプリは `apps/` に置かず、別リポジトリで管理する。
 - `nomi-party` は飲み会向けゲーム集として育つ見込みがあるため、`apps/` ではなく別リポジトリで管理する。
+
+### `public/prototypes/`
+
+本館配下で、試作中の軽量アプリを一時的に公開するためのディレクトリ。
+Cloudflare Pagesのサブドメイン公開や独立リポジトリ化の前に、作品カードから触れる状態にしたいものを置く。
+
+このHPでは:
+
+- `public/prototypes/eventswiper/` はEvent Import Labの試作公開コピー。
+- 本体は `apps/eventswiper/` に置き、`public/prototypes/` 側は一時公開用のコピーとして扱う。
+- `public/prototypes/` は永続的な置き場ではなく、将来的には空にすることを目標にする。
+- 試作が軽量アプリとして継続できると分かったら、Cloudflare Pagesで `apps/` 配下を直接公開し、サブドメインへ移す。
+- DB、API、認証などが必要になったら、`public/prototypes/` からも `apps/` からも外し、別リポジトリへ切り出す。
 
 ### トップページ
 
@@ -668,6 +682,14 @@ macOS標準の画像操作コマンド。
 4. Cloudflare Pagesで、そのアプリディレクトリを公開ディレクトリにしたプロジェクトを作る。
 5. 必要に応じて `*.yukinooooooosan.cc` のサブドメインを割り当てる。
 6. ローカルと公開URLの両方で表示を確認する。
+
+### 試作中アプリを本館配下で一時公開するとき
+
+1. 本体は `apps/` 配下に置く。
+2. 公開コピーを `public/prototypes/` 配下に置く。
+3. 本館の `public/index.html` では `試作中` カテゴリに入れ、`すべて` には表示しない。
+4. 試作中URLは `https://yukinooooooosan.cc/prototypes/<app-name>/` とする。
+5. 手応えが出たら、Cloudflare Pagesの個別プロジェクトや別リポジトリに移して、`public/prototypes/` から削除する。
 
 ### 重めの独立アプリを追加するとき
 
