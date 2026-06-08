@@ -54,8 +54,8 @@ Cloudflare Pagesのサブドメイン公開や独立リポジトリ化の前に�
 
 このHPでは:
 
-- `public/prototypes/eventswiper/` はEvent Import Labの試作公開コピー。
-- 本体は `apps/eventswiper/` に置き、`public/prototypes/` 側は一時公開用のコピーとして扱う。
+- `public/prototypes/event-import-lab/` はEvent Import Labの試作公開コピー。
+- Event Import Labはこの試作として固定し、本番方向のアプリは別の `eventswiper` リポジトリで育てる。
 - `public/prototypes/` は永続的な置き場ではなく、将来的には空にすることを目標にする。
 - 試作が軽量アプリとして継続できると分かったら、Cloudflare Pagesで `apps/` 配下を直接公開し、サブドメインへ移す。
 - DB、API、認証などが必要になったら、`public/prototypes/` からも `apps/` からも外し、別リポジトリへ切り出す。
