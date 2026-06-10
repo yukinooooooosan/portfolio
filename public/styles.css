@@ -681,6 +681,16 @@ h2,
     var(--color-paper-warm);
 }
 
+.work-thumb-eventswiper {
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255, 209, 102, 0.38), transparent 0 21%),
+    radial-gradient(circle at 76% 24%, rgba(185, 167, 255, 0.42), transparent 0 24%),
+    linear-gradient(160deg, rgba(5, 5, 7, 0.12), rgba(5, 5, 7, 0.64)),
+    repeating-linear-gradient(135deg, rgba(255, 250, 242, 0.18) 0 1px, transparent 1px 18px),
+    linear-gradient(135deg, #2f235f, #111113 58%, #3b1f3f),
+    var(--color-paper-warm);
+}
+
 .work-thumb-event-import-lab {
   background:
     radial-gradient(circle at 22% 18%, rgba(204, 251, 241, 0.36), transparent 0 28%),
