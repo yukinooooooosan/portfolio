@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="900" viewBox="0 0 600 900">
+<defs><radialGradient id="bg"><stop stop-color="#514279"/><stop offset="1" stop-color="#181b2b"/></radialGradient></defs>
+<path fill="url(#bg)" d="M0 0h600v900H0z"/>
+<g stroke-width="3">
+<g transform="translate(80 190) rotate(-16 120 190)"><rect width="240" height="380" rx="24" fill="#433d73" stroke="#b9a4ed"/><rect x="16" y="16" width="208" height="348" rx="15" fill="none" stroke="#b9a4ed" opacity=".4"/><path d="M120 95l18 59 62 18-62 18-18 60-18-60-62-18 62-18z" fill="#ddccff"/></g>
+<g transform="translate(285 190) rotate(16 120 190)"><rect width="240" height="380" rx="24" fill="#804350" stroke="#efab94"/><rect x="16" y="16" width="208" height="348" rx="15" fill="none" stroke="#efab94" opacity=".4"/><path d="M120 92c18 49 66 66 53 112-9 37-73 53-100 11-24-39 4-64 18-86-3 37 22 32 29-37z" fill="#ffbea4"/></g>
+<g transform="translate(180 235)"><rect width="240" height="380" rx="24" fill="#6e405e" stroke="#e9afcb"/><rect x="16" y="16" width="208" height="348" rx="15" fill="none" stroke="#e9afcb" opacity=".4"/><path d="M120 239l-65-65c-45-48 18-95 65-45 47-50 110-3 65 45z" fill="#ffd0e3"/><path d="M65 286h110M85 308h70" stroke="#e9afcb" stroke-linecap="round"/></g>
+</g></svg>

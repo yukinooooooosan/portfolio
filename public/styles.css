@@ -648,6 +648,13 @@ h2,
     var(--color-paper-warm);
 }
 
+.work-thumb-cddomi {
+  background:
+    linear-gradient(150deg, transparent 42%, rgba(14, 15, 31, 0.28)),
+    url("assets/work-cddomi-bg.svg") center 35% / cover no-repeat,
+    #181b2b;
+}
+
 .work-thumb-party {
   background:
     url("assets/work-nomi-party-bg.jpg") center 48% / cover no-repeat,
