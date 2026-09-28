@@ -194,10 +194,73 @@ const flagData = [
     { emoji: '🇿🇲', word: 'Zambia', key: 'Z', pronounciation: 'Zambia', jaWord: 'ザンビア' }
 ];
 
+// Mac日本語（JIS）キーボードの、Shiftを押さないときのかな刻印。
+// code は入力ソースに左右されない物理キーの位置を表す。
+const kanaRows = [
+    [
+        ['Digit1', '1', 'ぬ'], ['Digit2', '2', 'ふ'], ['Digit3', '3', 'あ'],
+        ['Digit4', '4', 'う'], ['Digit5', '5', 'え'], ['Digit6', '6', 'お'],
+        ['Digit7', '7', 'や'], ['Digit8', '8', 'ゆ'], ['Digit9', '9', 'よ'],
+        ['Digit0', '0', 'わ'], ['Minus', '-', 'ほ'], ['Equal', '^', 'へ'],
+        ['IntlYen', '¥', 'ー']
+    ],
+    [
+        ['KeyQ', 'Q', 'た'], ['KeyW', 'W', 'て'], ['KeyE', 'E', 'い'],
+        ['KeyR', 'R', 'す'], ['KeyT', 'T', 'か'], ['KeyY', 'Y', 'ん'],
+        ['KeyU', 'U', 'な'], ['KeyI', 'I', 'に'], ['KeyO', 'O', 'ら'],
+        ['KeyP', 'P', 'せ'], ['BracketLeft', '@', '゛'], ['BracketRight', '[', '゜']
+    ],
+    [
+        ['KeyA', 'A', 'ち'], ['KeyS', 'S', 'と'], ['KeyD', 'D', 'し'],
+        ['KeyF', 'F', 'は'], ['KeyG', 'G', 'き'], ['KeyH', 'H', 'く'],
+        ['KeyJ', 'J', 'ま'], ['KeyK', 'K', 'の'], ['KeyL', 'L', 'り'],
+        ['Semicolon', ';', 'れ'], ['Quote', ':', 'け'], ['Backslash', ']', 'む']
+    ],
+    [
+        ['KeyZ', 'Z', 'つ'], ['KeyX', 'X', 'さ'], ['KeyC', 'C', 'そ'],
+        ['KeyV', 'V', 'ひ'], ['KeyB', 'B', 'こ'], ['KeyN', 'N', 'み'],
+        ['KeyM', 'M', 'も'], ['Comma', ',', 'ね'], ['Period', '.', 'る'],
+        ['Slash', '/', 'め'], ['IntlRo', '_', 'ろ']
+    ]
+];
+const kanaData = kanaRows.flat().filter(([, , kana]) => /^[ぁ-ん]$/.test(kana))
+    .map(([code, label, kana]) => ({ code, label, kana }));
+// 「を」は 0 の Shift 側にあるため、通常の「わ」と別の問題にする。
+kanaData.push({ code: 'Digit0', label: 'Shift+0', kana: 'を', shift: true });
+
+// 既存の絵文字問題の日本語名を使い、かな配列で答えられる頭文字だけを出題する。
+// 既存データに例がない文字は、絵文字と日本語名を補う。
+const extraKanaExamples = [
+    { emoji: '🧸', word: 'Teddy bear', jaWord: 'ぬいぐるみ' },
+    { emoji: '✏️', word: 'Pencil', jaWord: 'えんぴつ' },
+    { emoji: '⛰️', word: 'Mountain', jaWord: 'やま' },
+    { emoji: '⭐', word: 'Star', jaWord: 'ほし' },
+    { emoji: '🪭', word: 'Fan', jaWord: 'せんす' },
+    { emoji: '🗺️', word: 'Map', jaWord: 'ちず' },
+    { emoji: '🫘', word: 'Beans', jaWord: 'まめ' },
+    { emoji: '🪚', word: 'Saw', jaWord: 'のこぎり' },
+    { emoji: '🐛', word: 'Bug', jaWord: 'むし' },
+    { emoji: '🌙', word: 'Moon', jaWord: 'つき' },
+    { emoji: '☁️', word: 'Sky', jaWord: 'そら' },
+    { emoji: '🍊', word: 'Mandarin', jaWord: 'みかん' },
+    { emoji: '🔍', word: 'Magnifying glass', jaWord: 'るーぺ' }
+];
+const kanaKeyByCharacter = new Map(kanaData.map(({ kana, code, shift }) => [kana, { code, shift }]));
+const toHiragana = (text) => text.replace(/[ァ-ヶ]/g, (char) =>
+    String.fromCharCode(char.charCodeAt(0) - 0x60));
+const kanaQuestionData = [...standardData, ...extraKanaExamples].flatMap((item) => {
+    const jaWord = toHiragana(item.jaWord);
+    const kana = Array.from(jaWord)[0];
+    const key = kanaKeyByCharacter.get(kana);
+    return key ? [{ ...item, jaWord, kana, ...key }] : [];
+});
+
 // --- HTML要素の取得 ---
 const startControls = document.getElementById('start-controls');
 const startStandardBtn = document.getElementById('start-standard-btn');
 const startFlagBtn = document.getElementById('start-flag-btn');
+const startKanaBtn = document.getElementById('start-kana-btn');
+const gameContainer = document.querySelector('.game-container');
 const mainArea = document.getElementById('main-area');
 const keyboardArea = document.getElementById('keyboard-area');
 const emojiDisplay = document.getElementById('emoji-display');
@@ -209,7 +272,9 @@ const feedbackArea = document.getElementById('feedback-area');
 // --- グローバル変数 ---
 let currentQuestion = null;
 let previousQuestion = null;
+let activeGameData = [];
 let isPlaying = false;
+let activeMode = null;
 let audioContext = null;
 
 // --- Web Audio API 初期化 (ユーザーアクション後に呼ぶ) ---
@@ -251,16 +316,17 @@ function speakWord(enText, jaText) {
         // 現在の読み上げをキャンセル
         speechSynthesis.cancel();
 
-        const enUtterance = new SpeechSynthesisUtterance(enText);
-        enUtterance.lang = 'en-US'; // 英語で発音させる
-        enUtterance.rate = 0.9; // 少しゆっくりめに
+        if (enText) {
+            const enUtterance = new SpeechSynthesisUtterance(enText);
+            enUtterance.lang = 'en-US';
+            enUtterance.rate = 0.9;
+            speechSynthesis.speak(enUtterance);
+        }
 
         const jaUtterance = new SpeechSynthesisUtterance(jaText);
         jaUtterance.lang = 'ja-JP'; // 日本語で発音させる
         jaUtterance.rate = 0.9; // 少しゆっくりめに
 
-        // 英語を読み上げ、続いて日本語を読み上げる (キューに入る)
-        speechSynthesis.speak(enUtterance);
         speechSynthesis.speak(jaUtterance);
     }
 }
@@ -282,9 +348,10 @@ function nextQuestion() {
 
     // 画面に表示
     emojiDisplay.textContent = currentQuestion.emoji;
-    wordDisplay.textContent = currentQuestion.word;
-    jaWordDisplay.textContent = currentQuestion.jaWord; // Fix: Assign jaWord
-    targetKeyDisplay.textContent = currentQuestion.key;
+    wordDisplay.hidden = activeMode === 'kana';
+    wordDisplay.textContent = activeMode === 'kana' ? '' : currentQuestion.word;
+    jaWordDisplay.textContent = currentQuestion.jaWord;
+    targetKeyDisplay.textContent = activeMode === 'kana' ? currentQuestion.kana : currentQuestion.key;
 
     // アニメーション追加
     emojiDisplay.classList.remove('correct-anim');
@@ -293,23 +360,27 @@ function nextQuestion() {
 
     // キーボードのハイライトを更新
     document.querySelectorAll('.highlight-key').forEach(btn => btn.classList.remove('highlight-key'));
-    const targetBtn = document.getElementById('btn-key-' + currentQuestion.key);
+    const targetBtn = document.getElementById('btn-key-' + (activeMode === 'kana' ? currentQuestion.code : currentQuestion.key));
     if (targetBtn) {
         targetBtn.classList.add('highlight-key');
     }
 
-    // 単語を読み上げる（英語 -> 日本語の順で）
-    speakWord(currentQuestion.pronounciation, currentQuestion.jaWord);
+    // かなモードは日本語のみ。それ以外は英語 -> 日本語の順に読み上げる。
+    const englishSpeech = activeMode === 'kana' ? '' : (currentQuestion.pronounciation || currentQuestion.word);
+    speakWord(englishSpeech, currentQuestion.jaWord);
 }
 
 // キー入力の判定
-function handleInput(inputKey) {
+function handleInput(inputKey, physicalCode = '', shifted = false) {
     if (!isPlaying || !currentQuestion) return;
 
     const uppercaseInput = inputKey.toUpperCase();
+    const isCorrect = activeMode === 'kana'
+        ? physicalCode === currentQuestion.code && shifted === Boolean(currentQuestion.shift)
+        : uppercaseInput === currentQuestion.key;
 
     // 正解の場合
-    if (uppercaseInput === currentQuestion.key) {
+    if (isCorrect) {
         playCorrectSound();
         showFeedback('⭕', 'feedback-correct');
 
@@ -317,7 +388,8 @@ function handleInput(inputKey) {
         nextQuestion();
     }
     // 不正解の場合 (Shiftなどの修飾キーは無視)
-    else if (uppercaseInput.length === 1 && uppercaseInput.match(/[A-Z0-9]/)) {
+    else if (activeMode === 'kana' ? kanaRows.flat().some(([code]) => code === physicalCode)
+        : uppercaseInput.length === 1 && uppercaseInput.match(/[A-Z0-9]/)) {
         playWrongSound();
         showFeedback('❌', 'feedback-wrong');
 
@@ -344,6 +416,38 @@ function showFeedback(text, className) {
 // 仮想キーボードの生成
 function createVirtualKeyboard() {
     keyboardArea.innerHTML = '';
+
+    if (activeMode === 'kana') {
+        kanaRows.forEach((row, index) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'keyboard-row keyboard-row-' + index;
+            row.forEach(([code, , kana]) => {
+                if (!/^[ぁ-ん]$/.test(kana)) {
+                    const emptyKey = document.createElement('span');
+                    emptyKey.className = 'key-btn kana-key kana-key-empty';
+                    emptyKey.setAttribute('aria-hidden', 'true');
+                    rowDiv.appendChild(emptyKey);
+                    return;
+                }
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'key-btn kana-key';
+                btn.id = 'btn-key-' + code;
+                btn.setAttribute('aria-label', code === 'Digit0' ? 'わ、Shiftを押すとを' : `${kana}のキー`);
+                btn.innerHTML = code === 'Digit0'
+                    ? '<span class="kana-letter">わ</span><span class="kana-shift-letter">を</span>'
+                    : `<span class="kana-letter">${kana}</span>`;
+                btn.addEventListener('pointerdown', (e) => {
+                    e.preventDefault();
+                    handleInput(kana, code, Boolean(currentQuestion.shift) && code === currentQuestion.code);
+                });
+                rowDiv.appendChild(btn);
+            });
+            keyboardArea.appendChild(rowDiv);
+        });
+        return;
+    }
 
     // 数字の行
     const numbers = '1234567890'.split('');
@@ -388,11 +492,16 @@ function addKeyboardRow(keys, rowIndex) {
 // --- イベントリスナー ---
 
 function startGame(mode) {
+    activeMode = mode;
     if (mode === 'standard') {
         activeGameData = standardData;
     } else if (mode === 'flag') {
         activeGameData = flagData;
+    } else if (mode === 'kana') {
+        activeGameData = kanaQuestionData;
     }
+
+    gameContainer.classList.toggle('kana-mode', mode === 'kana');
 
     initAudio(); // ユーザーのクリックでAudioContextを有効化
     isPlaying = true;
@@ -409,16 +518,18 @@ function startGame(mode) {
 // モード選択ボタンのクリック
 startStandardBtn.addEventListener('click', () => startGame('standard'));
 startFlagBtn.addEventListener('click', () => startGame('flag'));
+startKanaBtn.addEventListener('click', () => startGame('kana'));
 
 // 物理キーボードの入力
 window.addEventListener('keydown', (e) => {
     // スペースキーなどでスクロールするのを防ぐ（必要に応じて）
     if (e.key === " ") e.preventDefault();
 
-    handleInput(e.key);
+    if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+    handleInput(e.key, e.code, e.shiftKey);
 
     // 物理キーを押したときに、画面上の仮想キーボードも一瞬光らせる（視覚的フィードバック）
-    const keyId = 'btn-key-' + e.key.toUpperCase();
+    const keyId = 'btn-key-' + (activeMode === 'kana' ? e.code : e.key.toUpperCase());
     const virtualBtn = document.getElementById(keyId);
     if (virtualBtn) {
         virtualBtn.classList.add('active');

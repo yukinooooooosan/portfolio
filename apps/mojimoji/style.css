@@ -40,6 +40,66 @@ body {
     border: 5px solid #ffcc00;
 }
 
+.game-container.kana-mode {
+    max-width: 600px;
+}
+
+@media (max-width: 700px) {
+    .game-container.kana-mode {
+        box-sizing: border-box;
+        width: calc(100% - 20px);
+        padding: clamp(10px, 2.5vw, 30px);
+    }
+}
+
+.kana-mode #keyboard-area {
+    overflow-x: auto;
+    align-items: flex-start;
+    padding: 6px;
+}
+
+.kana-mode .keyboard-row {
+    /* MacBook Air (M2以降) のかな部分。1キーを4列として段差も同じ比率で縮小する。 */
+    display: grid;
+    grid-template-columns: repeat(53, minmax(0, 1fr));
+    min-width: 280px;
+    gap: 0;
+    padding-left: 0;
+    margin-left: 0;
+    width: 100%;
+}
+
+.kana-mode .kana-key {
+    grid-column: span 4;
+    box-sizing: border-box;
+    min-width: 0;
+    width: auto;
+    height: auto;
+    aspect-ratio: 1;
+    margin-right: 3px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* 「ぬ」は1.25キー幅。た・ち・つは左端から1 / 1.25 / 1.75キー分ずらす。 */
+.kana-mode .keyboard-row-0 > :first-child {
+    grid-column: span 5;
+    aspect-ratio: auto;
+}
+.kana-mode .keyboard-row-1 > :first-child { grid-column: 5 / span 4; }
+.kana-mode .keyboard-row-2 > :first-child { grid-column: 6 / span 4; }
+.kana-mode .keyboard-row-3 > :first-child { grid-column: 8 / span 4; }
+
+.kana-letter { font-size: clamp(0.75rem, 3vw, 1.35rem); }
+.kana-shift-letter { font-size: clamp(0.5rem, 1.8vw, 0.7rem); margin-top: 1px; color: #777; }
+.kana-key.highlight-key .kana-shift-letter { color: white; }
+/* 記号キーの位置は余白で残し、操作できるキーに見える枠は表示しない。 */
+.kana-key-empty { visibility: hidden; pointer-events: none; }
+
 header h1 {
     color: #ff6699;
     font-size: 2rem;
@@ -190,6 +250,16 @@ header h1 {
 #start-flag-btn:active {
     transform: translateY(6px);
     box-shadow: 0 0 0 #1565C0;
+}
+
+#start-kana-btn {
+    background-color: #a45cc8;
+    box-shadow: 0 6px 0 #743894;
+}
+
+#start-kana-btn:active {
+    transform: translateY(6px);
+    box-shadow: 0 0 0 #743894;
 }
 
 /* Animations */
