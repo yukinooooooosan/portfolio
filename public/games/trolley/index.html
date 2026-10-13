@@ -1,0 +1,2264 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>TROLLEY: Beyond the Switch</title>
+<meta name="description" content="そのレバーで、運命が変わる。トロッコの進路を切り替えるブラウザゲーム。">
+<link rel="canonical" href="https://yukinooooooosan.cc/games/trolley/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TROLLEY: Beyond the Switch">
+<meta property="og:description" content="そのレバーで、運命が変わる。トロッコの進路を切り替えるブラウザゲーム。">
+<meta property="og:url" content="https://yukinooooooosan.cc/games/trolley/">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:image" content="https://yukinooooooosan.cc/games/trolley/ogp.webp">
+<meta property="og:image:type" content="image/webp">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TROLLEY: Beyond the Switch。採掘場の分岐とトロッコ、手前の作業員。そのレバーで、運命が変わる。">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="TROLLEY: Beyond the Switch">
+<meta name="twitter:description" content="そのレバーで、運命が変わる。トロッコの進路を切り替えるブラウザゲーム。">
+<meta name="twitter:image" content="https://yukinooooooosan.cc/games/trolley/ogp.webp">
+<meta name="twitter:image:alt" content="TROLLEY: Beyond the Switch。採掘場の分岐とトロッコ、手前の作業員。そのレバーで、運命が変わる。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#141512; --panel:#1d1f1c; --ink:#ece8dc; --dim:#8d8a80;
+  --red:#e24b4a; --amber:#ef9f27; --green:#7fd18b; --paper:#f4f0e4; --paper-ink:#1d1c19;
+}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+  overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;max-width:560px;margin:0 auto;background:#000}
+#view{position:relative;flex:1 1 auto;min-height:0;overflow:hidden}
+#view canvas{display:block;width:100%;height:100%}
+#console{position:relative;flex:0 0 auto;height:min(42vh,400px);background:var(--panel);border-top:2px solid #000;
+  display:grid;grid-template-rows:minmax(0,1fr) 64px;gap:6px;box-sizing:border-box;
+  padding:8px 12px calc(10px + env(safe-area-inset-bottom))}
+#board{width:100%;height:100%;min-height:0;border-radius:8px;background:#111210;display:block}
+#lever{width:100%;height:64px;display:block;touch-action:none;cursor:grab}
+.hud{position:absolute;z-index:3;left:12px;right:12px;top:10px;display:flex;justify-content:space-between;
+  font-size:12px;color:#fff;text-shadow:0 1px 2px #000a;pointer-events:none;font-family:DotGothic16,monospace;letter-spacing:.04em}
+#tunnel{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+#flash{position:absolute;inset:0;background:#fff3d6;opacity:0;pointer-events:none;mix-blend-mode:screen}
+#reason{position:absolute;left:0;right:0;top:34%;text-align:center;font-family:DotGothic16,monospace;
+  font-size:30px;color:#fff;text-shadow:0 2px 0 #000,0 0 14px var(--red);opacity:0;transition:opacity .25s;pointer-events:none}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(10,10,8,.45);padding:16px;box-sizing:border-box}
+.overlay[hidden]{display:none}
+.card{background:var(--paper);color:var(--paper-ink);border-radius:14px;padding:20px 20px 18px;max-width:340px;width:100%;
+  box-shadow:0 12px 32px #0009;text-align:center}
+.card h1{font-family:DotGothic16,monospace;font-size:22px;margin:0 0 6px;letter-spacing:.04em}
+.card p{margin:6px 0;font-size:14px;line-height:1.6}
+.kicker{font-size:11px;letter-spacing:.12em;color:#7a7568;margin:0 0 6px}
+.title{font-family:DotGothic16,monospace;font-size:24px;line-height:1.35;margin:4px 0 10px}
+.big{font-size:40px;font-weight:700;line-height:1;margin:6px 0 2px}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0 4px}
+.chip{background:#e4dfd0;border-radius:999px;padding:3px 10px;font-size:12px}
+button.go{appearance:none;border:0;border-radius:10px;background:#1d1c19;color:#f4f0e4;font-size:16px;
+  padding:12px 18px;margin-top:12px;width:100%;font-family:inherit;cursor:pointer}
+button.go:active{transform:translateY(1px)}
+.small{font-size:11px;color:#7a7568}
+#resultOv{position:absolute;inset:0;padding:8px 12px calc(10px + env(safe-area-inset-bottom));background:var(--panel);box-sizing:border-box;overflow:auto}
+.card.result{max-width:none;height:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;display:flex;flex-direction:column;gap:6px;box-shadow:none}
+.card.result .title{font-size:22px;margin:0;text-wrap:balance}
+.card.result .chips{margin:0}
+.card.result p{margin:0}
+.card.result button.go{margin-top:auto;padding:11px}
+.rhead{display:flex;justify-content:space-between;align-items:baseline}
+.rhead .kicker{margin:0}
+.rtotal{font-size:12px;color:#7a7568}
+.rtotal b{font-size:24px;color:var(--paper-ink);font-variant-numeric:tabular-nums;margin-left:4px}
+.stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.stage{appearance:none;border:1px solid #cfc8b6;background:#ebe6d8;color:#3a372f;border-radius:10px;padding:9px 4px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.stage b{font-family:DotGothic16,monospace;font-weight:400;font-size:15px}
+.stage span{font-size:11px;opacity:.75}
+.stage.on{background:#1d1c19;border-color:#1d1c19;color:#f4f0e4}
+#pbar{position:absolute;z-index:3;left:12px;bottom:12px;display:flex;gap:6px}
+#pbar[hidden]{display:none}
+#pbar button{appearance:none;border:1px solid #fff6;background:#0009;color:#fff;border-radius:999px;font-family:inherit;font-size:13px;padding:7px 14px;cursor:pointer;min-height:36px}
+#pbar button[hidden]{display:none}
+#pbar button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.rrow{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:6px;margin-top:auto}
+.card.result .rrow button.go{margin-top:0}
+button.sub{appearance:none;border:1px solid #1d1c19;background:transparent;color:#1d1c19;border-radius:10px;font-size:13px;font-family:inherit;cursor:pointer;padding:8px 4px}
+.stage:focus-visible,button.sub:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.cams{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.cam{appearance:none;border:1px solid #cfc8b6;background:#ebe6d8;color:#3a372f;border-radius:8px;padding:8px 2px;font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap}
+.cam.on{background:#1d1c19;border-color:#1d1c19;color:#f4f0e4}
+.cam:focus-visible,button.go:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+#replayTag{position:absolute;z-index:3;right:12px;top:30px;font-family:DotGothic16,monospace;font-size:13px;color:#fff;letter-spacing:.1em;text-shadow:0 1px 2px #000a;pointer-events:none;display:flex;align-items:center;gap:6px}
+#replayTag .rec{width:9px;height:9px;border-radius:50%;background:var(--red);animation:rec 1s steps(2) infinite}
+@keyframes rec{50%{opacity:0}}
+#replayTag[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){#replayTag .rec{animation:none}}
+/* トップ画面・記録 */
+.card.top{padding:26px 20px 20px}
+.logo{font-family:DotGothic16,monospace;font-size:34px;line-height:1.05;letter-spacing:.06em;margin:4px 0 2px}
+.logo small{display:block;font-size:13px;letter-spacing:.32em;color:#7a7568;margin-top:6px}
+.topnote{text-wrap:balance;font-size:12px;color:#7a7568;margin:14px 0 0;line-height:1.6}
+button.link{appearance:none;border:0;background:none;color:#5a564c;font-family:inherit;font-size:13px;text-decoration:underline;cursor:pointer;padding:6px;margin-top:6px}
+button.link:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.stage:disabled{cursor:default;opacity:.55;background:#e2ddcf}
+.unlock{font-size:12px;text-align:center;color:#5a564c;margin:0}
+.unlock.new{color:var(--red);font-weight:700}
+.unlock[hidden]{display:none}
+.unlock:not([hidden]){margin-top:auto}
+.unlock:not([hidden]) + .rrow{margin-top:4px}
+.card.rec{max-height:calc(100% - 8px);overflow:auto;text-align:left;padding:18px 16px 14px}
+.card.rec h2{font-family:DotGothic16,monospace;font-weight:400;font-size:18px;margin:0 0 10px;text-align:center}
+.card.rec h3{font-size:12px;letter-spacing:.1em;color:#7a7568;margin:14px 0 6px;font-weight:600}
+.totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:4px}
+.tot{background:#1d1c19;color:#f4f0e4;border-radius:10px;padding:10px 4px 8px;text-align:center;font-size:11px;letter-spacing:.06em}
+.tot b{display:block;font-family:DotGothic16,monospace;font-weight:400;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:0}
+.tot b small{font-size:12px;margin-left:2px}
+.tot.hurt b{color:#ff8a80}
+.card .subtot{font-size:11px;color:#7a7568;text-align:center;margin:2px 0 0;line-height:1.5}
+.card.rec #recCloseBtn{position:sticky;bottom:-14px;box-shadow:0 -12px 12px var(--paper),0 14px 0 6px var(--paper)}
+.sstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.sstat{background:#ebe6d8;border-radius:8px;padding:7px 6px;text-align:center;font-size:11px;color:#5a564c;line-height:1.5}
+.sstat b{display:block;font-family:DotGothic16,monospace;font-weight:400;font-size:13px;color:var(--paper-ink)}
+.ttl{display:flex;flex-wrap:wrap;gap:5px}
+.ttl span{background:#e4dfd0;border-radius:999px;padding:3px 9px;font-size:12px}
+.ttl span.locked{background:transparent;border:1px dashed #cfc8b6;color:#a8a294}
+.ttl span i{font-style:normal;color:#7a7568;margin-left:4px;font-size:11px}
+.log{list-style:none;margin:0;padding:0}
+.log li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px solid #e2ddcf;font-size:12px}
+.log li .st{color:#7a7568;font-size:11px}
+.log li .tt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.log li .dm{font-variant-numeric:tabular-nums;color:#5a564c}
+.empty{font-size:12px;color:#7a7568;text-align:center;margin:18px 0}
+#heat{position:fixed;inset:0;overflow:auto;background:#111;color:#eee;padding:16px;font-family:system-ui;display:none}
+#heat canvas{display:block;margin:8px 0;image-rendering:pixelated}
+#heat .legend span{display:inline-block;width:12px;height:12px;margin:0 4px 0 10px;vertical-align:-2px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="view">
+    <div class="hud"><span id="stageName">ステージ1 基本</span><span id="tries"></span></div>
+    <div id="tunnel"></div>
+    <div id="flash"></div>
+    <div id="reason"></div>
+    <div class="overlay" id="topOv">
+      <div class="card top">
+        <p class="kicker">信号扱所 第3係</p>
+        <div class="logo">TROLLEY<small>BEYOND THE SWITCH</small></div>
+        <p class="topnote">あなたのできることは、バーで分岐器を<br>切り替えることだけです。</p>
+        <button class="go" id="playBtn">はじめる</button>
+        <button class="link" id="recordsBtn" type="button">これまでの記録</button>
+      </div>
+    </div>
+    <div class="overlay" id="recordsOv" hidden>
+      <div class="card rec">
+        <h2>これまでの記録</h2>
+        <div id="recBody"></div>
+        <button class="go" id="recCloseBtn">戻る</button>
+      </div>
+    </div>
+    <div class="overlay" id="startOv" hidden>
+      <div class="card">
+        <p class="kicker">TROLLEY: BEYOND THE SWITCH</p>
+        <h1>信号扱所 第3係</h1>
+        <p>トロッコが分岐に近づいています。<br>作業員の命運は、あなたに委ねられています。</p>
+        <p class="small">バーは指（またはマウス、←→キー）で動かします</p>
+        <div class="stages" role="group" aria-label="ステージ">
+          <button class="stage" id="stage-0" data-stage="0"><b>ステージ1</b><span>基本</span></button>
+          <button class="stage" id="stage-1" data-stage="1"><b>ステージ2</b><span>洞窟</span></button>
+          <button class="stage" id="stage-2" data-stage="2"><b>ステージ3</b><span>氷上</span></button>
+        </div>
+        <button class="go" id="startBtn">出発</button>
+        <button class="link" id="toTopBtn" type="button">トップに戻る</button>
+      </div>
+    </div>
+    <div id="replayTag" hidden><span class="rec"></span><span id="replayTxt">REPLAY</span></div>
+    <div id="pbar" hidden><button id="pauseBtn" type="button">⏸ 一時停止</button><button id="stepBtn" type="button" hidden>コマ送り ▶|</button></div>
+  </div>
+  <div id="console">
+    <canvas id="board"></canvas>
+    <canvas id="lever"></canvas>
+    <div id="resultOv" hidden>
+      <div class="card result">
+        <div class="rhead"><span class="kicker">運転状況報告</span><span class="rtotal">被害 <b id="rTotal"></b></span></div>
+        <div class="title" id="rTitle"></div>
+        <div class="chips" id="rChips"></div>
+        <p class="small" id="rNote"></p>
+        <p class="unlock" id="unlockMsg" hidden></p>
+        <div class="rrow"><button class="go" id="retryBtn">もう一回</button><button class="sub" id="stageBtn">ステージ選択</button></div>
+        <div class="cams" role="group" aria-label="リプレイのカメラ">
+          <button class="cam" id="cam-default" data-cam="default">デフォルト</button>
+          <button class="cam" id="cam-onboard" data-cam="onboard">車載</button>
+          <button class="cam" id="cam-rails" data-cam="rails">レールの間</button>
+          <button class="cam" id="cam-top" data-cam="top">真上</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="heat"></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
+
+/* =========================================================
+   定数
+   ========================================================= */
+const DT = 1 / 120;          // 固定タイムステップ
+const FIRST_GAP = 60, RETRY_GAP = 30;   // スタート地点から分岐の先端までの距離（初回／2回目以降）
+const TONGUE = 1.0;          // トングレールの長さ
+const WHEELBASE = 3.0;       // 前輪と後輪の間隔
+const CAR_GAP = 1.4;         // 連結した前の車両の後輪から、次の車両の前輪まで
+const BAND_LO = 0.15, BAND_HI = 0.85;  // これより内側は「中途半端」
+const SPEED = 12;            // 走行速度 m/s
+const BODY_Y = 0.65;         // 車体中心の高さ
+const BODY_HALF = [0.7, 0.35, 1.8];
+const BALL_R = 0.28;
+const BALL_LOCAL = [[-0.32, -0.75], [0.32, -0.75], [-0.32, 0.05], [0.32, 0.05], [0, 0.85]];
+
+// 猫と犬：小さな模型（base）を scale 倍して、人と同じくらいの背丈にする。half は当たり判定の箱
+const ANIMAL = {
+  cat: { base: [0.12, 0.16, 0.26], scale: 5, mass: 20, name: '猫', unit: '匹' },
+  dog: { base: [0.16, 0.24, 0.36], scale: 3.3, mass: 25, name: '犬', unit: '匹' },
+};
+for (const a of Object.values(ANIMAL)) a.half = a.base.map(v => v * a.scale);
+const REASON_LABEL = {
+  climb: '乗り上がり脱線',
+  'rear-climb': '後輪 乗り上がり',
+  shove: '割り込み脱線',
+  drift: 'マルチトラックドリフト',
+  overturn: '転覆',
+  split: '泣き別れ',
+};
+
+/* =========================================================
+   線路
+   ========================================================= */
+function makePath(pts) {
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++)
+    cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const len = cum[cum.length - 1];
+  function sample(s) {
+    s = Math.max(0, Math.min(len, s));
+    let lo = 0, hi = pts.length - 1;
+    while (hi - lo > 1) { const m = (lo + hi) >> 1; if (cum[m] <= s) lo = m; else hi = m; }
+    const segLen = (cum[hi] - cum[lo]) || 1e-9, t = (s - cum[lo]) / segLen;
+    const [ax, az] = pts[lo], [bx, bz] = pts[hi];
+    return { x: ax + (bx - ax) * t, z: az + (bz - az) * t, tx: (bx - ax) / segLen, tz: (bz - az) / segLen };
+  }
+  return { pts, len, sample };
+}
+const bez = (a, b, c, d, t) => { const u = 1 - t; return u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d; };
+function branchPts(sign) {
+  const X = 3.2 * sign, pts = [];
+  for (let i = 0; i <= 80; i++) { const t = i / 80; pts.push([bez(0, 0, X, X, t), bez(0, -6, -10, -16, t)]); }
+  for (let z = -18; z >= -90; z -= 2) pts.push([X, z]);
+  return pts;
+}
+// 現在のステージの線路（ステージを切り替えると差し替わる）
+let LS, PATHS, STAGE;
+
+/* 分岐器の形（見た目用）
+   2本のトングレールは転てつ棒でつながり、後端（ヒール）を支点に先端が左右に振れる。
+   行きたい方向と反対側のトングレールが基本レールに密着する。中間では両側に隙間が開く。 */
+const TV = 2.5;     // 見た目のトングレール長
+const GAP = 0.22;   // 開いた側の隙間（実物より誇張）
+function railXZ(path, s, off) { const p = path.sample(s); return { x: p.x - p.tz * off, z: p.z + p.tx * off }; }
+function tongueGeom(q) {
+  const rTip = { x: 0.45 - GAP * q, z: 0 }, lTip = { x: rTip.x - (0.9 - GAP), z: 0 };
+  return {
+    lTip, rTip,
+    lHeel: railXZ(PATHS.R, TV, -0.5),   // 左のトングは反位側（右へ行く線路）の左レールにつながる
+    rHeel: railXZ(PATHS.L, TV, 0.5),    // 右のトングは定位側（左へ行く線路）の右レールにつながる
+    gapL: lTip.x + 0.45, gapR: 0.45 - rTip.x,
+  };
+}
+
+function onTrackP(paths, seg, s, off) { const p = paths[seg].sample(s); return { x: p.x - p.tz * off, z: p.z + p.tx * off }; }
+
+/* =========================================================
+   ステージ
+   ========================================================= */
+// 線路に沿った岩壁：中心線から off の位置に内側の面が来るよう、厚み 0.8 の箱を並べる
+function wallsAlong(path, s0, s1, off, opt = {}) {
+  const out = [], step = opt.step ?? 4, th = 0.8, h = opt.h ?? 4.5, skip = opt.skip ?? [];
+  const offAt = typeof off === 'function' ? off : () => off;   // 位置によって変わる幅にも対応
+  const sgn = offAt(s0) < 0 ? -1 : 1;
+  for (let s = s0; s < s1 - 1e-6; s += step) {
+    const s2 = Math.min(s1, s + step), sm = (s + s2) / 2;
+    if (skip.some(([a, b]) => sm > a && sm < b)) continue;
+    const a = railXZ(path, s, offAt(s) + sgn * th / 2), b = railXZ(path, s2, offAt(s2) + sgn * th / 2);
+    const dx = b.x - a.x, dz = b.z - a.z;
+    out.push({ x: (a.x + b.x) / 2, z: (a.z + b.z) / 2, w: th, h, d: Math.hypot(dx, dz) + 0.2, yaw: Math.atan2(dx, dz), rock: true });
+  }
+  return out;
+}
+// 点を結んだ岩壁
+function wallsPoly(pts, h = 4.5) {
+  const out = [];
+  for (let i = 1; i < pts.length; i++) {
+    const [ax, az] = pts[i - 1], [bx, bz] = pts[i], dx = bx - ax, dz = bz - az;
+    out.push({ x: (ax + bx) / 2, z: (az + bz) / 2, w: 0.8, h, d: Math.hypot(dx, dz) + 0.6, yaw: Math.atan2(dx, dz), rock: true });
+  }
+  return out;
+}
+
+function makeStage1() {
+  const stemPts = []; for (let z = 75; z >= 0; z -= 1) stemPts.push([0, z]);
+  const paths = { stem: makePath(stemPts), L: makePath(branchPts(-1)), R: makePath(branchPts(1)) };
+  return {
+    id: 1, name: 'ステージ1 基本', short: '基本', scenery: 'quarry',
+    paths, LS: 75, speed: SPEED, endS: 46, railLen: 85,
+    balls: BALL_LOCAL.map(([x, z]) => [x, 0, z]),
+    people: [
+      // 5人（定位側 = 左）と1人（反位側 = 右）。線路上の位置 s と横ずれ off で置く
+      ...[[14.5, 0.3], [15.5, -0.3], [16.5, 0.25], [17.5, -0.3], [18.5, 0.2]].map(([s, off]) => onTrackP(paths, 'L', s, off)),
+      onTrackP(paths, 'R', 16, 0),
+    ],
+    walls: [{ x: 5.4, z: -10, w: 0.5, h: 1.4, d: 10 }],
+    labels: [['L', 5], ['R', 1]],
+    railCam: { pos: [0, 1.5, -23], look: [0, -3] },
+    portalZ: -67.9,
+  };
+}
+
+/* ステージ2「洞窟」
+   曲がった坑道を抜けると分岐のある広間。その先は岩の柱をはさんで二股の坑道に分かれる。
+   左（定位）の坑道に5人、右（反位）の坑道の入口に1人。
+   荷は山盛りで、右の急カーブでは普通に走っても上の段の球がこぼれる。 */
+function makeStage2() {
+  const W = 4, RR = 20, A = 55 * Math.PI / 180;
+  const stem = [];
+  for (let i = 0; i <= 120; i++) { const t = i / 120; stem.push([bez(-14, -14, 0, 0, t), bez(76, 52, 44, 20, t)]); }
+  for (let z = 19; z >= 0; z -= 1) stem.push([0, z]);
+  const L = [], R = [];
+  for (let i = 0; i <= 80; i++) { const t = i / 80; L.push([bez(0, 0, -W, -W, t), bez(0, -7, -12, -20, t)]); R.push([bez(0, 0, W, W, t), bez(0, -7, -12, -20, t)]); }
+  for (let z = -22; z >= -108; z -= 2) L.push([-W, z]);
+  for (let i = 1; i <= 40; i++) { const a = A * i / 40; R.push([W + RR * (1 - Math.cos(a)), -20 - RR * Math.sin(a)]); }
+  const ex = W + RR * (1 - Math.cos(A)), ez = -20 - RR * Math.sin(A);
+  for (let d = 2; d <= 80; d += 2) R.push([ex + Math.sin(A) * d, ez - Math.cos(A) * d]);
+  const paths = { stem: makePath(stem), L: makePath(L), R: makePath(R) };
+  const LS2 = paths.stem.len;
+  const HW = 2.6, S0 = 15, END = 100;
+  // 岩の柱：分岐のすぐ先（NOSE）から尖って始まり、奥へ行くほど太くなる
+  const NOSE = 8, pillarOff = s => s <= NOSE ? 1.0 : s >= 20 ? HW : 1.0 + (s - NOSE) / (20 - NOSE) * (HW - 1.0);
+  const at = (seg, s, off) => { const p = railXZ(paths[seg], s, off); return [p.x, p.z]; };
+  const walls = [
+    // 曲がった坑道
+    ...wallsAlong(paths.stem, 0, LS2 - 26, -HW), ...wallsAlong(paths.stem, 0, LS2 - 26, HW),
+    // 分岐のある広間
+    // 坑道を出たら左右に大きく広がり、分岐に向かってハの字に狭まる（カメラが壁に埋もれないように）。
+    // 分岐を過ぎると、そのまま二股の坑道の外側の壁へ開いていく
+    ...wallsPoly([at('stem', LS2 - 26, -HW - 0.4), [-8.5, 19], [-3.4, 2], at('L', S0, -HW - 0.4)]),
+    ...wallsPoly([at('stem', LS2 - 26, HW + 0.4), [8.5, 19], [3.4, 2], at('R', S0, HW + 0.4)]),
+    // 二股の坑道と、間の岩の柱
+    ...wallsAlong(paths.L, S0, END, -HW), ...wallsAlong(paths.R, S0, END, HW),
+    ...[
+      ...wallsAlong(paths.L, NOSE, END, s => pillarOff(s), { step: 2 }),
+      ...wallsAlong(paths.R, NOSE, END, s => -pillarOff(s), { step: 2 }),
+      ...wallsPoly([at('L', NOSE, 1.4), at('R', NOSE, -1.4)]),
+    ].map(w => ({ ...w, pillar: true })),   // 真ん中の岩の柱（リプレイの「レールの間」では見えなくする）
+  ];
+  // トロッコや球が届かない手前の坑道と、坑道の奥の壁は見た目だけ（物理の計算から外して軽くする）
+  for (const wl of walls) if (wl.z > 17 || wl.z < -50) wl.phys = false;
+  return {
+    nose: NOSE,
+    id: 2, name: 'ステージ2 洞窟', sapAxis: 2, ballMass: 5, followAfter: 6, short: '洞窟', scenery: 'cave',
+    paths, LS: LS2, speed: SPEED, endS: 61, railLen: END,
+    // 山盛りの荷：荷台いっぱいの下の段12個＋その上に5個
+    balls: [
+      ...[-1.4, -0.84, -0.28, 0.28, 0.84, 1.4].flatMap(z => [[-0.33, 0, z], [0.33, 0, z]]),
+      ...[-1.12, -0.56, 0, 0.56, 1.12].map(z => [0, 0.37, z]),
+    ],
+    people: [
+      ...[[17.5, 0.3], [18.5, -0.3], [19.5, 0.25], [20.5, -0.3], [21.5, 0.2]].map(([s, off]) => onTrackP(paths, 'L', s, off)),
+      onTrackP(paths, 'R', 19.5, 0),   // 1人（5人と同じくらいの奥行き）
+    ],
+    walls,
+    labels: [['L', 5], ['R', 1]],
+    railCam: { pos: [0, 1.5, -31], look: [0, -3] },
+  };
+}
+
+/* ステージ3「連結」
+   2両つながったトロッコ。作業員は左右の線路が分かれた間に立っている。
+   どちらへ普通に進んでも被害はないが、車両が分岐を通っている途中でバーを動かすと、
+   前後の車両が別々の線路へ泣き別れし、連結器に引っ張られて間の作業員を巻き込む。 */
+function makeStage3() {
+  const base = makeStage1();
+  // 二股を大きく広げる（速くても転覆しない、長くゆるいカーブ）
+  const X = 6, branch = sign => {
+    const pts = [];
+    for (let i = 0; i <= 100; i++) { const t = i / 100; pts.push([bez(0, 0, X * sign, X * sign, t), bez(0, -11, -20, -34, t)]); }
+    for (let z = -36; z >= -95; z -= 2) pts.push([X * sign, z]);
+    return pts;
+  };
+  const paths = { stem: base.paths.stem, L: makePath(branch(-1)), R: makePath(branch(1)) };
+  // 線路の間に、手前から1人・2人・3人・4人のピラミッド
+  const people = [];
+  [1, 2, 3, 4].forEach((n, row) => { for (let i = 0; i < n; i++) people.push({ x: (i - (n - 1) / 2) * 0.9, z: -10 - row * 3 }); });
+  // ピラミッドより奥、左の線路に猫、右の線路に犬
+  for (const [kind, seg] of [['cat', 'L'], ['dog', 'R']]) { const p = paths[seg].sample(30); people.push({ x: p.x, z: p.z, kind }); }
+  return {
+    ...base,
+    id: 3, name: 'ステージ3 氷上', short: '氷上', cars: 2, portalZ: undefined, hybridCars: true,
+    paths, speed: 15, portalX: X, carMass: 600,   // 重いトロッコ
+    theme: 'ice', scenery: 'lake', friction: { trolley: 0.02, person: 0.15, ball: 0.05 },   // 凍った湖の上の氷上線路
+    balls: [],   // 荷は積まない（空のトロッコ）
+    people,
+    walls: [],
+    labels: [['mid', 10]], followAfter: 12,
+    railCam: { pos: [0, 1.5, -24], look: [0, -3] },
+  };
+}
+
+const STAGES = [makeStage1(), makeStage2(), makeStage3()];
+function useStage(i) { STAGE = STAGES[i]; PATHS = STAGE.paths; LS = STAGE.LS; }
+useStage(0);
+
+/* =========================================================
+   シミュレーション（描画から独立。ヘッドレスでも動く）
+   ========================================================= */
+class Sim {
+  constructor(stage, opt = {}) {
+    this.stage = stage;
+    this.headless = !!opt.headless;
+    this.t = 0; this.state = 'rail'; this.reason = null;
+    const gap = opt.startGap ?? 30;
+    this.front = { seg: 'stem', s: LS - gap };
+    this.rear = { seg: 'stem', s: LS - gap - WHEELBASE };
+    this.p = opt.p0 ?? 0; this.q = this.p; this.qv = 0;
+    this.speed = stage.speed ?? SPEED;
+    this.marks = { front: null, rear: null };
+    this.leverMoved = false;
+    this.hits = new Map();
+    this.wallTouched = false;
+    this.derailT = 0; this.endT = 0;
+    this.prevYaw = null; this.yawRate = 0; this.latA = 0;
+    this.events = []; this.pendingFling = [];
+    this.balls = [];
+    this.buildWorld();
+    this.updatePose(0);
+    const tb = this.trolleyBody;
+    tb.position.set(this.pose.x, BODY_Y, this.pose.z);
+    tb.quaternion.setFromEuler(0, this.pose.yaw, 0);
+    const v0 = new CANNON.Vec3(this.pose.dir.x * this.speed, 0, this.pose.dir.z * this.speed);
+    tb.velocity.copy(v0);
+    // 球の積荷：最初から物理で荷台に載せておく（カーブで転がり、振られれば落ちる）
+    this.balls = this.stage.balls.map(([lx, ly, lz]) => {
+      const p = this.localToWorld(lx, lz);
+      const b = new CANNON.Body({ mass: this.stage.ballMass ?? 12, material: this.mats.mB, linearDamping: 0.01, angularDamping: 0.25 });
+      b.addShape(new CANNON.Sphere(BALL_R));
+      b.position.set(p.x, BODY_Y + BODY_HALF[1] + BALL_R + 0.005 + ly, p.z);
+      b.velocity.copy(v0); b.isBall = true; b.allowSleep = false;
+      b.addEventListener('collide', e => {
+        if (!e.body.isGround) return;
+        const v = Math.abs(e.contact.getImpactVelocityAlongNormal());
+        if (v > 2.2) this.events.push({ type: 'ballImpact', v, x: b.position.x, y: 0.05, z: b.position.z });
+      });
+      this.world.addBody(b); return b;
+    });
+    // 2両目以降（連結トロッコ）。前の車両の後ろに CAR_GAP をあけてつなぐ
+    this.cars = [];
+    let prevRear = this.rear;
+    for (let j = 1; j < (stage.cars ?? 1); j++) {
+      const front = { seg: 'stem', s: prevRear.s - CAR_GAP }, rear = { seg: 'stem', s: front.s - WHEELBASE };
+      const body = this.makeCarBody(); this.world.addBody(body);
+      const car = { front, rear, body, pose: this.poseOf(front, rear) };
+      body.position.set(car.pose.x, BODY_Y, car.pose.z); body.quaternion.setFromEuler(0, car.pose.yaw, 0);
+      const v = new CANNON.Vec3(car.pose.dir.x * this.speed, 0, car.pose.dir.z * this.speed); body.velocity.copy(v);
+      for (const [lx, ly, lz] of this.stage.balls) {
+        const p = this.localToWorld(lx, lz, car.pose);
+        const b = new CANNON.Body({ mass: this.stage.ballMass ?? 12, material: this.mats.mB, linearDamping: 0.01, angularDamping: 0.25 });
+        b.addShape(new CANNON.Sphere(BALL_R));
+        b.position.set(p.x, BODY_Y + BODY_HALF[1] + BALL_R + 0.005 + ly, p.z);
+        b.velocity.copy(v); b.isBall = true; b.allowSleep = false;
+        this.world.addBody(b); this.balls.push(b);
+      }
+      this.cars.push(car); prevRear = rear;
+    }
+  }
+
+  // 一番後ろの車輪
+  get tail() { return this.cars.length ? this.cars[this.cars.length - 1].rear : this.rear; }
+  get bodies() { return [this.trolleyBody, ...this.cars.map(c => c.body)]; }
+
+  // 車両1両分の物体（走行中はキネマティック）
+  makeCarBody() {
+    const tb = new CANNON.Body({ mass: 0, type: CANNON.Body.KINEMATIC, material: this.mats.mT, linearDamping: 0, angularDamping: 0.03 });
+    tb.addShape(new CANNON.Box(new CANNON.Vec3(...BODY_HALF)));          // 車体（荷台の床）
+    const wh = 0.225, wy = BODY_HALF[1] + wh;                              // 荷台の壁（高さ0.45）
+    tb.addShape(new CANNON.Box(new CANNON.Vec3(0.05, wh, 1.8)), new CANNON.Vec3(-0.7, wy, 0));
+    tb.addShape(new CANNON.Box(new CANNON.Vec3(0.05, wh, 1.8)), new CANNON.Vec3(0.7, wy, 0));
+    tb.addShape(new CANNON.Box(new CANNON.Vec3(0.7, wh, 0.05)), new CANNON.Vec3(0, wy, -1.75));
+    tb.addShape(new CANNON.Box(new CANNON.Vec3(0.7, wh, 0.05)), new CANNON.Vec3(0, wy, 1.75));
+    tb.isTrolley = true; tb.allowSleep = false;
+    tb.addEventListener('collide', e => this.onTrolleyContact(e, tb));
+    return tb;
+  }
+
+  // 前輪・後輪の位置から車体の位置と向き
+  poseOf(front, rear) {
+    const F = this.axlePos(front), R = this.axlePos(rear);
+    const dx = F.x - R.x, dz = F.z - R.z, d = Math.hypot(dx, dz) || 1;
+    const dir = { x: dx / d, z: dz / d };
+    return { x: (F.x + R.x) / 2, z: (F.z + R.z) / 2, yaw: Math.atan2(-dir.x, -dir.z), dir, F, R, axleDist: d };
+  }
+  // キネマティックな車体を、次のステップで pose の位置・向きになるよう動かす
+  drive(body, pose, dt) {
+    if (dt <= 0) return;
+    body.velocity.set((pose.x - body.position.x) / dt, 0, (pose.z - body.position.z) / dt);
+    const f = body.quaternion.vmult(new CANNON.Vec3(0, 0, -1));
+    let dyw = pose.yaw - Math.atan2(-f.x, -f.z); dyw = Math.atan2(Math.sin(dyw), Math.cos(dyw));
+    body.angularVelocity.set(0, dyw / dt, 0);
+  }
+  // 2両目以降を進める。脱線条件に当たったら理由を返す
+  moveCars(ds, dt, checks) {
+    let prev = { rearPose: this.pose, rear: this.rear };
+    for (const car of this.cars) {
+      if (checks) {
+        let r = this.advance(car.front, ds, null); if (r) return { ...r, reason: 'rear-climb' };
+        r = this.advance(car.rear, ds, null); if (r) return { ...r, reason: 'rear-climb' };
+        // 車輪の下でトングレールが動いたら、その車輪は反対側の線路へ押し出される（泣き別れの起き方）
+        for (const a of [car.front, car.rear]) if (a.seg !== 'stem' && a.s < TONGUE && ((a.seg === 'L' && this.q > 0.5) || (a.seg === 'R' && this.q < 0.5))) {
+          a.seg = a.seg === 'L' ? 'R' : 'L'; this.events.push({ type: 'cross', axle: 'car' });
+        }
+      } else { car.front.s += ds; car.rear.s += ds; }
+      car.pose = this.poseOf(car.front, car.rear);
+      this.drive(car.body, car.pose, dt);
+      if (checks) {
+        if (car.front.seg !== 'stem' && car.rear.seg !== 'stem' && car.front.seg !== car.rear.seg) return { reason: 'drift' };
+        // 前の車両と別々の線路へ分かれた：連結器が開いたら泣き別れ
+        const a = prev.rearPose, b = car.pose;
+        const ax = a.x - a.dir.x * 2.2, az = a.z - a.dir.z * 2.2, bx = b.x + b.dir.x * 2.2, bz = b.z + b.dir.z * 2.2;
+        if (Math.hypot(ax - bx, az - bz) > 0.5) return { reason: 'split' };
+      }
+      prev = { rearPose: car.pose, rear: car.rear };
+    }
+    return null;
+  }
+
+  buildWorld() {
+    const w = this.world = new CANNON.World({ gravity: new CANNON.Vec3(0, -6.5, 0) });
+    w.broadphase = new CANNON.SAPBroadphase(w);
+    w.allowSleep = true;
+    w.solver.iterations = 12;
+    const mG = new CANNON.Material('ground'), mT = new CANNON.Material('trolley'), mP = new CANNON.Material('person'),
+          mW = new CANNON.Material('wall'), mB = new CANNON.Material('ball');
+    w.defaultContactMaterial.friction = 0.4; w.defaultContactMaterial.restitution = 0.2;
+    const cm = (a, b, f, r) => w.addContactMaterial(new CANNON.ContactMaterial(a, b, { friction: f, restitution: r }));
+    const fr = this.stage.friction || {};   // 氷のステージでは地面がよく滑る
+    cm(mG, mT, fr.trolley ?? 0.08, 0.5); cm(mW, mT, 0.08, 0.8); cm(mG, mB, fr.ball ?? 0.2, 0.45); cm(mW, mB, 0.1, 0.7);
+    cm(mG, mP, fr.person ?? 0.6, 0.1); cm(mT, mP, 0.3, 0.45); cm(mB, mP, 0.3, 0.5); cm(mT, mB, 0.15, 0.3);
+    this.mats = { mG, mT, mP, mW, mB };
+
+    const ground = new CANNON.Body({ mass: 0, material: mG });
+    ground.addShape(new CANNON.Plane());
+    ground.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+    ground.isGround = true;
+    w.addBody(ground);
+
+    if (this.stage.sapAxis !== undefined) w.broadphase.axisIndex = this.stage.sapAxis;   // 奥行き方向に長い舞台
+    this.walls = this.stage.walls.filter(wl => wl.phys !== false).map(wl => {
+      const b = new CANNON.Body({ mass: 0, material: mW });
+      b.addShape(new CANNON.Box(new CANNON.Vec3(wl.w / 2, wl.h / 2, wl.d / 2)));
+      b.position.set(wl.x, wl.h / 2, wl.z); b.quaternion.setFromEuler(0, wl.yaw || 0, 0);
+      b.isWall = true; w.addBody(b); return b;
+    });
+
+    this.people = this.stage.people.map((pp, i) => {
+      const b = new CANNON.Body({ mass: 22, material: mP, linearDamping: 0.05, angularDamping: 0.15 });
+      const an = pp.kind && ANIMAL[pp.kind], hh = an ? an.half : [0.24, 0.85, 0.18];
+      b.addShape(new CANNON.Box(new CANNON.Vec3(...hh)));
+      if (an) { b.mass = an.mass; b.updateMassProperties(); }
+      b.position.set(pp.x, hh[1], pp.z); b.kind = pp.kind;
+      b.aabbNeedsUpdate = true;   // 配置後に当たり判定の範囲を計算し直す（眠っている物体は自分では更新しない）
+      b.personIndex = i; b.sleepSpeedLimit = 0.25;
+      w.addBody(b); b.sleep();
+      b.addEventListener('collide', e => this.onPersonContact(b, e));
+      return b;
+    });
+
+    // トロッコ：走行中は座標で動かすキネマティック体、脱線したら同じ物体を動的に切り替える
+    const tb = this.trolleyBody = this.makeCarBody();
+    w.addBody(tb);
+  }
+
+  // 接触点（ワールド座標）
+  contactPoint(c, self) {
+    const p = c.bi === self ? c.bi.position.vadd(c.ri) : c.bj.position.vadd(c.rj);
+    return { x: p.x, y: Math.max(0.05, p.y), z: p.z };
+  }
+
+  onTrolleyContact(e, self = this.trolleyBody) {
+    if (e.body.isGround && this.reason) {
+      const v = Math.abs(e.contact.getImpactVelocityAlongNormal());
+      if (v > 1.6 && this.t - (this.lastImpactT || -1) > 0.08) {
+        this.lastImpactT = this.t;
+        this.events.push({ type: 'impact', v, ...this.contactPoint(e.contact, self) });
+      }
+    }
+    if (e.body.isWall) {
+      this.events.push({ type: 'wallHit', ...this.contactPoint(e.contact, self) });
+      if (!this.wallTouched) this.events.push({ type: 'wall' });
+      this.wallTouched = true;
+    }
+  }
+
+  onPersonContact(b, e) {
+    const o = e.body, i = b.personIndex;
+    if (this.hits.has(i)) return;
+    let cause = null;
+    if (o.isTrolley) cause = this.wallTouched ? '壁経由' : '直撃';
+    else if (o.isBall) cause = '積荷';
+    else if (o.personIndex !== undefined && this.hits.has(o.personIndex)) cause = '巻き添え';
+    if (!cause) return;
+    const v = Math.abs(e.contact.getImpactVelocityAlongNormal());
+    if (v < 0.9) return;
+    this.hits.set(i, cause);
+    this.events.push({ type: 'hit', i, cause });
+    this.pendingFling.push(b);
+  }
+
+  axlePos(a) { return PATHS[a.seg].sample(a.s); }
+
+  updatePose(dt) {
+    const F = this.axlePos(this.front), R = this.axlePos(this.rear);
+    const dx = F.x - R.x, dz = F.z - R.z, d = Math.hypot(dx, dz) || 1;
+    const dir = { x: dx / d, z: dz / d };
+    const yaw = Math.atan2(-dir.x, -dir.z);
+    if (this.prevYaw !== null && dt > 0) {
+      let dy = yaw - this.prevYaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+      this.yawRate = dy / dt;
+    }
+    this.prevYaw = yaw;
+    this.latA = this.speed * this.yawRate;   // +: 左カーブ（外側＝右）
+    const mx = (F.x + R.x) / 2, mz = (F.z + R.z) / 2;
+    this.pose = { x: mx, z: mz, yaw, dir, F, R, axleDist: d };
+    // キネマティックな車体：速度を与えて world.step で目標位置へ動かす
+    const tb = this.trolleyBody;
+    // 向きも角速度で回す（壁が回ると球が押される）。現在の向きとの差から決めるので誤差が溜まらない
+    if (dt > 0) {
+      tb.velocity.set((mx - tb.position.x) / dt, 0, (mz - tb.position.z) / dt);
+      const f = tb.quaternion.vmult(new CANNON.Vec3(0, 0, -1));
+      let dyw = yaw - Math.atan2(-f.x, -f.z); dyw = Math.atan2(Math.sin(dyw), Math.cos(dyw));
+      tb.angularVelocity.set(0, dyw / dt, 0);
+    }
+  }
+
+  // 車体ローカル(x,z) → ワールド
+  localToWorld(lx, lz, pose = this.pose) {
+    const c = Math.cos(pose.yaw), s = Math.sin(pose.yaw);
+    return { x: pose.x + lx * c + lz * s, z: pose.z - lx * s + lz * c };
+  }
+  ballPositions() {
+    return this.balls.map(b => ({ x: b.position.x, y: b.position.y, z: b.position.z, q: b.quaternion }));
+  }
+
+  step() {
+    const dt = DT;
+    if (this.headless) this.events.length = 0;
+    this.t += dt;
+    if (this.state === 'rail') this.railStep(dt);
+    else if (this.state === 'derailed') this.freeStep(dt);
+    else if (!this.reason) {   // 線路上で終わった後も、そのまま走り続ける
+      const ds = this.speed * dt; this.front.s += ds; this.rear.s += ds;
+      this.updatePose(dt); this.moveCars(ds, dt, false); this.world.step(dt);
+    } else this.world.step(dt);
+    for (const b of this.pendingFling) {
+      b.wakeUp(); b.velocity.y += 3.2; b.angularVelocity.x += 3; b.angularVelocity.z += 2;
+    }
+    this.pendingFling.length = 0;
+  }
+
+  // トングレール：バーにわずかに遅れて追従（臨界減衰バネ）
+  tongueStep(dt) {
+    if (this.p > 0.05) this.leverMoved = true;
+    const w = 40, acc = w * w * (this.p - this.q) - 2 * w * this.qv;
+    this.qv += acc * dt; this.q += this.qv * dt;
+    if (this.q < 0) { if (this.qv < -0.4) this.events.push({ type: 'clunk' }); this.q = 0; this.qv = 0; }
+    if (this.q > 1) { if (this.qv > 0.4) this.events.push({ type: 'clunk' }); this.q = 1; this.qv = 0; }
+  }
+
+  // 連結車両：先頭車が脱線したあとも、2両目以降は線路の上を走り続ける。
+  // 伸び縮みする連結器で先頭車とつながり、伸びすぎるか車輪が泣き別れたら2両目も脱線する
+  railCarsStep(dt) {
+    this.tongueStep(dt);
+    this.carSpeed = Math.max(0, this.carSpeed - (this.stage.carBrake ?? 5) * dt);
+    const ds = this.carSpeed * dt, car = this.cars[0];
+    for (const c of this.cars) {
+      for (const a of [c.front, c.rear]) {
+        const r = this.advance(a, ds, null);
+        if (r) return this.detachCars('climb');
+      }
+      for (const a of [c.front, c.rear]) if (a.seg !== 'stem' && a.s < TONGUE && ((a.seg === 'L' && this.q > 0.5) || (a.seg === 'R' && this.q < 0.5))) {
+        a.seg = a.seg === 'L' ? 'R' : 'L'; this.events.push({ type: 'cross', axle: 'car' });
+      }
+      c.pose = this.poseOf(c.front, c.rear);
+      this.drive(c.body, c.pose, dt);
+      if (c.front.seg !== 'stem' && c.rear.seg !== 'stem' && c.front.seg !== c.rear.seg) return this.detachCars('drift');
+    }
+    // 連結器：先頭車の後端と2両目の前端をばねで引き合わせる（引っ張る力には上限）
+    const tb = this.trolleyBody, a = tb.pointToWorldFrame(new CANNON.Vec3(0, -0.1, 2.2));
+    const bx = car.pose.x + car.pose.dir.x * 2.2, bz = car.pose.z + car.pose.dir.z * 2.2, by = BODY_Y - 0.1;
+    const dx = bx - a.x, dy = by - a.y, dz = bz - a.z, d = Math.hypot(dx, dy, dz);
+    this.couplerStretch = d;
+    if (d > 1.6) return this.detachCars('coupler');
+    if (d > 1e-3) {
+      const f = Math.min(this.stage.carMass ?? 180, 600) * Math.min(30, d * 25) / d;
+      tb.applyForce(new CANNON.Vec3(dx * f, dy * f, dz * f), a);
+    }
+  }
+  // 線路に残っていた車両も脱線させ、連結器でつなぐ
+  detachCars(why) {
+    if (!this.carsOnRail) return;
+    this.carsOnRail = false;
+    const carMass = this.stage.carMass ?? 180;
+    let front = this.trolleyBody;
+    for (const c of this.cars) {
+      const b = c.body;
+      b.type = CANNON.Body.DYNAMIC; b.mass = carMass; b.updateMassProperties(); b.wakeUp();
+      b.velocity.set(c.pose.dir.x * this.carSpeed, 0.3, c.pose.dir.z * this.carSpeed); b.angularVelocity.set(0, why === 'drift' ? 2 * (c.front.seg === 'L' ? 1 : -1) : 0, 0);
+      this.world.addConstraint(new CANNON.PointToPointConstraint(front, new CANNON.Vec3(0, -0.1, 2.2), b, new CANNON.Vec3(0, -0.1, -2.2), 30 * carMass));
+      front = b;
+    }
+    this.events.push({ type: 'derail2', why, x: this.cars[0].pose.x, z: this.cars[0].pose.z });
+  }
+
+  railStep(dt) {
+    this.tongueStep(dt);
+
+    const ds = this.speed * dt;
+    let r = this.advance(this.front, ds, 'front'); if (r) return this.derail(r);
+    r = this.advance(this.rear, ds, 'rear'); if (r) return this.derail(r);
+
+    // トングレール上にいる車輪の下で切替器を動かした
+    for (const [a, name] of [[this.front, 'front'], [this.rear, 'rear']]) {
+      if (a.seg !== 'stem' && a.s < TONGUE) {
+        if ((a.seg === 'L' && this.q > 0.5) || (a.seg === 'R' && this.q < 0.5))
+          return this.derail({ reason: 'shove', axle: name });
+      }
+    }
+
+    this.updatePose(dt);
+    const drift = this.front.seg !== 'stem' && this.rear.seg !== 'stem' && this.front.seg !== this.rear.seg;
+    if (drift) {
+      const Ft = this.pose.F, d = this.pose.dir;
+      const ang = Math.abs(Math.atan2(d.x * Ft.tz - d.z * Ft.tx, d.x * Ft.tx + d.z * Ft.tz));
+      if (ang > 0.22 || Math.abs(this.pose.axleDist - WHEELBASE) > 0.2) return this.derail({ reason: 'drift' });
+    } else if (Math.abs(this.latA) > 8.5) {
+      return this.derail({ reason: 'overturn' });
+    }
+    if (this.cars.length) { const r = this.moveCars(ds, dt, true); if (r) return this.derail(r); }
+
+    if (this.front.seg !== 'stem' && this.front.s > (this.stage.endS ?? 46)) {
+      this.endT += dt; if (this.endT > 1.2) this.finish();
+    }
+    this.world.step(dt);
+  }
+
+  advance(a, ds, name) {
+    a.s += ds;
+    if (a.seg === 'stem' && a.s >= LS) {
+      const over = a.s - LS, q = this.q;
+      if (name) this.marks[name] = q;
+      this.events.push({ type: 'cross', axle: name || 'car' });
+      if (q <= BAND_LO) a.seg = 'L';
+      else if (q >= BAND_HI) a.seg = 'R';
+      else return { reason: name === 'front' ? 'climb' : 'rear-climb', q, qv: this.qv };
+      a.s = over;
+    }
+    return null;
+  }
+
+  // 脱線判定の結果 → 物理へ渡す初速と回転（乱数なし・決定的）
+  derail(info) {
+    this.state = 'derailed'; this.reason = info.reason; this.derailT = 0;
+    const q = info.q ?? this.q, qv = info.qv ?? this.qv;
+    const u = Math.min(1, Math.max(0, (q - BAND_LO) / (BAND_HI - BAND_LO)));
+    const mid = 1 - Math.abs(2 * u - 1);
+    const sgn = v => (v < 0 ? -1 : 1);
+    const k = { head: 0, side: 0, vy: 0.6, yaw: this.yawRate, roll: 0, pitch: 0, sp: 0.92 };
+    switch (info.reason) {
+      case 'climb':
+        k.head = (u - 0.5) * 0.9 + 0.3 * Math.sin(11 * u + 1.3 * qv);
+        k.vy = 0.9 + 1.8 * mid; k.yaw = 3.5 * Math.sin(7 * u + 0.8 * qv);
+        k.roll = 2.6 * (u - 0.5) + 1.6 * Math.sin(17 * u); k.pitch = 0.8 * mid; k.sp = 1.05; break;
+      case 'rear-climb': {
+        const fs = this.front.seg === 'L' ? 1 : -1;   // 前輪が左へ→後輪は右へ振れる→左旋回
+        k.yaw = fs * (3 + 4 * mid) + 1.5 * Math.sin(9 * u + qv);
+        k.side = -fs * 1.5 * mid; k.vy = 0.6 + 1.2 * mid; k.roll = 2.2 * Math.sin(13 * u); k.sp = 1.0; break;
+      }
+      case 'shove': {
+        const s = sgn(qv);
+        k.side = s * (2.5 + Math.min(Math.abs(qv), 6) * 0.5); k.yaw = -s * (2 + Math.abs(Math.sin(3 * q + qv))) ; k.vy = 1.3; k.roll = s * 2.6; k.sp = 1.0; break;
+      }
+      case 'drift':
+        { const e = this.pose.axleDist - WHEELBASE;   // 前後輪の開き具合で回り方が変わる
+          k.yaw = this.yawRate * (2.2 + 4 * e); k.vy = 1.6 + 2 * Math.abs(e); k.roll = sgn(this.latA) * 2.4;
+          k.head = 0.5 * Math.sin(9 * e + this.q * 3); k.sp = 1.0; break; }
+      case 'overturn':
+        k.roll = sgn(this.latA) * 3.2; k.vy = 0.8; break;
+      case 'split':   // 先頭車はそのままの勢い。連結器に引っ張られて後ろが振り回される
+        k.vy = 0.3; k.sp = 1.0; break;
+    }
+    const d = this.pose.dir, right = { x: -d.z, z: d.x };
+    const c = Math.cos(k.head), s = Math.sin(k.head);
+    const hx = d.x * c + right.x * s, hz = d.z * c + right.z * s;
+    const sp = this.speed * k.sp * (this.stage.derailBoost ?? 1);
+    const vel = new CANNON.Vec3(hx * sp - hz * k.side, k.vy, hz * sp + hx * k.side);
+    const fwd = new CANNON.Vec3(hx, 0, hz), rgt = new CANNON.Vec3(-hz, 0, hx);
+    const av = new CANNON.Vec3(0, k.yaw, 0).vadd(fwd.scale(k.roll)).vadd(rgt.scale(k.pitch));
+
+    // 同じ物体をキネマティック → 動的に切り替える。荷台の球はそのまま載っている
+    const tb = this.trolleyBody;
+    const carMass = this.stage.carMass ?? 180;
+    tb.type = CANNON.Body.DYNAMIC; tb.mass = carMass; tb.updateMassProperties();
+    tb.velocity.copy(vel); tb.angularVelocity.copy(av); tb.wakeUp();
+    // 連結車両：2両目以降は、連結器に引き出されるまで線路に残す
+    if (this.stage.hybridCars && this.cars.length) {
+      this.carsOnRail = true; this.carSpeed = this.speed;
+      this.events.push({ type: 'derail', reason: info.reason, x: this.pose.F.x, z: this.pose.F.z, vx: vel.x, vz: vel.z });
+      return;
+    }
+    // 2両目以降も自由に動く物体にして、連結器（車体の端どうしを結ぶ点の拘束）でつなぐ
+    let front = tb;
+    for (const car of this.cars) {
+      const b = car.body;
+      b.type = CANNON.Body.DYNAMIC; b.mass = carMass; b.updateMassProperties(); b.wakeUp();
+      b.angularVelocity.set(0, 0, 0);
+      this.world.addConstraint(new CANNON.PointToPointConstraint(front, new CANNON.Vec3(0, -0.1, 2.2), b, new CANNON.Vec3(0, -0.1, -2.2), 50 * carMass));
+      front = b;
+    }
+    this.events.push({ type: 'derail', reason: info.reason, x: this.pose.F.x, z: this.pose.F.z, vx: vel.x, vz: vel.z });
+  }
+
+  freeStep(dt) {
+    this.derailT += dt;
+    if (this.carsOnRail) this.railCarsStep(dt);
+    this.world.step(dt);
+    const tb = this.trolleyBody;
+    const slow = this.bodies.every(b => b.velocity.length() < 0.35 && b.angularVelocity.length() < 0.6) &&
+      this.balls.every(b => b.velocity.length() < 0.5);
+    if ((this.derailT > 2 && slow && !(this.carsOnRail && this.carSpeed > 0.5)) || this.derailT > 9 || tb.position.y < -10) {
+      this.endT += dt;
+      if (this.endT > 0.6 || this.derailT > 9) this.finish();
+    }
+  }
+
+  finish() { this.state = 'done'; this.events.push({ type: 'done' }); }
+
+  summary() {
+    const by = {};
+    const animals = {};
+    for (const [i, c] of this.hits) { const k = this.stage.people[i].kind; if (k) animals[k] = true; else by[c] = (by[c] || 0) + 1; }
+    const total = [...this.hits.keys()].filter(i => !this.stage.people[i].kind).length;
+    return {
+      total, by, animals, derailed: !!this.reason, reason: this.reason, stageId: this.stage.id,
+      route: this.front.seg, leverMoved: this.leverMoved, marks: { ...this.marks },
+      fiveHit: [0, 1, 2, 3, 4].filter(i => this.hits.has(i)).length, oneHit: this.hits.has(5) ? 1 : 0,
+    };
+  }
+}
+
+// 称号の一覧（記録画面の図鑑用）。数字が入る称号は1種類として数える
+const TITLES = [
+  ['倫理を物理で解決した者'], ['マルチトラックで全員を救った者'], ['奇跡の係員'], ['泣き別れさせた人'],
+  ['無駄にかちゃかちゃした人'], ['5人も1人も救えなかった人'], ['壁に相談した者'], ['積荷に任せた者', /^(積荷|球)に任せた者$/],
+  ['マルチトラックドリフトの代償'], ['何もしなかった人'], ['わざわざ5人の方へ戻した人'], ['1人のつもりがN人', /^1人のつもりが\d+人$/],
+  ['教科書どおりの功利主義者'], ['脱線させたのにN人', /^脱線させたのに\d+人$/],
+  ['犬派'], ['猫派'], ['猫も犬も救った人'], ['猫も犬も救えなかった人'], ['動物のためにストライク'], ['動物愛護の代償'],
+  ['ストライク'], ['N人をなぎ倒した人', /^\d+人をなぎ倒した人$/],
+  ['たくさん遊んでくれてありがとう'],   // 結果には出さず、通算20回で図鑑にだけ入る
+].map(([name, re]) => ({ name, re }));
+function titleKey(t) { const i = TITLES.findIndex(x => x.re ? x.re.test(t) : x.name === t); return i < 0 ? null : TITLES[i].name; }
+
+function titleFor(sm) {
+  const only = c => Object.keys(sm.by).length === 1 && sm.by[c];
+  if (sm.total === 0 && sm.derailed) return sm.reason === 'drift' ? 'マルチトラックで全員を救った者' : '倫理を物理で解決した者';
+  if (sm.stageId === 3) {
+    const cat = sm.animals.cat, dog = sm.animals.dog;
+    if (sm.total === 0) return cat && dog ? '猫も犬も救えなかった人' : cat ? '犬派' : dog ? '猫派' : '猫も犬も救った人';
+    if (!cat && !dog) return sm.total === 10 ? '動物のためにストライク' : '動物愛護の代償';
+  }
+  if (sm.total === 0) return '奇跡の係員';
+  if (sm.stageId === 3) return sm.total === 10 ? 'ストライク' : sm.reason === 'split' ? '泣き別れさせた人' : sm.reason === 'drift' ? 'マルチトラックドリフトの代償' : `${sm.total}人をなぎ倒した人`;
+  if (sm.reason === 'split') return '泣き別れさせた人';
+  if (sm.throws >= 8) return '無駄にかちゃかちゃした人';
+  if (sm.fiveHit === 5 && sm.oneHit) return '5人も1人も救えなかった人';
+  if (sm.by['壁経由']) return '壁に相談した者';
+  if (only('積荷')) return '積荷に任せた者';
+  if (sm.reason === 'drift') return 'マルチトラックドリフトの代償';
+  if (!sm.derailed && sm.route === 'L' && !sm.leverMoved) return '何もしなかった人';
+  if (!sm.derailed && sm.route === 'L') return 'わざわざ5人の方へ戻した人';
+  if (!sm.derailed && sm.route === 'R' && sm.total >= 2) return `1人のつもりが${sm.total}人`;
+  if (!sm.derailed && sm.route === 'R') return '教科書どおりの功利主義者';
+  return `脱線させたのに${sm.total}人`;
+}
+
+/* =========================================================
+   ヒートマップ検証モード（?heatmap）
+   a = 前輪が先端を通過するまでのバー位置、b = 通過後のバー位置
+   ========================================================= */
+async function runHeatmap() {
+  document.getElementById('app').style.display = 'none';
+  const el = document.getElementById('heat'); el.style.display = 'block';
+  const N = +(new URLSearchParams(location.search).get('n') || 25);
+  const D0 = -2.5, D1 = 4.0;   // 操作タイミング：前輪が先端の何m手前(-)／先(+)にいる時にバーを動かすか
+  el.innerHTML = `<b>脱線条件ヒートマップ</b> ${N}×${N}　定位から1回だけバーを動かす。縦: 操作タイミング（上=先端の${-D0}m手前 → 下=先端を${D1}m過ぎ）　横: 動かした先のバー位置（左=0 定位 → 右=1 反位）<div id="hm-prog"></div>`;
+  const cv = document.createElement('canvas'); const cell = 16;
+  cv.width = N * cell; cv.height = N * cell; el.appendChild(cv);
+  const ctx = cv.getContext('2d');
+  const colors = ['#3fae5a', '#e8c547', '#ef9f27', '#e0703a', '#d0453e', '#a3262a', '#5b1416'];
+  const res = []; const tally = {};
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      const d = D0 + (D1 - D0) * i / (N - 1), b = j / (N - 1), a = d;
+      const sim = new Sim(STAGE, { headless: true, startGap: 8, p0: 0 });
+      let n = 0;
+      while (sim.state !== 'done' && n < 20 / DT) {
+        const fd = sim.front.seg === 'stem' ? sim.front.s - LS : sim.front.s;
+        if (fd >= d) sim.p = b;
+        sim.step(); n++;
+        if (sim.reason && n % 24 === 0) (sim._path ||= []).push([+sim.trolleyBody.position.x.toFixed(1), +sim.trolleyBody.position.z.toFixed(1)]);
+      }
+      const sm = sim.summary();
+      const tp = sim.trolleyBody.position; const out = sim.balls.filter(bb => bb.position.distanceTo(tp) > 2.2).length; res.push({ out, a, b, total: sm.total, reason: sm.reason || ('rail-' + sm.route), by: sm.by, tx: +tp.x.toFixed(1), tz: +tp.z.toFixed(1), path: sim._path });
+      const key = (sm.reason || 'rail-' + sm.route);
+      tally[key] = tally[key] || { n: 0, zero: 0, hits: {} };
+      tally[key].n++; if (sm.total === 0) tally[key].zero++;
+      tally[key].hits[sm.total] = (tally[key].hits[sm.total] || 0) + 1;
+      ctx.fillStyle = colors[Math.min(6, sm.total)];
+      ctx.fillRect(j * cell, i * cell, cell - 1, cell - 1);
+      if (sm.reason) { ctx.fillStyle = '#0006'; ctx.font = '9px monospace'; ctx.fillText(sm.reason[0].toUpperCase(), j * cell + 4, i * cell + 11); }
+    }
+    document.getElementById('hm-prog').textContent = `${i + 1}/${N}`;
+    await new Promise(r => setTimeout(r, 0));
+  }
+  const zero = res.filter(r => r.total === 0).length;
+  const pre = document.createElement('pre');
+  pre.textContent = `全員生存 ${zero}/${res.length} (${(zero / res.length * 100).toFixed(1)}%)\n` +
+    Object.entries(tally).map(([k, v]) => `${k}: ${v.n}件 / 全員生存 ${v.zero} / 被害分布 ${JSON.stringify(v.hits)}`).join('\n');
+  el.appendChild(pre);
+  const lg = document.createElement('div'); lg.className = 'legend';
+  lg.innerHTML = '被害人数 ' + colors.map((c, i) => `<span style="background:${c}"></span>${i}`).join('') +
+    '　文字 C=乗り上がり R=後輪 S=割り込み D=ドリフト O=転覆';
+  el.appendChild(lg);
+  window.__heatmap = { res, tally, zero };
+}
+
+window.__dev = { Sim, get STAGE() { return STAGE; }, DT, useStage, makeStage2, STAGES };
+{ const st = +(new URLSearchParams(location.search).get('stage') || 1); if (st >= 1 && st <= STAGES.length) useStage(st - 1); }
+if (new URLSearchParams(location.search).has('heatmap')) {
+  runHeatmap();
+} else {
+  startGame();
+}
+
+/* =========================================================
+   ゲーム本体（描画・入力・UI）
+   ========================================================= */
+function startGame() {
+  const view = document.getElementById('view');
+  const boardCv = document.getElementById('board');
+  const leverCv = document.getElementById('lever');
+  const reasonEl = document.getElementById('reason');
+  const flashEl = document.getElementById('flash');
+  const tunnelEl = document.getElementById('tunnel');
+
+  // ---------- three.js ----------
+  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  view.prepend(renderer.domElement);
+  const scene = new THREE.Scene();
+  // 空：上は青、地平は砂ぼこりで黄ばむ
+  let skyTex;
+  { const c = document.createElement('canvas'); c.width = 2; c.height = 256; const x = c.getContext('2d');
+    const gr = x.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#8fb0cc'); gr.addColorStop(0.55, '#d9c9ad'); gr.addColorStop(1, '#ecd2a6');
+    x.fillStyle = gr; x.fillRect(0, 0, 2, 256);
+    skyTex = new THREE.CanvasTexture(c); skyTex.colorSpace = THREE.SRGBColorSpace; }
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 300);
+
+  const hemi = new THREE.HemisphereLight(0xffe9c8, 0x6e5a3e, 1.0); scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xffd29a, 2.1);   // 低めの西日で長い影
+  sun.position.set(10, 18, 8); sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -22, right: 22, top: 30, bottom: -40, near: 1, far: 80 });
+  sun.target.position.set(0, 0, -6);
+  scene.add(sun, sun.target);
+
+  // 地面
+  // 見た目用の乱数（シード固定。シミュレーションには使わない）
+  let seed = 20261013;
+  const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  function noiseTex(size, base, spots, reps) {
+    const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d');
+    x.fillStyle = base; x.fillRect(0, 0, size, size);
+    for (const [col, n, r0, r1, a] of spots) {
+      x.fillStyle = col; x.globalAlpha = a;
+      for (let i = 0; i < n; i++) { x.beginPath(); x.arc(rnd() * size, rnd() * size, r0 + rnd() * (r1 - r0), 0, Math.PI * 2); x.fill(); }
+    }
+    x.globalAlpha = 1;
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(reps, reps);
+    t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+  }
+  const groundTex = noiseTex(512, '#c9ad80', [['#b09168', 90, 10, 45, 0.25], ['#dcc296', 70, 8, 35, 0.25], ['#8e7656', 900, 0.6, 2.2, 0.5], ['#efe0c0', 500, 0.5, 1.6, 0.45]], 28);
+  const groundMatBase = new THREE.MeshLambertMaterial({ map: groundTex });
+  // 氷の地面：つるっと光を返す
+  const iceTex = noiseTex(512, '#cfdce7', [['#b3c6d6', 90, 10, 50, 0.35], ['#eef4f9', 100, 8, 40, 0.5], ['#9cb2c5', 300, 0.5, 1.6, 0.4], ['#ffffff', 600, 0.4, 1.2, 0.6]], 24);
+  // 湖の氷のひび
+  { const c = iceTex.image, x = c.getContext('2d'); x.strokeStyle = 'rgba(255,255,255,0.55)'; x.lineWidth = 1.2;
+    for (let i = 0; i < 26; i++) { let px = rnd() * 512, py = rnd() * 512; x.beginPath(); x.moveTo(px, py);
+      for (let k = 0; k < 6; k++) { px += (rnd() - 0.5) * 90; py += (rnd() - 0.5) * 90; x.lineTo(px, py); } x.stroke(); }
+    x.strokeStyle = 'rgba(70,95,120,0.35)'; x.lineWidth = 0.8;
+    for (let i = 0; i < 18; i++) { let px = rnd() * 512, py = rnd() * 512; x.beginPath(); x.moveTo(px, py);
+      for (let k = 0; k < 5; k++) { px += (rnd() - 0.5) * 70; py += (rnd() - 0.5) * 70; x.lineTo(px, py); } x.stroke(); }
+    iceTex.needsUpdate = true; }
+  const iceGroundMat = new THREE.MeshStandardMaterial({ map: iceTex, roughness: 0.18, metalness: 0.08, color: 0xc9d6e6 });
+  let iceSkyTex;
+  { const c = document.createElement('canvas'); c.width = 2; c.height = 256; const x = c.getContext('2d');
+    const gr = x.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#26385e'); gr.addColorStop(0.45, '#6f7fab'); gr.addColorStop(0.75, '#c9a6b4'); gr.addColorStop(1, '#efc2a6');
+    x.fillStyle = gr; x.fillRect(0, 0, 2, 256);
+    iceSkyTex = new THREE.CanvasTexture(c); iceSkyTex.colorSpace = THREE.SRGBColorSpace; }
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(260, 260), groundMatBase);
+  ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+
+  // 道床（線路の下の砂利）
+  const ballastTex = noiseTex(128, '#8a8378', [['#6d675e', 400, 0.8, 2.2, 0.8], ['#a8a196', 300, 0.6, 1.8, 0.8]], 1);
+  const ballastMat = new THREE.MeshLambertMaterial({ map: ballastTex, side: THREE.DoubleSide });
+  const snowBallastMat = new THREE.MeshLambertMaterial({ map: noiseTex(128, '#e9eef4', [['#d2dbe5', 300, 0.8, 2.6, 0.6], ['#ffffff', 300, 0.6, 2, 0.7], ['#b9c6d3', 120, 0.5, 1.4, 0.5]], 1), side: THREE.DoubleSide });
+  function ribbon(path, s0, s1, w, y, mat = ballastMat) {
+    const pos = [], uv = [], idx = []; let i = 0;
+    for (let s2 = s0; s2 <= s1 + 1e-6; s2 += 0.5, i++) {
+      const p = path.sample(s2), hx = -p.tz * w / 2, hz = p.tx * w / 2;
+      pos.push(p.x + hx, y, p.z + hz, p.x - hx, y, p.z - hz); uv.push(0, s2 / 2, 1, s2 / 2);
+      if (i > 0) { const a = (i - 1) * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+    g.setIndex(idx); g.computeVertexNormals();
+    const m = new THREE.Mesh(g, mat); m.receiveShadow = true; root.add(m);   // ステージを切り替えたら一緒に消える
+  }
+
+  const lam = c => new THREE.MeshLambertMaterial({ color: c });
+  const timber = lam(0x5a3d26);
+  const caveFloorTex = noiseTex(512, '#4b4239', [['#3a332c', 120, 8, 40, 0.35], ['#5c5248', 90, 6, 30, 0.3], ['#2a2520', 900, 0.6, 2.2, 0.5], ['#6e6457', 400, 0.5, 1.5, 0.4]], 28);
+  const caveRockTex = noiseTex(256, '#5d5246', [['#4a4138', 70, 6, 30, 0.4], ['#73685a', 60, 4, 24, 0.35], ['#2f2923', 600, 0.5, 2, 0.5]], 2);
+
+  // 分岐手前の色分けゾーンと目盛り
+  const zoneCols = [0xd25a4a, 0xe08a3a, 0xe2c04a];
+  zoneCols.forEach((c, i) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.35 }));
+    m.rotation.x = -Math.PI / 2; m.position.set(0, 0.012, 1 + i * 2); scene.add(m);
+  });
+  const tickMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  for (let z = 1; z <= 8; z++) for (const sx of [-1, 1]) {
+    const t = new THREE.Mesh(new THREE.BoxGeometry(z % 2 ? 0.25 : 0.45, 0.02, 0.06), tickMat);
+    t.position.set(sx * (1.05 + (z % 2 ? 0.125 : 0.225)), 0.02, z); scene.add(t);
+  }
+
+
+  // ================= ステージごとの舞台 =================
+  let root = null, pillarMeshes = [];
+  function buildQuarry() {
+  const ice = STAGE.theme === 'ice';   // 雪をかぶった凍った採石場
+  const rockTex = ice ? noiseTex(256, '#d6dde5', [['#b4bfca', 60, 6, 30, 0.4], ['#f4f7fa', 60, 4, 24, 0.5], ['#8e98a3', 400, 0.5, 2, 0.5]], 6)
+                      : noiseTex(256, '#b39670', [['#9a7f5c', 60, 6, 30, 0.35], ['#cdb48c', 50, 4, 24, 0.3], ['#7d6648', 500, 0.5, 2, 0.5]], 6);
+  const rockMat = new THREE.MeshLambertMaterial({ map: rockTex });
+  const addBlock = (w, h, d, x, y, z, mat, shadow = false) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); m.receiveShadow = true; m.castShadow = shadow; root.add(m); return m; };
+  // 奥と左右の段々の切羽
+  for (let i = 0; i < 5; i++) {
+    const h = (i + 1) * 4.2;
+    addBlock(200, h, 8, 0, h / 2, -72 - i * 8, rockMat);
+    for (const sx of [-1, 1]) addBlock(8, h * 0.8, 170, sx * (26 + i * 8), h * 0.4, -5, rockMat);
+  }
+  // 線路が消えていく坑口
+  const dark = new THREE.MeshBasicMaterial({ color: 0x15110d });
+  for (const sx of [-1, 1]) {
+    const px = (STAGE.portalX ?? 3.2) * sx, pz = -67.9;
+    addBlock(2.8, 3.2, 0.1, px, 1.6, pz, dark);
+    addBlock(0.35, 3.6, 0.35, px - 1.55, 1.8, pz + 0.1, timber); addBlock(0.35, 3.6, 0.35, px + 1.55, 1.8, pz + 0.1, timber);
+    addBlock(3.6, 0.4, 0.4, px, 3.7, pz + 0.1, timber);
+  }
+  // 砕石の山
+  const pileMat = new THREE.MeshLambertMaterial({ map: ice ? noiseTex(128, '#eef2f6', [['#cdd6df', 200, 0.8, 3, 0.6], ['#ffffff', 200, 0.6, 2, 0.7]], 3)
+                                                              : noiseTex(128, '#9b9282', [['#7f776a', 300, 0.8, 2.5, 0.7], ['#b8b0a2', 250, 0.6, 2, 0.7]], 3) });
+  for (const [x, z, r, h] of [[-14, -22, 4.5, 3.4], [16, -42, 6, 4.6], [-17, 6, 3.2, 2.4], [14, 14, 2.6, 2.0], [19, -12, 3, 2.2]]) {
+    const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 10, 1), pileMat); m.position.set(x, h / 2, z); m.rotation.y = rnd() * 3; m.castShadow = m.receiveShadow = true; root.add(m);
+  }
+  // 転がっている岩
+  const rockGeo = new THREE.DodecahedronGeometry(1, 0);
+  for (let i = 0; i < 90; i++) {
+    const x = (rnd() * 2 - 1) * 23, z = -64 + rnd() * 95;
+    if (Math.abs(x) < 5.5 || (z < 2 && Math.abs(x) < 10) || (x < -2 && x > -8 && z > 6 && z < 13)) continue;
+    const r = 0.15 + rnd() * rnd() * 1.1;
+    const m = new THREE.Mesh(rockGeo, lam((ice ? [0xcfd7df, 0xb9c3cd, 0xe4eaef, 0xa9b4bf] : [0xa58b66, 0x958068, 0xb7a080, 0x8a7a66])[i % 4]));
+    m.scale.set(r, r * (0.55 + rnd() * 0.3), r * (0.8 + rnd() * 0.4)); m.position.set(x, r * 0.3, z);
+    m.rotation.set(rnd() * 3, rnd() * 3, rnd() * 3); m.castShadow = r > 0.4; m.receiveShadow = true; root.add(m);
+  }
+  // ショベルカー
+  { const g = new THREE.Group(); g.position.set(15, 0, -27); g.rotation.y = -0.9; root.add(g);
+    const yel = lam(0xe2a516), blk = lam(0x2a2826);
+    const add = (w, h, d, x, y, z, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); b.castShadow = true; g.add(b); return b; };
+    add(3.4, 0.8, 0.8, 0, 0.4, -0.9, blk); add(3.4, 0.8, 0.8, 0, 0.4, 0.9, blk);
+    add(2.6, 1.2, 2.2, 0, 1.4, 0, yel); add(1.1, 1.2, 1.1, 0.6, 2.6, 0.5, yel); add(0.9, 0.7, 0.05, 0.6, 2.7, 1.06, lam(0x3b4b55));
+    const boom = add(0.35, 0.35, 3.8, -1.4, 2.6, 0, yel); boom.rotation.set(0, Math.PI / 2, 0); boom.rotation.z = 0.55; boom.position.set(-2.2, 2.9, 0);
+    const stick = add(0.3, 2.4, 0.3, -3.9, 2.2, 0, yel); stick.rotation.z = -0.35;
+    add(0.9, 0.6, 0.9, -4.3, 0.9, 0, blk); }
+  // 信号扱所（プレイヤーの詰所）と看板
+  { const g = new THREE.Group(); g.position.set(-5.2, 0, 9.5); root.add(g);
+    const add = (w, h, d, x, y, z, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); b.castShadow = b.receiveShadow = true; g.add(b); return b; };
+    add(2.4, 2.3, 2.8, 0, 1.15, 0, lam(0xd9ccb0)); add(2.9, 0.18, 3.3, 0, 2.4, 0, lam(0x6a4b33));
+    add(1.6, 0.7, 0.05, 0.1, 1.5, 1.42, new THREE.MeshLambertMaterial({ color: 0x2c3e4a, emissive: 0x2a2010 }));
+    const c = document.createElement('canvas'); c.width = 256; c.height = 64; const x = c.getContext('2d');
+    x.fillStyle = '#f4efe2'; x.fillRect(0, 0, 256, 64); x.fillStyle = '#1d1c19'; x.font = 'bold 34px "Hiragino Sans","Noto Sans JP",sans-serif'; x.textAlign = 'center'; x.fillText('第3信号扱所', 128, 45);
+    const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 0.45), new THREE.MeshBasicMaterial({ map: tx })); sign.position.set(0, 2.05, 1.43); g.add(sign);
+    // ドラム缶
+    for (const [dx, dz, col] of [[1.8, 1.6, 0x9c3a2a], [2.3, 1.0, 0x2f5a7a], [1.9, 0.4, 0x9c3a2a]]) {
+      const d = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.9, 12), lam(col)); d.position.set(dx, 0.45, dz); d.castShadow = true; g.add(d);
+    } }
+  // 木の電柱と裸電球
+  for (const z of [16, -6, -30, -52]) for (const sx of [-1, 1]) {
+    if (sx > 0 && z > 0) continue;
+    const px = sx * 12;
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 6, 6), timber); pole.position.set(px, 3, z); pole.castShadow = true; root.add(pole);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.1, 0.1), timber); arm.position.set(px - sx * 0.5, 5.8, z); root.add(arm);
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffe2a0 })); bulb.position.set(px - sx * 1.0, 5.6, z); root.add(bulb);
+  }
+
+  }
+
+  function buildTrack() {
+    // 氷上では、線路の下は砂利ではなく踏み固めた雪
+    const bm = STAGE.theme === 'ice' ? snowBallastMat : ballastMat;
+    ribbon(PATHS.stem, 0, LS, 2.4, 0.008, bm); ribbon(PATHS.L, 0, STAGE.railLen, 2.4, 0.009, bm); ribbon(PATHS.R, 0, STAGE.railLen, 2.4, 0.010, bm);
+  // 枕木
+  const sleeperGeo = new THREE.BoxGeometry(1.6, 0.08, 0.24);
+  const sleeperMat = new THREE.MeshLambertMaterial({ color: 0x6b4a32 });
+  const sl = [];
+  for (let s = 0; s <= LS; s += 0.75) sl.push(PATHS.stem.sample(s));
+  for (const k of ['L', 'R']) for (let s = 0.75; s <= STAGE.railLen; s += 0.75) sl.push(PATHS[k].sample(s));
+  const sleepers = new THREE.InstancedMesh(sleeperGeo, sleeperMat, sl.length);
+  const m4 = new THREE.Matrix4(), qq = new THREE.Quaternion(), yAxis = new THREE.Vector3(0, 1, 0);
+  sl.forEach((p, i) => {
+    qq.setFromAxisAngle(yAxis, Math.atan2(-p.tx, -p.tz));
+    m4.compose(new THREE.Vector3(p.x, 0.04, p.z), qq, new THREE.Vector3(1, 1, 1));
+    sleepers.setMatrixAt(i, m4);
+  });
+  sleepers.receiveShadow = true; root.add(sleepers);
+
+  // レール
+  const railMat = new THREE.MeshStandardMaterial({ color: 0x9aa0a8, metalness: 0.6, roughness: 0.35 });
+  function railAt(path, s, off) { const p = path.sample(s); return new THREE.Vector3(p.x - p.tz * off, 0.12, p.z + p.tx * off); }
+  function addRail(path, s0, s1, off) {
+    const pts = []; for (let s = s0; s <= s1 + 1e-6; s += 0.5) pts.push(railAt(path, s, off));
+    const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 2, 0.055, 5);
+    const m = new THREE.Mesh(geo, railMat); m.castShadow = true; root.add(m);
+  }
+  for (const off of [-0.5, 0.5]) addRail(PATHS.stem, 0, LS, off);
+  addRail(PATHS.L, 0, STAGE.railLen, -0.5);  addRail(PATHS.R, 0, STAGE.railLen, 0.5);    // 基本レール（外側）
+  addRail(PATHS.L, TV, STAGE.railLen, 0.5);  addRail(PATHS.R, TV, STAGE.railLen, -0.5);  // トングの後ろにつながるレール
+
+  }
+
+  function buildWalls() {
+    const wallMat = new THREE.MeshLambertMaterial({ color: 0x9c9a90 });
+    const rockWallMat = new THREE.MeshLambertMaterial({ map: caveRockTex });
+    const boulderGeo = new THREE.DodecahedronGeometry(1, 0);
+    STAGE.walls.forEach((wl, i) => {
+      const h = wl.rock ? wl.h + rnd() * 1.4 : wl.h;
+      const m = new THREE.Mesh(new THREE.BoxGeometry(wl.w, h, wl.d), wl.rock ? rockWallMat : wallMat);
+      m.position.set(wl.x, h / 2, wl.z); m.rotation.y = wl.yaw || 0; m.castShadow = m.receiveShadow = true; root.add(m);
+      if (wl.pillar) pillarMeshes.push(m);
+      if (wl.rock && i % 2 === 0) {   // 岩肌のでこぼこ
+        const r = 0.5 + rnd() * 0.5, b = new THREE.Mesh(boulderGeo, rockWallMat);
+        b.scale.set(r, r * (0.8 + rnd() * 0.6), r); b.position.set(wl.x, 0.6 + rnd() * 3, wl.z); b.rotation.set(rnd() * 3, rnd() * 3, rnd() * 3);
+        b.receiveShadow = true; root.add(b);
+        if (wl.pillar) pillarMeshes.push(b);
+      }
+    });
+  }
+
+
+  // ステージ3：凍った湖の上の氷上線路（日暮れ、雪山、針葉樹、赤い旗の標識、丸太小屋、降る雪）
+  let snowFx = null;
+  function buildLake() {
+    // 雪山
+    const mountMat = new THREE.MeshLambertMaterial({ color: 0xe9edf4 }), mountDark = lam(0x8e97ab);
+    for (const [x, z, r, h] of [[-120, -200, 46, 24], [-55, -215, 40, 30], [10, -225, 52, 27], [75, -205, 44, 23], [140, -190, 40, 20], [-175, -170, 34, 17], [190, -160, 32, 15]]) {
+      const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 7, 1), mountMat); m.position.set(x, h / 2 - 2, z); m.rotation.y = rnd() * 3; root.add(m);
+      const b = new THREE.Mesh(new THREE.ConeGeometry(r * 1.04, h * 0.35, 7, 1), mountDark); b.position.set(x, h * 0.17 - 2, z); b.rotation.y = m.rotation.y; root.add(b);
+    }
+    // 岸の雪の土手
+    const snowMat = lam(0xf4f7fb);
+    for (const sx of [-1, 1]) for (let z = 40; z > -110; z -= 9) {
+      const m = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 6), snowMat);
+      const r = 5 + rnd() * 3; m.scale.set(r, 1.2 + rnd() * 1.2, r * 1.3); m.position.set(sx * (20 + rnd() * 4), 0, z); m.receiveShadow = true; root.add(m);
+    }
+    // 針葉樹（雪をかぶせる）
+    const trunkMat = lam(0x4a3426), needleMat = lam(0x2c4a3c), capMat = lam(0xf6f9fc);
+    const pine = (x, z, h) => {
+      const g = new THREE.Group(); g.position.set(x, 0, z); root.add(g);
+      const t = new THREE.Mesh(new THREE.CylinderGeometry(0.15 * h / 6, 0.22 * h / 6, h * 0.25, 6), trunkMat); t.position.y = h * 0.12; g.add(t);
+      for (let i = 0; i < 3; i++) {
+        const r = h * (0.32 - i * 0.07), y = h * (0.3 + i * 0.22);
+        const c = new THREE.Mesh(new THREE.ConeGeometry(r, h * 0.38, 8), needleMat); c.position.y = y; c.castShadow = true; g.add(c);
+        const cap = new THREE.Mesh(new THREE.ConeGeometry(r * 0.75, h * 0.16, 8), capMat); cap.position.y = y + h * 0.13; g.add(cap);
+      }
+    };
+    for (let i = 0; i < 70; i++) {
+      const sx = i % 2 ? 1 : -1, x = sx * (24 + rnd() * 30), z = -95 + rnd() * 140;
+      pine(x, z, 5 + rnd() * 6);
+    }
+    // 氷の上のルートを示す赤い旗の標識
+    const poleMat = lam(0x2b2622), flagMat = new THREE.MeshLambertMaterial({ color: 0xd83a2a, side: THREE.DoubleSide });
+    const marker = (x, z) => {
+      const p = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.6, 5), poleMat); p.position.set(x, 0.8, z); root.add(p);
+      const f = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.26), flagMat); f.position.set(x + 0.21, 1.45, z); root.add(f);
+    };
+    for (let s2 = 4; s2 < LS - 4; s2 += 9) { marker(-2.3, LS - s2); marker(2.3, LS - s2); }
+    for (const k of ['L', 'R']) for (let s2 = 30; s2 < 90; s2 += 10) { const p = railXZ(PATHS[k], s2, k === 'L' ? -2.3 : 2.3); marker(p.x, p.z); }
+    // 丸太小屋の信号扱所（窓に明かり、雪の屋根）
+    { const g = new THREE.Group(); g.position.set(-5.4, 0, 9.8); root.add(g);
+      const add = (w, h, d, x, y, z, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); b.castShadow = b.receiveShadow = true; g.add(b); return b; };
+      add(2.6, 2.2, 3.0, 0, 1.1, 0, lam(0x6b4630));
+      for (let y = 0.25; y < 2.2; y += 0.42) add(2.66, 0.08, 3.06, 0, y, 0, lam(0x553724));
+      const roofL = add(1.75, 0.22, 3.4, -0.7, 2.55, 0, snowMat); roofL.rotation.z = 0.5;
+      const roofR = add(1.75, 0.22, 3.4, 0.7, 2.55, 0, snowMat); roofR.rotation.z = -0.5;
+      add(1.1, 0.7, 0.05, 0.3, 1.35, 1.52, new THREE.MeshBasicMaterial({ color: 0xffc46b }));
+      add(0.35, 1.0, 0.35, 0.8, 3.0, -0.6, lam(0x5a5550));
+      const c = document.createElement('canvas'); c.width = 256; c.height = 64; const x = c.getContext('2d');
+      x.fillStyle = '#f4efe2'; x.fillRect(0, 0, 256, 64); x.fillStyle = '#1d1c19'; x.font = 'bold 34px "Hiragino Sans","Noto Sans JP",sans-serif'; x.textAlign = 'center'; x.fillText('氷上信号扱所', 128, 45);
+      const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.42), new THREE.MeshBasicMaterial({ map: tx })); sign.position.set(-0.3, 2.0, 1.53); g.add(sign); }
+    // 行き先の看板：左の線路は CAT、右の線路は DOG
+    for (const [seg, label, col] of [['L', 'CAT', '#e39a45'], ['R', 'DOG', '#8a5a34']]) {
+      const c = document.createElement('canvas'); c.width = 256; c.height = 128; const x = c.getContext('2d');
+      x.fillStyle = '#f6f1e3'; x.fillRect(0, 0, 256, 128); x.strokeStyle = '#2b2622'; x.lineWidth = 8; x.strokeRect(4, 4, 248, 120);
+      x.fillStyle = col; x.font = 'bold 76px "Arial Black", Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText(label, 128, 68);
+      const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+      const p = railXZ(PATHS[seg], 9, seg === 'L' ? -2.4 : 2.4);
+      for (const dx of [-0.75, 0.75]) { const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 2.6, 6), poleMat); post.position.set(p.x + dx, 1.3, p.z); post.castShadow = true; root.add(post); }
+      const board = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.95), new THREE.MeshBasicMaterial({ map: tx, side: THREE.DoubleSide }));
+      board.position.set(p.x, 2.25, p.z + 0.02); root.add(board);
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.1, 0.2), lam(0xf6f9fc)); cap.position.set(p.x, 2.77, p.z); root.add(cap);
+    }
+    // 分岐のそばの街灯
+    for (const [x, z] of [[-7.5, 4], [7.5, 2]]) {
+      const p = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 3.4, 6), poleMat); p.position.set(x, 1.7, z); root.add(p);
+      const l = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffd38a })); l.position.set(x, 3.45, z); root.add(l);
+    }
+    // 降る雪（カメラのまわりだけ）
+    const N = 900, pos = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) { pos[i * 3] = (rnd() - 0.5) * 50; pos[i * 3 + 1] = rnd() * 22; pos[i * 3 + 2] = (rnd() - 0.5) * 60; }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const dot = document.createElement('canvas'); dot.width = dot.height = 32;
+    { const x = dot.getContext('2d'), g = x.createRadialGradient(16, 16, 1, 16, 16, 15); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 32, 32); }
+    snowFx = new THREE.Points(geo, new THREE.PointsMaterial({ map: new THREE.CanvasTexture(dot), color: 0xffffff, size: 0.07, transparent: true, opacity: 0.9, depthWrite: false }));
+    snowFx.frustumCulled = false; root.add(snowFx);
+  }
+  function updateSnow(dt, cx, cz) {
+    if (!snowFx) return;
+    const a = snowFx.geometry.attributes.position, arr = a.array;
+    for (let i = 0; i < arr.length; i += 3) {
+      arr[i + 1] -= dt * (1.2 + (i % 7) * 0.08); arr[i] += Math.sin(clock * 0.7 + i) * dt * 0.25;
+      if (arr[i + 1] < 0) arr[i + 1] += 22;
+    }
+    a.needsUpdate = true; snowFx.position.set(cx, 0, cz);
+  }
+
+  function buildCave() {
+    const st = STAGE, HW = 2.6;
+    const bulbMat = new THREE.MeshBasicMaterial({ color: 0xffd58a });
+    const lamp = (x, y, z) => {
+      const b = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 6), bulbMat); b.position.set(x, y, z); root.add(b);
+      const cable = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.6, 0.02), lam(0x1a1714)); cable.position.set(x, y + 0.35, z); root.add(cable);
+      const l = new THREE.PointLight(0xffbe70, 30, 20, 1.6); l.position.set(x, y - 0.1, z); root.add(l);
+    };
+    const onWall = (seg, s, off, y) => { const p = railXZ(PATHS[seg], s, off); lamp(p.x, y, p.z); };
+    onWall('stem', LS - 52, -HW + 0.3, 3.0); onWall('stem', LS - 34, HW - 0.3, 3.0);
+    lamp(-3.1, 2.9, 0.5); lamp(3.8, 2.9, -2.5); lamp(-7.0, 3.0, 15); lamp(7.0, 3.0, 11);
+    onWall('L', 20, -HW + 0.3, 3.0);
+    onWall('R', 20, HW - 0.3, 3.0);
+    onWall('R', 40, -HW + 0.3, 3.0);
+    // 坑道の支保工（木の柱）
+    for (let s = 6; s < LS - 27; s += 7) for (const off of [-HW + 0.15, HW - 0.15]) {
+      const p = railXZ(PATHS.stem, s, off);
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.26, 3.6, 0.26), timber); post.position.set(p.x, 1.8, p.z); post.castShadow = true; root.add(post);
+    }
+    for (const seg of ['L', 'R']) for (let s = 24; s < st.railLen - 4; s += 8) for (const off of [-HW + 0.15, HW - 0.15]) {
+      const p = railXZ(PATHS[seg], s, off);
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.26, 3.6, 0.26), timber); post.position.set(p.x, 1.8, p.z); post.castShadow = true; root.add(post);
+    }
+    // 岩の柱の行き先表示
+    { const c = document.createElement('canvas'); c.width = 256; c.height = 72; const x = c.getContext('2d');
+      x.fillStyle = '#f1e9d2'; x.fillRect(0, 0, 256, 72); x.fillStyle = '#1d1c19'; x.font = 'bold 30px "Hiragino Sans","Noto Sans JP",sans-serif';
+      x.textAlign = 'left'; x.fillText('← A坑', 14, 46); x.textAlign = 'right'; x.fillText('B坑 →', 242, 46);
+      const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+      const a = railXZ(PATHS.L, st.nose, 1.4), b = railXZ(PATHS.R, st.nose, -1.4);
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.34), new THREE.MeshBasicMaterial({ map: tx }));
+      sign.position.set((a.x + b.x) / 2, 2.4, (a.z + b.z) / 2 + 0.45); root.add(sign); pillarMeshes.push(sign); }
+    // 広間の木箱
+    for (const [x, z, r] of [[-4.4, -6.5, 0.3], [-4.9, -8.2, -0.2], [4.6, -7.4, 0.5]]) {
+      const c = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.8, 0.9), lam(0x7a5636)); c.position.set(x, 0.4, z); c.rotation.y = r; c.castShadow = c.receiveShadow = true; root.add(c);
+    }
+  }
+
+  // ---- 分岐器まわり ----
+  // 分岐器区間の床板と、黄黒の縞
+  const plate = new THREE.Mesh(new THREE.PlaneGeometry(2.4, TV + 0.9), new THREE.MeshLambertMaterial({ color: 0x46433c }));
+  plate.rotation.x = -Math.PI / 2; plate.position.set(0, 0.013, -TV / 2 + 0.1); plate.receiveShadow = true; scene.add(plate);
+  const stripeCv = document.createElement('canvas'); stripeCv.width = 128; stripeCv.height = 16;
+  { const c = stripeCv.getContext('2d'); c.fillStyle = '#1b1a17'; c.fillRect(0, 0, 128, 16); c.fillStyle = '#e8b931';
+    for (let x = -16; x < 144; x += 16) { c.beginPath(); c.moveTo(x, 16); c.lineTo(x + 8, 0); c.lineTo(x + 16, 0); c.lineTo(x + 8, 16); c.fill(); } }
+  const stripeTex = new THREE.CanvasTexture(stripeCv); stripeTex.colorSpace = THREE.SRGBColorSpace;
+  for (const z of [0.55, -TV - 0.35]) {
+    const st = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.18), new THREE.MeshBasicMaterial({ map: stripeTex }));
+    st.rotation.x = -Math.PI / 2; st.position.set(0, 0.02, z); scene.add(st);
+  }
+  // 棒状の部品を2点間に置く
+  function placeBar(mesh, a, b, y) {
+    const dx = b.x - a.x, dz = b.z - a.z, len = Math.hypot(dx, dz) || 1e-3;
+    mesh.position.set((a.x + b.x) / 2, y, (a.z + b.z) / 2);
+    mesh.scale.set(1, 1, len); mesh.rotation.set(0, Math.atan2(dx, dz), 0);
+  }
+  const tongueMats = [0, 1].map(() => new THREE.MeshStandardMaterial({ color: 0x7fd18b, metalness: 0.3, roughness: 0.4, emissive: 0x1d5a26 }));
+  const tongueMeshes = tongueMats.map(mat => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.13, 1), mat); m.castShadow = true; scene.add(m); return m; });
+  // 開いた隙間（赤く光る）
+  const gapMats = [0, 1].map(() => new THREE.MeshBasicMaterial({ color: 0xff3b2f, transparent: true, opacity: 0, depthWrite: false }));
+  const gapMeshes = gapMats.map(mat => { const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1.1), mat); m.rotation.x = -Math.PI / 2; scene.add(m); return m; });
+  // 転てつ棒（2本のトングをつなぐ）と、てこへの連結棒
+  const steel = new THREE.MeshStandardMaterial({ color: 0x55585c, metalness: 0.6, roughness: 0.4 });
+  const tieBar = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.06, 1), steel); scene.add(tieBar);
+  const rod = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 1), steel); scene.add(rod);
+  // 転てつてこ（線路脇のレバーとおもり）
+  const lev = new THREE.Group(); lev.position.set(-1.75, 0, -0.35); scene.add(lev);
+  const levBase = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.22, 0.45), new THREE.MeshLambertMaterial({ color: 0x2b2a27 }));
+  levBase.position.y = 0.11; levBase.castShadow = true; lev.add(levBase);
+  const levArm = new THREE.Group(); levArm.position.y = 0.24; lev.add(levArm);
+  const armRod = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.0, 8), new THREE.MeshLambertMaterial({ color: 0xe9e4d6 }));
+  armRod.position.y = 0.5; armRod.castShadow = true; levArm.add(armRod);
+  const weight = new THREE.Mesh(new THREE.SphereGeometry(0.15, 14, 10), new THREE.MeshLambertMaterial({ color: 0xc8392c }));
+  weight.position.y = 1.0; weight.castShadow = true; levArm.add(weight);
+
+  function updateSwitch(q, t) {
+    const g = tongueGeom(q);
+    placeBar(tongueMeshes[0], g.lTip, g.lHeel, 0.12);
+    placeBar(tongueMeshes[1], g.rTip, g.rHeel, 0.12);
+    const mismatch = q > BAND_LO && q < BAND_HI, blink = Math.floor(t * 6) % 2 === 0;
+    for (const m of tongueMats) {
+      if (mismatch) { m.color.setHex(0xf0a531); m.emissive.setHex(blink ? 0x8a4a00 : 0x2a1500); }
+      else { m.color.setHex(0x7fd18b); m.emissive.setHex(0x1d5a26); }
+    }
+    // 隙間の赤：開いているほど濃く
+    [[g.gapL, -0.45, g.lTip.x], [g.gapR, g.rTip.x, 0.45]].forEach(([gap, a, b], i) => {
+      const w = Math.max(0.001, b - a);
+      gapMeshes[i].position.set((a + b) / 2, 0.03, -0.45); gapMeshes[i].scale.x = w;
+      gapMats[i].opacity = gap > 0.03 ? Math.min(1, gap / GAP) * (mismatch ? (blink ? 0.95 : 0.55) : 0.35) : 0;
+    });
+    const tz = -0.35;
+    placeBar(tieBar, { x: g.lTip.x - 0.12, z: tz }, { x: g.rTip.x + 0.12, z: tz }, 0.08);
+    placeBar(rod, { x: -1.5, z: tz }, { x: g.lTip.x - 0.12, z: tz }, 0.09);
+    levArm.rotation.z = (0.5 - q) * 1.4;
+  }
+
+  // トロッコ
+  const trolley = new THREE.Group();
+  const rust = new THREE.MeshLambertMaterial({ color: 0x8e3d2c });
+  const rustDark = new THREE.MeshLambertMaterial({ color: 0x5e281d });
+  const iron = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, metalness: 0.5, roughness: 0.5 });
+  const addBox = (w, h, d, x, y, z, mat) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, z); m.castShadow = true; trolley.add(m); return m; };
+  addBox(1.4, 0.7, 3.6, 0, 0, 0, rust);
+  addBox(1.48, 0.45, 0.1, 0, 0.57, -1.75, rustDark); addBox(1.48, 0.45, 0.1, 0, 0.57, 1.75, rustDark);
+  addBox(0.1, 0.45, 3.6, -0.7, 0.57, 0, rustDark); addBox(0.1, 0.45, 3.6, 0.7, 0.57, 0, rustDark);
+  // 前照灯（車載カメラはこの位置）
+  { const housing = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 0.12, 14), iron);
+    housing.rotation.x = Math.PI / 2; housing.position.set(0, 0.15, -1.86); trolley.add(housing);
+    const lens = new THREE.Mesh(new THREE.CircleGeometry(0.11, 14), new THREE.MeshBasicMaterial({ color: 0xfff0b8 }));
+    lens.position.set(0, 0.15, -1.925); lens.rotation.y = Math.PI; trolley.add(lens); }
+  const headlight = new THREE.SpotLight(0xfff0c8, 0, 50, 0.5, 0.55, 1.5);
+  headlight.position.set(0, 0.15, -1.95); trolley.add(headlight);
+  { const tg = new THREE.Object3D(); tg.position.set(0, -0.5, -12); trolley.add(tg); headlight.target = tg; }
+  headlight.shadow.mapSize.set(1024, 1024); headlight.shadow.camera.near = 0.3;
+  const wheelGeo = new THREE.CylinderGeometry(0.26, 0.26, 0.14, 14);
+  for (const z of [-WHEELBASE / 2, WHEELBASE / 2]) for (const x of [-0.56, 0.56]) {
+    const w = new THREE.Mesh(wheelGeo, iron); w.rotation.z = Math.PI / 2; w.position.set(x, -0.4, z); w.castShadow = true; trolley.add(w);
+  }
+  scene.add(trolley);
+
+  const ballMat = new THREE.MeshStandardMaterial({ color: 0x2f5d8c, roughness: 0.3, metalness: 0.1 });
+  let ballMeshes = [], personMeshes = [], looseHelmets = [], carMeshes = [];
+
+  // 人（作業員。ピクトグラム寄りの形にヘルメット）
+  const vestMat = lam(0xf07a1e), pantsMat = lam(0x34465e), skinMat = lam(0xe8c39b), stripeMat = lam(0xf2f0e6), bootMat = lam(0x2b2622);
+  const hitMat = new THREE.MeshLambertMaterial({ color: 0xe8180c, emissive: 0x5a0000 });   // 轢かれた人は真っ赤
+  const helmetMat = new THREE.MeshStandardMaterial({ color: 0xf4c724, roughness: 0.45, metalness: 0.05 });
+  function makeHelmet() {
+    const h = new THREE.Group();
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(0.19, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), helmetMat); dome.castShadow = true;
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.235, 0.235, 0.03, 18), helmetMat); brim.position.y = 0.01;
+    const ridge = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.05, 0.36), helmetMat); ridge.position.y = 0.17;
+    h.add(dome, brim, ridge); return h;
+  }
+  function makePerson() {
+    const g = new THREE.Group();
+    const parts = [];
+    const part = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; m.userData.mat = mat; parts.push(m); g.add(m); return m; };
+    for (const sx of [-1, 1]) {
+      part(new THREE.BoxGeometry(0.15, 0.72, 0.17), pantsMat, sx * 0.1, -0.47, 0);
+      part(new THREE.BoxGeometry(0.17, 0.12, 0.26), bootMat, sx * 0.1, -0.79, 0.04);
+      part(new THREE.BoxGeometry(0.11, 0.58, 0.13), vestMat, sx * 0.29, 0.06, 0);
+      part(new THREE.SphereGeometry(0.065, 8, 6), skinMat, sx * 0.29, -0.26, 0);
+    }
+    part(new THREE.BoxGeometry(0.44, 0.62, 0.27), vestMat, 0, 0.06, 0);
+    part(new THREE.BoxGeometry(0.455, 0.06, 0.285), stripeMat, 0, -0.06, 0);
+    part(new THREE.BoxGeometry(0.455, 0.06, 0.285), stripeMat, 0, 0.12, 0);
+    part(new THREE.SphereGeometry(0.17, 16, 12), skinMat, 0, 0.55, 0);
+    const helmet = makeHelmet(); helmet.position.set(0, 0.6, 0); g.add(helmet);
+    g.userData.helmet = helmet; g.userData.parts = parts; root.add(g); return g;
+  }
+  // 猫と犬（作業員と同じく、ひと目で分かるピクトグラム寄りの形）
+  function makeAnimal(kind) {
+    const g = new THREE.Group(), parts = [];
+    const cat = kind === 'cat', fur = lam(cat ? 0xe39a45 : 0x8a5a34), light = lam(cat ? 0xfbe6c8 : 0xe9d4b5), dark = lam(0x2a2320);
+    const part = (geo, mat, x, y, z, rx = 0, rz = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.set(rx, 0, rz); m.castShadow = true; m.userData.mat = mat; parts.push(m); g.add(m); return m; };
+    const [hx, hb, hz] = ANIMAL[kind].base;   // 小さな模型の寸法で作り、最後に拡大する。足元は -hb
+    const hy = hb;
+    const legH = hy * 0.9, bodyY = -hb + legH + hy * 0.35;
+    part(new THREE.BoxGeometry(hx * 1.8, hy * 0.75, hz * 1.5), fur, 0, bodyY, 0);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) part(new THREE.BoxGeometry(hx * 0.35, legH, hx * 0.35), fur, sx * hx * 0.6, -hb + legH / 2, sz * hz * 0.55);
+    // 頭は手前（トロッコの来る方）を向く
+    const headR = cat ? hx * 0.95 : hx * 0.85, headZ = hz * 0.95, headY = bodyY + hy * 0.45;
+    part(new THREE.SphereGeometry(headR, 12, 10), fur, 0, headY, headZ);
+    if (cat) {
+      for (const sx of [-1, 1]) part(new THREE.ConeGeometry(headR * 0.38, headR * 0.7, 4), fur, sx * headR * 0.55, headY + headR * 0.85, headZ);
+      part(new THREE.CylinderGeometry(0.018, 0.022, hz * 1.3, 6), fur, 0, bodyY + hy * 0.5, -hz * 0.95, -0.7, 0);
+      part(new THREE.SphereGeometry(headR * 0.42, 8, 6), light, 0, headY - headR * 0.25, headZ + headR * 0.7);
+    } else {
+      part(new THREE.BoxGeometry(headR * 0.8, headR * 0.6, headR * 0.9), light, 0, headY - headR * 0.25, headZ + headR * 0.85);
+      part(new THREE.SphereGeometry(headR * 0.2, 8, 6), dark, 0, headY - headR * 0.05, headZ + headR * 1.3);
+      for (const sx of [-1, 1]) part(new THREE.BoxGeometry(headR * 0.25, headR * 0.8, headR * 0.45), dark, sx * headR * 0.85, headY - headR * 0.2, headZ - headR * 0.1, 0, sx * 0.25);
+      part(new THREE.CylinderGeometry(0.025, 0.03, hz * 0.9, 6), fur, 0, bodyY + hy * 0.45, -hz * 1.0, -0.9, 0);
+    }
+    for (const sx of [-1, 1]) part(new THREE.SphereGeometry(headR * 0.12, 6, 5), dark, sx * headR * 0.38, headY + headR * 0.15, headZ + headR * 0.88);
+    g.scale.setScalar(ANIMAL[kind].scale);
+    g.userData.helmet = null; g.userData.parts = parts; root.add(g); return g;
+  }
+
+  function buildActors() {
+    // 2両目以降の車両（前照灯は先頭だけ）
+    carMeshes = [];
+    for (let j = 1; j < (STAGE.cars ?? 1); j++) {
+      const m = trolley.clone(true);
+      const lights = []; m.traverse(o => { if (o.isLight) lights.push(o); }); lights.forEach(l => l.parent.remove(l));
+      root.add(m); carMeshes.push(m);
+    }
+    ballMeshes = Array.from({ length: STAGE.balls.length * (STAGE.cars ?? 1) }, () => 0).map(() => { const m = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 18, 14), ballMat); m.castShadow = true; root.add(m); return m; });
+    personMeshes = STAGE.people.map(pp => (pp.kind ? makeAnimal(pp.kind) : makePerson()));
+    // 轢かれたら飛んでいくヘルメット
+    looseHelmets = STAGE.people.map(pp => { if (pp.kind) return { h: null, live: false }; const h = makeHelmet(); h.visible = false; root.add(h); return { h, v: new THREE.Vector3(), w: new THREE.Vector3(), live: false }; });
+  }
+
+  // ステージを組み立てる（舞台・人・荷・照明）
+  function buildStage(i) {
+    useStage(i);
+    if (root) scene.remove(root);
+    pillarMeshes = [];
+    root = new THREE.Group(); scene.add(root);
+    buildTrack(); buildWalls(); buildActors();
+    const cave = STAGE.scenery === 'cave';
+    snowFx = null;
+    if (cave) buildCave(); else if (STAGE.scenery === 'lake') buildLake(); else buildQuarry();
+    const ice = STAGE.theme === 'ice';
+    scene.background = cave ? new THREE.Color(0x060505) : ice ? iceSkyTex : skyTex;
+    scene.fog = cave ? new THREE.Fog(0x060505, 16, 62) : ice ? new THREE.Fog(0xb9bdd2, 45, 260) : new THREE.Fog(0xe4cba0, 50, 135);
+    hemi.intensity = cave ? 0.32 : ice ? 0.85 : 1.0;
+    hemi.color.set(ice ? 0xbccbff : 0xffe9c8); hemi.groundColor.set(ice ? 0x6b7184 : 0x6e5a3e);
+    sun.intensity = cave ? 0 : ice ? 1.6 : 2.1; sun.castShadow = !cave; sun.color.set(ice ? 0xffc6a6 : 0xffd29a);
+    dustSprites.forEach(sp => sp.material.color.set(ice ? 0xf3f7fb : cave ? 0xb8a990 : 0xd8bf94));
+    headlight.intensity = cave ? 140 : 0; headlight.castShadow = cave;
+    ground.material = ice ? iceGroundMat : groundMatBase;
+    groundMatBase.map = cave ? caveFloorTex : groundTex; groundMatBase.needsUpdate = true;
+    document.getElementById('stageName').textContent = STAGE.name;
+  }
+
+  // ---- 演出用の粒子（火花・破片・土煙）----
+  const SPARK_N = 260, DEB_N = 80, DUST_N = 56;
+  const dummy = new THREE.Object3D();
+  const sparkMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.035, 0.035, 0.24), new THREE.MeshBasicMaterial({ color: 0xffc45c }), SPARK_N);
+  sparkMesh.frustumCulled = false; scene.add(sparkMesh);
+  const debMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.11, 0.06, 0.38), lam(0x6b4a32), DEB_N);
+  debMesh.frustumCulled = false; debMesh.castShadow = true; scene.add(debMesh);
+  const dustTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d');
+    const g = x.createRadialGradient(32, 32, 2, 32, 32, 31); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
+  const mkPool = n => Array.from({ length: n }, () => ({ live: false, p: new THREE.Vector3(), v: new THREE.Vector3(), r: new THREE.Euler(), w: new THREE.Vector3(), life: 0, max: 1, size: 1 }));
+  const sparks = mkPool(SPARK_N), debris = mkPool(DEB_N), dusts = mkPool(DUST_N);
+  const dustSprites = dusts.map(() => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: dustTex, color: 0xd8bf94, transparent: true, depthWrite: false, opacity: 0 })); sp.visible = false; scene.add(sp); return sp; });
+  let sparkI = 0, debI = 0, dustI = 0;
+  const jitter = k => (rnd() * 2 - 1) * k;
+  function emitSparks(x, y, z, n, vx = 0, vz = 0, spread = 5, up = 4) {
+    for (let i = 0; i < n; i++) { const o = sparks[sparkI = (sparkI + 1) % SPARK_N];
+      o.live = true; o.p.set(x + jitter(0.3), y, z + jitter(0.3)); o.v.set(vx * (0.3 + rnd() * 0.6) + jitter(spread), up * (0.4 + rnd()), vz * (0.3 + rnd() * 0.6) + jitter(spread));
+      o.max = o.life = 0.25 + rnd() * 0.45; }
+  }
+  function emitDebris(x, z, n, vx, vz) {
+    for (let i = 0; i < n; i++) { const o = debris[debI = (debI + 1) % DEB_N];
+      o.live = true; o.p.set(x + jitter(0.6), 0.15, z + jitter(0.6)); o.v.set(vx * (0.2 + rnd() * 0.5) + jitter(3), 2.5 + rnd() * 5, vz * (0.2 + rnd() * 0.5) + jitter(3));
+      o.r.set(rnd() * 3, rnd() * 3, rnd() * 3); o.w.set(jitter(14), jitter(14), jitter(14)); o.max = o.life = 2.5 + rnd(); }
+  }
+  function emitDust(x, z, n, size = 1.2, spread = 0.8) {
+    for (let i = 0; i < n; i++) { const o = dusts[dustI = (dustI + 1) % DUST_N];
+      o.live = true; o.p.set(x + jitter(spread), 0.3 + rnd() * 0.3, z + jitter(spread)); o.v.set(jitter(1.2), 0.5 + rnd() * 0.6, jitter(1.2));
+      o.size = size * (0.7 + rnd() * 0.6); o.max = o.life = 1.0 + rnd() * 1.2; }
+  }
+  function updateFX(dt) {
+    for (let i = 0; i < SPARK_N; i++) { const o = sparks[i];
+      if (o.live) { o.life -= dt; if (o.life <= 0) o.live = false; }
+      if (!o.live) { dummy.scale.setScalar(0); dummy.updateMatrix(); sparkMesh.setMatrixAt(i, dummy.matrix); continue; }
+      o.v.y -= 11 * dt; o.p.addScaledVector(o.v, dt);
+      if (o.p.y < 0.02) { o.p.y = 0.02; o.v.y *= -0.35; o.v.x *= 0.6; o.v.z *= 0.6; }
+      dummy.position.copy(o.p); dummy.lookAt(o.p.x + o.v.x, o.p.y + o.v.y, o.p.z + o.v.z);
+      const k = o.life / o.max; dummy.scale.set(k, k, 0.4 + Math.min(2.5, o.v.length() * 0.18)); dummy.updateMatrix(); sparkMesh.setMatrixAt(i, dummy.matrix);
+    }
+    sparkMesh.instanceMatrix.needsUpdate = true;
+    for (let i = 0; i < DEB_N; i++) { const o = debris[i];
+      if (o.live) { o.life -= dt; if (o.life <= 0) o.live = false; }
+      if (!o.live) { dummy.scale.setScalar(0); dummy.updateMatrix(); debMesh.setMatrixAt(i, dummy.matrix); continue; }
+      o.v.y -= 9.8 * dt; o.p.addScaledVector(o.v, dt);
+      if (o.p.y < 0.04) { o.p.y = 0.04; o.v.y *= -0.3; o.v.x *= 0.55; o.v.z *= 0.55; o.w.multiplyScalar(0.5); }
+      o.r.x += o.w.x * dt; o.r.y += o.w.y * dt; o.r.z += o.w.z * dt;
+      dummy.position.copy(o.p); dummy.rotation.copy(o.r); dummy.scale.setScalar(Math.min(1, o.life * 2)); dummy.updateMatrix(); debMesh.setMatrixAt(i, dummy.matrix);
+    }
+    debMesh.instanceMatrix.needsUpdate = true;
+    dusts.forEach((o, i) => { const sp = dustSprites[i];
+      if (o.live) { o.life -= dt; if (o.life <= 0) o.live = false; }
+      sp.visible = o.live; if (!o.live) return;
+      o.p.addScaledVector(o.v, dt); o.v.multiplyScalar(1 - dt * 1.2);
+      const k = o.life / o.max; sp.position.copy(o.p); sp.scale.setScalar(o.size * (1 + (1 - k) * 2.4)); sp.material.opacity = 0.55 * k;
+    });
+    for (const L of looseHelmets) { if (!L.live) continue;
+      L.v.y -= 9.8 * dt; L.h.position.addScaledVector(L.v, dt);
+      L.h.rotation.x += L.w.x * dt; L.h.rotation.z += L.w.z * dt;
+      if (L.h.position.y < 0.05) { L.h.position.y = 0.05; L.v.y *= -0.45; L.v.x *= 0.7; L.v.z *= 0.7; L.w.multiplyScalar(0.6); }
+    }
+  }
+  function resetFX() {
+    for (const a of [sparks, debris, dusts]) for (const o of a) o.live = false;
+    looseHelmets.forEach((L, i) => { L.live = false; if (L.h) { L.h.visible = false; personMeshes[i].userData.helmet.visible = true; }
+      personMeshes[i].userData.parts.forEach(m => (m.material = m.userData.mat)); });
+  }
+  // 脱線して地面を滑っている間、車体の角から火花
+  const corners = []; for (const x of [-0.7, 0.7]) for (const y of [-0.35]) for (const z of [-1.8, 1.8]) corners.push(new CANNON.Vec3(x, y, z));
+  function slideSparks(dt) {
+    const b = sim.trolleyBody, sp = b.velocity.length(); if (sp < 2.5) return;
+    for (const c of corners) { const w = b.pointToWorldFrame(c); if (w.y < 0.12 && rnd() < dt * 40) emitSparks(w.x, 0.06, w.z, 2, b.velocity.x, b.velocity.z, 1.5, 1.5); }
+  }
+
+  buildStage(0);
+
+  // ---------- 状態 ----------
+  let sim = null, tries = 0, lastMarks = null, running = false;
+  let lever = 0;                       // 0 = 定位（左）, 1 = 反位（右）
+  const camPos = new THREE.Vector3(0, 9.5, 40), camLook = new THREE.Vector3(0, 0, 20);
+  let shake = 0, reasonTimer = 0, alarmT = 0, hitStop = 0, fovKick = 0, flashT = 0;
+  const history = [];
+  // リプレイ：走行中のバー位置を1ステップごとに記録し、同じ操作でシミュレーションをやり直す（同じ端末なら完全に同じ結果になる）
+  let rec = [], runGap = 30, keyStep = null, crossStep = null, doneStep = null, lastHitStep = null, replay = null;
+  let replayCam = 'default';
+  try { replayCam = localStorage.getItem('trolley.replayCam') || 'default'; } catch (e) { }
+  const replayTag = document.getElementById('replayTag');
+
+  function newRun() {
+    tries++;
+    runGap = tries === 1 ? FIRST_GAP : RETRY_GAP;
+    sim = new Sim(STAGE, { startGap: runGap, p0: 0 });
+    rec = []; keyStep = crossStep = doneStep = lastHitStep = null; replay = null; replayTag.hidden = true;
+    lever = 0; throws = 0; side = 'L'; lastNotch = 0;
+    resetFX(); hitStop = 0; fovKick = 0;
+    document.getElementById('tries').textContent = `試行 ${tries}回目`;
+    reasonEl.style.opacity = 0;
+    const F = sim.pose.F;
+    camPos.set(0, 8, F.z + 8.5); camLook.set(0, 0, F.z - 13);
+    running = true;
+  }
+
+  // ---------- 音 ----------
+  let ac = null;
+  function audio() { if (!ac) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { } } return ac; }
+  function beep(freq, dur, type = 'square', vol = 0.04) {
+    const a = audio(); if (!a) return;
+    const o = a.createOscillator(), g = a.createGain();
+    o.type = type; o.frequency.value = freq; g.gain.value = vol;
+    g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + dur);
+    o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + dur);
+  }
+  function noise(dur, vol = 0.3, cutoff = 600) {
+    const a = audio(); if (!a) return;
+    const len = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+    const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+    f.type = 'lowpass'; f.frequency.value = cutoff; g.gain.value = vol;
+    src.buffer = buf; src.connect(f).connect(g).connect(a.destination); src.start();
+  }
+
+  function buzz(ms) { try { navigator.vibrate?.(ms); } catch (e) { } }
+  function tick() {   // てこの刻みを越えたときのカチッ
+    const a = audio(); if (!a) return;
+    const len = Math.floor(a.sampleRate * 0.018), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    const src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+    f.type = 'bandpass'; f.frequency.value = 2600 + Math.random() * 500; f.Q.value = 2; g.gain.value = 0.35;
+    src.buffer = buf; src.connect(f).connect(g).connect(a.destination); src.start();
+  }
+  function clunk() {  // トングが端まで行ってガコン
+    noise(0.14, 0.45, 340); beep(95, 0.12, 'triangle', 0.08);
+    shake = Math.max(shake, 0.1); buzz(25);
+  }
+
+  // 走行していない間も、バーを動かせば分岐器が動く
+  const prevSw = { q: 0, v: 0 };
+  function previewSwitch(dt) {
+    const w = 40, steps = Math.min(12, Math.ceil(dt / DT));
+    for (let i = 0; i < steps; i++) {
+      const a = w * w * (lever - prevSw.q) - 2 * w * prevSw.v;
+      prevSw.v += a * DT; prevSw.q += prevSw.v * DT;
+      if (prevSw.q < 0) { if (prevSw.v < -0.4) clunk(); prevSw.q = 0; prevSw.v = 0; }
+      if (prevSw.q > 1) { if (prevSw.v > 0.4) clunk(); prevSw.q = 1; prevSw.v = 0; }
+    }
+  }
+
+  // 刻みの音と、切り替え回数
+  let lastNotch = 0, lastTickAt = 0, side = 'L', throws = 0;
+  function leverFeedback() {
+    const notch = Math.round(lever * 12), now = performance.now();
+    if (notch !== lastNotch && now - lastTickAt > 22) { tick(); buzz(4); lastTickAt = now; lastNotch = notch; }
+    const s = lever <= BAND_LO ? 'L' : lever >= BAND_HI ? 'R' : side;
+    if (s !== side) { side = s; throws++; }
+  }
+
+  // ---------- 入力 ----------
+  let dragging = false;
+  function leverFromX(clientX) {
+    if (replay) return;
+    const r = leverCv.getBoundingClientRect(), pad = 34;
+    lever = Math.max(0, Math.min(1, (clientX - r.left - pad) / (r.width - pad * 2)));
+  }
+  leverCv.addEventListener('pointerdown', e => { audio(); dragging = true; leverCv.setPointerCapture(e.pointerId); leverFromX(e.clientX); });
+  leverCv.addEventListener('pointermove', e => { if (dragging) leverFromX(e.clientX); });
+  const endDrag = () => { dragging = false; };
+  leverCv.addEventListener('pointerup', endDrag); leverCv.addEventListener('pointercancel', endDrag);
+  const keys = {};
+  addEventListener('keydown', e => { keys[e.key] = true; });
+  addEventListener('keyup', e => { keys[e.key] = false; });
+
+  // ---------- セーブ（プレイ回数と記録） ----------
+  const UNLOCK_PLAYS = 3, LOG_MAX = 300, THANKS_PLAYS = 20;
+  // st：ステージごとの累計（n 被害人数, z 被害なし, d 脱線, cat/dog 動物）。log は最近の分だけなので合計はこちらで持つ
+  const blankSt = () => ({ n: 0, z: 0, d: 0, cat: 0, dog: 0 });
+  let save = { plays: STAGES.map(() => 0), st: STAGES.map(blankSt), titles: {}, log: [] };
+  try {
+    const o = JSON.parse(localStorage.getItem('trolley.save') || 'null');
+    if (o && Array.isArray(o.plays)) {
+      save.plays = STAGES.map((_, i) => +o.plays[i] || 0); save.log = Array.isArray(o.log) ? o.log : [];
+      if (Array.isArray(o.st)) save.st = STAGES.map((_, i) => Object.assign(blankSt(), o.st[i] || {}));
+      else for (const r of save.log) { const t = save.st[r.s]; if (!t) continue; t.n += r.n || 0; if (!r.n && !r.a) t.z++; if (r.d) t.d++; }
+      if (o.titles && typeof o.titles === 'object') save.titles = o.titles;
+      else for (const r of save.log) { const k = titleKey(r.t); if (k) save.titles[k] = (save.titles[k] || 0) + 1; }
+      if (save.plays.reduce((a, b) => a + b, 0) >= THANKS_PLAYS) save.titles['たくさん遊んでくれてありがとう'] = 1;
+    }
+  } catch (e) { }
+  const unlockAll = new URLSearchParams(location.search).has('unlock');
+  function persist() { try { localStorage.setItem('trolley.save', JSON.stringify(save)); } catch (e) { } }
+  const isUnlocked = i => unlockAll || i === 0 || save.plays[i - 1] >= UNLOCK_PLAYS;
+
+  // ステージ選択（順番に開放）
+  let stageIdx = 0, pickIdx = 0;
+  try { pickIdx = Math.min(STAGES.length - 1, +(localStorage.getItem('trolley.stage') || 0)); } catch (e) { }
+  while (pickIdx > 0 && !isUnlocked(pickIdx)) pickIdx--;
+  function markStage() {
+    document.querySelectorAll('.stage').forEach(b => {
+      const i = +b.dataset.stage, ok = isUnlocked(i);
+      b.classList.toggle('on', i === pickIdx); b.disabled = !ok;
+      b.querySelector('span').textContent = ok ? STAGES[i].short : isUnlocked(i - 1) ? `🔒 あと${UNLOCK_PLAYS - save.plays[i - 1]}回` : '🔒';
+      b.setAttribute('aria-label', ok ? `ステージ${i + 1} ${STAGES[i].short}` : `ステージ${i + 1}（ステージ${i}をあと${UNLOCK_PLAYS - save.plays[i - 1]}回遊ぶと開放）`);
+    });
+  }
+  document.querySelectorAll('.stage').forEach(b => (b.onclick = () => { if (!isUnlocked(+b.dataset.stage)) return; pickIdx = +b.dataset.stage; markStage(); if (pickIdx !== stageIdx) switchStage(pickIdx); }));
+  function switchStage(i) {
+    stageIdx = i; sim = null; replay = null; running = false; replayTag.hidden = true;
+    buildStage(i); tries = 0; history.length = 0; lastMarks = null; lever = 0; prevSw.q = prevSw.v = 0;
+    document.getElementById('tries').textContent = '';
+    try { localStorage.setItem('trolley.stage', String(i)); } catch (e) { }
+  }
+  markStage(); if (pickIdx !== 0) switchStage(pickIdx);
+  document.getElementById('startBtn').onclick = () => { audio(); document.getElementById('startOv').hidden = true; newRun(); };
+  const topOv = document.getElementById('topOv'), startOv = document.getElementById('startOv'), recordsOv = document.getElementById('recordsOv');
+  document.getElementById('playBtn').onclick = () => { audio(); topOv.hidden = true; markStage(); startOv.hidden = false; };
+  document.getElementById('toTopBtn').onclick = () => { startOv.hidden = true; topOv.hidden = false; };
+  document.getElementById('recordsBtn').onclick = () => { renderRecords(); topOv.hidden = true; recordsOv.hidden = false; };
+  document.getElementById('recCloseBtn').onclick = () => { recordsOv.hidden = true; topOv.hidden = false; };
+  function renderRecords() {
+    const el = document.getElementById('recBody'); el.innerHTML = '';
+    const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; };
+    if (!save.log.length) { el.appendChild(h('p', 'empty', 'まだ記録がありません。最初の1回をどうぞ。')); return; }
+    const sum = k => save.st.reduce((a, t) => a + (t[k] || 0), 0), plays = save.plays.reduce((a, b) => a + b, 0);
+    const tots = h('div', 'totals');
+    const tot = (label, val, unit, cls) => { const d = h('div', 'tot' + (cls ? ' ' + cls : '')), b = h('b', '', String(val)); b.appendChild(h('small', '', unit)); d.appendChild(b); d.appendChild(document.createTextNode(label)); tots.appendChild(d); };
+    tot('プレイ', plays, '回'); tot('総被害', sum('n'), '人', 'hurt'); tot('被害なし', sum('z'), '回');
+    el.appendChild(tots);
+    const sub = [`脱線 ${sum('d')}回`];
+    if (sum('cat') || sum('dog')) sub.push(`猫 ${sum('cat')}匹・犬 ${sum('dog')}匹`);
+    if (plays) sub.push(`1回あたり ${(sum('n') / plays).toFixed(1)}人`);
+    el.appendChild(h('p', 'subtot', sub.join('　／　')));
+    el.appendChild(h('h3', '', 'ステージ'));
+    const ss = h('div', 'sstats');
+    STAGES.forEach((st, i) => {
+      const t = save.st[i], d = h('div', 'sstat');
+      d.appendChild(h('b', '', isUnlocked(i) ? st.short : '🔒'));
+      if (save.plays[i]) {
+        d.appendChild(document.createTextNode(`${save.plays[i]}回`)); d.appendChild(h('br'));
+        d.appendChild(document.createTextNode(`被害 ${t.n}人`)); d.appendChild(h('br'));
+        d.appendChild(document.createTextNode(`脱線 ${t.d}回`));
+      } else d.appendChild(document.createTextNode(isUnlocked(i) ? '未プレイ' : '未開放'));
+      ss.appendChild(d);
+    });
+    el.appendChild(ss);
+    const got = TITLES.filter(x => save.titles[x.name]).length;
+    el.appendChild(h('h3', '', `獲得した称号　${got} / ${TITLES.length}`));
+    const tl = h('div', 'ttl');
+    TITLES.forEach(x => {
+      const n = save.titles[x.name];
+      if (n) { const sp = h('span', '', x.name); if (n > 1) sp.appendChild(h('i', '', `×${n}`)); tl.appendChild(sp); }
+      else tl.appendChild(h('span', 'locked', '？？？'));
+    });
+    el.appendChild(tl);
+  }
+  document.getElementById('stageBtn').onclick = () => {
+    document.getElementById('resultOv').hidden = true; replay = null; replayTag.hidden = true; running = false;
+    resetFX(); sim = null; markStage(); document.getElementById('startOv').hidden = false;
+  };
+  document.getElementById('retryBtn').onclick = () => { document.getElementById('resultOv').hidden = true; replay = null; newRun(); };
+
+  // ---------- リサイズ ----------
+  function resize() {
+    const w = view.clientWidth, h = view.clientHeight;
+    renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    for (const cv of [boardCv, leverCv]) {
+      const r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio);
+      cv.width = Math.max(1, Math.round(r.width * dpr)); cv.height = Math.max(1, Math.round(r.height * dpr));
+    }
+  }
+  addEventListener('resize', resize); resize();
+
+  // ---------- 表示盤 ----------
+  function drawBoard(t) {
+    const ctx = boardCv.getContext('2d'), dpr = Math.min(2, devicePixelRatio);
+    const W = boardCv.width / dpr, H = boardCv.height / dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = '#111210'; ctx.fillRect(0, 0, W, H);
+    // 全体図：分岐の手前7mから約23m先まで（作業員の実際の位置が入る範囲）
+    const mainW = W - Math.min(118, W * 0.32) - 16;
+    const zc = -8, sc = Math.min(mainW / 16, H / 31), cxm = mainW / 2 + 30;
+    const C = (x, z) => [cxm + x * sc, H / 2 + (z - zc) * sc];
+    // 格子
+    ctx.strokeStyle = '#1c1e1a'; ctx.lineWidth = 1;
+    for (let x = -6; x <= 6; x++) { const [a] = C(x, 0); ctx.beginPath(); ctx.moveTo(a, 0); ctx.lineTo(a, H); ctx.stroke(); }
+    for (let z = -12; z <= 12; z++) { const [, b] = C(0, z); ctx.beginPath(); ctx.moveTo(0, b); ctx.lineTo(W, b); ctx.stroke(); }
+
+    const blink = Math.floor(t * 4) % 2 === 0;
+    const q = prevSw.q;
+    const derailed = sim && sim.reason;
+    const stroke = (path, s0, s1, col, lw) => {
+      if (s1 <= s0) return;
+      ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.beginPath();
+      for (let s = s0, first = true; s <= s1 + 0.001; s += 0.25, first = false) {
+        const p = path.sample(Math.min(s, s1)); const [x, y] = C(p.x, p.z);
+        first ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    };
+    const base = '#4c5049', setCol = '#e6eedc';
+    const lw = Math.max(4, sc * 0.32);
+    // 線路
+    stroke(PATHS.stem, LS - 14, LS, q <= BAND_LO || q >= BAND_HI ? setCol : base, lw);
+    stroke(PATHS.L, TONGUE, 34, q <= BAND_LO ? setCol : base, lw);
+    stroke(PATHS.R, TONGUE, 34, q >= BAND_HI ? setCol : base, lw);
+
+    // 在線区間（赤）
+    if (sim && !derailed) {
+      // 連結した全車両の区間を赤く（先頭車の前輪から最後尾の後輪まで）
+      const red = '#e24b4a';
+      const occ = (f, r) => {
+        if (f.seg === r.seg) stroke(PATHS[f.seg], r.s - 0.6, f.s + 0.6, red, lw);
+        else {
+          if (r.seg === 'stem') stroke(PATHS.stem, r.s - 0.6, LS, red, lw); else stroke(PATHS[r.seg], 0, r.s + 0.6, red, lw);
+          stroke(PATHS[f.seg], 0, f.s + 0.6, red, lw);
+        }
+      };
+      occ(sim.front, sim.rear);
+      let prevRear = sim.rear;
+      for (const car of sim.cars) { occ(prevRear, car.front); occ(car.front, car.rear); prevRear = car.rear; }
+    }
+    if (derailed && blink) {
+      stroke(PATHS.stem, LS - 14, LS, '#e24b4a', lw); stroke(PATHS.L, 0, 34, '#e24b4a', lw); stroke(PATHS.R, 0, 34, '#e24b4a', lw);
+    }
+
+    // 目盛り
+    ctx.strokeStyle = '#8d8a80'; ctx.lineWidth = 1.5;
+    for (let z = 1; z <= 8; z++) {
+      const [x, y] = C(0, z); const len = (z % 2 ? 0.35 : 0.6) * sc;
+      ctx.beginPath(); ctx.moveTo(x + lw, y); ctx.lineTo(x + lw + len, y); ctx.stroke();
+    }
+    const mismatch = q > BAND_LO && q < BAND_HI;
+    // 危険範囲
+    ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5; ctx.strokeStyle = mismatch && blink ? '#ffcf7a' : '#ef9f27aa';
+    const [cx, cy] = C(0, -TONGUE / 2);
+    ctx.beginPath(); ctx.arc(cx, cy, (TONGUE / 2 + 0.7) * sc, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+
+    // 車輪
+    if (sim && !derailed) {
+      const F = sim.axlePos(sim.front), R = sim.axlePos(sim.rear);
+      const drift = sim.front.seg !== sim.rear.seg && sim.rear.seg !== 'stem';
+      const [fx, fy] = C(F.x, F.z), [rx, ry] = C(R.x, R.z);
+      ctx.strokeStyle = drift ? (blink ? '#ff6a5a' : '#7a2a24') : '#d8d4c8'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(rx, ry); ctx.stroke();
+      const axle = (P, x, y, col, tri) => {
+        const ang = Math.atan2(P.tz, P.tx) + Math.PI / 2, L = 0.75 * sc;
+        ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+        ctx.fillStyle = col; ctx.fillRect(-L, -2.5, L * 2, 5);
+        if (tri) { ctx.beginPath(); ctx.moveTo(-6, -5); ctx.lineTo(0, -13); ctx.lineTo(6, -5); ctx.fill(); }
+        ctx.restore();
+      };
+      axle(R, rx, ry, '#a9a69b', false);
+      axle(F, fx, fy, '#ffffff', true);
+      for (const car of sim.cars) {   // 2両目以降
+        const F2 = sim.axlePos(car.front), R2 = sim.axlePos(car.rear), [a1, b1] = C(F2.x, F2.z), [a2, b2] = C(R2.x, R2.z);
+        ctx.strokeStyle = car.front.seg !== car.rear.seg && car.rear.seg !== 'stem' ? (blink ? '#ff6a5a' : '#7a2a24') : '#8d8a80'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(a1, b1); ctx.lineTo(a2, b2); ctx.stroke();
+        axle(F2, a1, b1, '#c9c5b8', false); axle(R2, a2, b2, '#8d8a80', false);
+      }
+    }
+
+    // ---- 分岐器の拡大図（右側の枠） ----
+    {
+      const bw = Math.min(118, W * 0.32), bx = W - bw - 8, by = 8, bh = H - 16;
+      // 縦の範囲：分岐の先3.2mから、連結した最後尾の後輪が見えるところまで
+      const zTop = -3.2, zBot = 1.4 + ((STAGE.cars ?? 1) - 1) * (WHEELBASE + CAR_GAP) * 1.15;
+      const isc = Math.min(bw / 2.6, (bh - 18) / (zBot - zTop)), ox = bx + bw / 2, ytop = by + 18;
+      const I = (x, z) => [ox + x * isc, ytop + (z - zTop) * isc];
+      ctx.fillStyle = '#0b0c0a'; ctx.strokeStyle = '#2c2f29'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#8d8a80'; ctx.font = '10px DotGothic16, monospace'; ctx.textAlign = 'left';
+      ctx.fillText('分岐器', bx + 6, by + 13);
+      ctx.save(); ctx.beginPath(); ctx.rect(bx, by + 16, bw, bh - 16); ctx.clip();
+      const g = tongueGeom(q), thin = Math.max(1.5, isc * 0.05);
+      const iseg = (a, b) => { const [ax, ay] = I(a.x, a.z), [bx2, by2] = I(b.x, b.z); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx2, by2); ctx.stroke(); };
+      const irail = (path, s0, s1, off) => { ctx.beginPath(); for (let s2 = s0, f = true; s2 <= s1 + 1e-3; s2 += 0.2, f = false) { const pp = railXZ(path, Math.min(s2, s1), off); const [x, y] = I(pp.x, pp.z); f ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke(); };
+      // 開いた隙間
+      for (const [gap, a, b2] of [[g.gapL, -0.45, g.lTip.x], [g.gapR, g.rTip.x, 0.45]]) {
+        if (gap < 0.03) continue;
+        const [ax, y0] = I(a, 0), [bx3, y1] = I(b2, -1.1);
+        ctx.fillStyle = mismatch ? (blink ? '#ff3b2fee' : '#ff3b2f88') : '#ff3b2f55';
+        ctx.fillRect(ax, y0, bx3 - ax, y1 - y0);
+      }
+      ctx.strokeStyle = '#c4c0b2'; ctx.lineWidth = thin * 1.3;
+      irail(PATHS.stem, LS - zBot - 1, LS, -0.5); irail(PATHS.stem, LS - zBot - 1, LS, 0.5);
+      irail(PATHS.L, 0, TV + 1, -0.5); irail(PATHS.R, 0, TV + 1, 0.5);
+      irail(PATHS.L, TV, TV + 1, 0.5); irail(PATHS.R, TV, TV + 1, -0.5);
+      ctx.strokeStyle = '#6b6e72'; iseg({ x: g.lTip.x - 0.12, z: -0.35 }, { x: g.rTip.x + 0.12, z: -0.35 });
+      ctx.strokeStyle = mismatch ? (blink ? '#ffc061' : '#ef9f27') : '#7fd18b';
+      ctx.lineWidth = thin * 2.4; ctx.lineCap = 'round';
+      iseg(g.lTip, g.lHeel); iseg(g.rTip, g.rHeel);
+      // 車輪
+      if (sim && !derailed) {
+        for (const [ax, col] of [...sim.cars.flatMap(c => [[c.rear, '#8d8a80'], [c.front, '#c9c5b8']]), [sim.rear, '#a9a69b'], [sim.front, '#ffffff']]) {
+          const P = sim.axlePos(ax);
+          const [x, y] = I(P.x, P.z), ang = Math.atan2(P.tz, P.tx) + Math.PI / 2, L2 = 0.6 * isc;
+          ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.fillStyle = col; ctx.fillRect(-L2, -2, L2 * 2, 4); ctx.restore();
+        }
+      }
+      ctx.restore();
+      ctx.fillStyle = mismatch ? '#ef9f27' : '#7fd18b'; ctx.font = '10px DotGothic16, monospace'; ctx.textAlign = 'center';
+      ctx.textAlign = 'right'; ctx.fillText(mismatch ? '隙間あり' : (q <= BAND_LO ? '左開通' : '右開通'), bx + bw - 6, by + 13);
+    }
+
+    // 作業員：実際の位置に点で描く（盤面では人は点にすぎない）。轢かれた人は赤
+    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, mainW + 8, H); ctx.clip();
+    const pr = Math.max(2.4, sc * 0.26);
+    STAGE.people.forEach((pp, i) => {
+      const pos = sim ? sim.people[i].position : pp, hit = sim && sim.hits.has(i);
+      let [x, y] = C(pos.x, pos.z);
+      ctx.fillStyle = hit ? '#ff4a3a' : pp.kind === 'cat' ? '#f0a54a' : pp.kind === 'dog' ? '#c08a5a' : '#e9e5d8';
+      if (y < 6) { y = 8; ctx.font = '9px DotGothic16, monospace'; ctx.textAlign = 'center'; ctx.fillText('▲', x, y + 3); return; }
+      ctx.beginPath(); ctx.arc(x, y, pr, 0, Math.PI * 2); ctx.fill();
+    });
+    ctx.restore();
+
+    // ランプ
+    ctx.textAlign = 'left'; ctx.font = '11px DotGothic16, monospace';
+    const lamp = (x, y, on, col, label) => {
+      ctx.fillStyle = on ? col : '#2e302b'; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fill();
+      if (on) { ctx.shadowColor = col; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0; }
+      ctx.fillStyle = on ? '#e9e5d8' : '#6b6a62'; ctx.fillText(label, x + 11, y + 4);
+    };
+    const railMode = !derailed;
+    lamp(14, 16, railMode && q <= BAND_LO, '#7fd18b', '定位');
+    lamp(14, 34, railMode && q >= BAND_HI, '#7fd18b', '反位');
+    lamp(14, 52, railMode && mismatch && blink, '#ef9f27', '不整合');
+    if (derailed) lamp(14, 70, blink, '#e24b4a', '異常');
+  }
+
+  // ---------- バー ----------
+  function drawLever() {
+    const ctx = leverCv.getContext('2d'), dpr = Math.min(2, devicePixelRatio);
+    const W = leverCv.width / dpr, H = leverCv.height / dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    const pad = 34, x0 = pad, x1 = W - pad, y = H / 2 + 4;
+    // 溝
+    ctx.fillStyle = '#0d0e0c'; ctx.beginPath(); ctx.roundRect(x0 - 12, y - 7, x1 - x0 + 24, 14, 7); ctx.fill();
+    // 刻み（かちゃかちゃ鳴る位置）。中間の不安定な範囲は琥珀色
+    for (let i = 0; i <= 12; i++) {
+      const v = i / 12, xx = x0 + (x1 - x0) * v, mid = v > BAND_LO && v < BAND_HI;
+      ctx.fillStyle = mid ? '#ef9f2766' : '#7fd18b88';
+      ctx.fillRect(xx - 1, y + 10, 2, i % 6 === 0 ? 8 : 5);
+    }
+    // 端
+    ctx.font = '12px DotGothic16, monospace'; ctx.fillStyle = '#8d8a80'; ctx.textAlign = 'center';
+    ctx.fillText('左', 14, y + 4); ctx.fillText('右', W - 14, y + 4);
+    // 前回の操作
+    if (lastMarks) {
+      for (const [k, col, lab] of [['front', '#ffffffaa', '前'], ['rear', '#a9a69b99', '後']]) {
+        const v = lastMarks[k]; if (v == null) continue;
+        const x = x0 + (x1 - x0) * v;
+        ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y - 14); ctx.lineTo(x, y + 14); ctx.stroke();
+        ctx.fillStyle = col; ctx.font = '10px DotGothic16, monospace'; ctx.fillText(lab, x, y - 18);
+      }
+    }
+    // つまみ（転てつてこ）
+    const x = x0 + (x1 - x0) * lever;
+    const atEnd = lever <= BAND_LO || lever >= BAND_HI;
+    ctx.strokeStyle = '#2a2a28'; ctx.lineWidth = 8; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(W / 2, y + 30); ctx.lineTo(x, y); ctx.stroke();
+    ctx.fillStyle = atEnd ? '#d9d4c4' : '#ef9f27';
+    ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#00000033'; ctx.beginPath(); ctx.arc(x + 3, y + 3, 9, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // ---------- リザルト ----------
+  function showResult() {
+    const sm = sim.summary();
+    sm.throws = throws;
+    lastMarks = sm.marks;
+    history.push(sm);
+    document.getElementById('rTitle').textContent = titleFor(sm);
+    document.getElementById('rTotal').textContent = `${sm.total}人`;
+    const chips = document.getElementById('rChips'); chips.innerHTML = '';
+    const order = ['直撃', '壁経由', '積荷', '巻き添え'];
+    for (const k of order) if (sm.by[k]) { const s = document.createElement('span'); s.className = 'chip'; s.textContent = `${k} ${sm.by[k]}人`; chips.appendChild(s); }
+    for (const k of ['cat', 'dog']) if (sm.animals && sm.animals[k]) { const s = document.createElement('span'); s.className = 'chip'; s.textContent = `${ANIMAL[k].name} 1${ANIMAL[k].unit}`; chips.appendChild(s); }
+    if (!sm.total && !Object.keys(sm.animals || {}).length) { const s = document.createElement('span'); s.className = 'chip'; s.textContent = '被害なし'; chips.appendChild(s); }
+    { const s = document.createElement('span'); s.className = 'chip'; s.textContent = `切替 ${sm.throws}回`; chips.appendChild(s); }
+    let note = sm.derailed ? `原因：${REASON_LABEL[sm.reason]}` : (sm.route === 'L' ? '定位のまま通過' : '反位へ切替えて通過');
+    const normal = history.filter(h => !h.derailed && h.leverMoved).length;
+    if (history.length >= 5 && normal === 0) note += '　／　あなたは線路を普通に切り替えたことが一度もありません';
+    document.getElementById('rNote').textContent = note;
+    // 記録とステージ開放
+    const before = isUnlocked(stageIdx + 1);
+    save.plays[stageIdx]++;
+    { const t = save.st[stageIdx]; t.n += sm.total; if (!sm.total && !Object.keys(sm.animals || {}).length) t.z++; if (sm.derailed) t.d++; for (const k of ['cat', 'dog']) if (sm.animals && sm.animals[k]) t[k]++; }
+    { const k = titleKey(document.getElementById('rTitle').textContent); if (k) save.titles[k] = (save.titles[k] || 0) + 1; }
+    if (save.plays.reduce((a, b) => a + b, 0) >= THANKS_PLAYS) save.titles['たくさん遊んでくれてありがとう'] = 1;
+    save.log.push({ s: stageIdx, t: document.getElementById('rTitle').textContent, n: sm.total, a: Object.keys(sm.animals || {}).length, d: sm.derailed ? 1 : 0, ts: Date.now() });
+    if (save.log.length > LOG_MAX) save.log.splice(0, save.log.length - LOG_MAX);
+    persist();
+    const um = document.getElementById('unlockMsg'), nx = stageIdx + 1;
+    um.classList.remove('new');
+    if (nx >= STAGES.length) um.hidden = true;
+    else if (!before && isUnlocked(nx)) { um.hidden = false; um.classList.add('new'); um.textContent = `ステージ${nx + 1}「${STAGES[nx].short}」が開放されました`; }
+    else if (!isUnlocked(nx)) { um.hidden = false; um.textContent = `あと${UNLOCK_PLAYS - save.plays[stageIdx]}回のプレイで次のステージが開放されます`; }
+    else um.hidden = true;
+    setTimeout(() => { if (sim && !running && !replay) { document.getElementById('resultOv').hidden = false; startReplay(); } }, 900);
+  }
+
+  // 操作の記録を短い文字列にする（同じ値が続く所はまとめる）。不具合の再現用
+  function encodeRec() {
+    const runs = []; let prev = null, n = 0;
+    for (const v of rec) { const q = Math.round(v * 1000); if (q === prev) n++; else { if (prev !== null) runs.push(n > 1 ? `${prev}*${n}` : `${prev}`); prev = q; n = 1; } }
+    if (prev !== null) runs.push(n > 1 ? `${prev}*${n}` : `${prev}`);
+    return `TROLLEY1|s${stageIdx + 1}|g${runGap}|${runs.join(',')}`;
+  }
+  // リプレイの一時停止とコマ送り（1/30秒）
+  let paused = false, stepReq = 0;
+  const pbar = document.getElementById('pbar'), pauseBtn = document.getElementById('pauseBtn'), stepBtn = document.getElementById('stepBtn'), replayTxt = document.getElementById('replayTxt');
+  function setPaused(v) {
+    paused = v; pauseBtn.textContent = v ? '▶ 再生' : '⏸ 一時停止'; stepBtn.hidden = !v;
+    replayTxt.textContent = v ? 'PAUSE' : 'REPLAY'; replayTag.querySelector('.rec').style.visibility = v ? 'hidden' : '';
+  }
+  pauseBtn.onclick = () => setPaused(!paused);
+  stepBtn.onclick = () => { stepReq += 4; };
+  addEventListener('keydown', e => {
+    if (!replay) return;
+    if (e.key === ' ') { e.preventDefault(); setPaused(!paused); }
+    else if (e.key === '.' && paused) stepReq += 4;
+  });
+
+  function startReplay(at) {
+    const lead = Math.round(1.6 / DT);
+    const key = keyStep ?? crossStep ?? rec.length;
+    const start = Math.max(0, key - lead);
+    let end;
+    if (keyStep !== null) end = (doneStep ?? rec.length) + Math.round(1.5 / DT);
+    // 脱線しなかった走行：車載で坑口がある場合だけ、暗闇が続くところまで長めに流す
+    else if (replayCam === 'onboard' && STAGE.portalZ !== undefined) end = (doneStep ?? rec.length) + Math.round(3.2 / DT);
+    // それ以外は、最後に人に当たってから約2秒で切り上げる
+    else end = Math.min(rec.length, Math.max(lastHitStep ?? 0, (crossStep ?? 0) + Math.round(1.5 / DT)) + Math.round(2.2 / DT));
+    const rs = new Sim(STAGE, { startGap: runGap, p0: 0 });
+    for (let i = 0; i < start; i++) { rs.p = rec[i]; rs.step(); }
+    rs.events.length = 0;
+    resetFX();
+    // 一時停止中のカメラ切替：同じ瞬間まで進めて、ぶつかった人の色だけ反映する
+    let i0 = start;
+    if (at !== undefined && at > start) {
+      for (; i0 < Math.min(at, end); i0++) { rs.p = rec[Math.min(i0, rec.length - 1)] ?? 0; rs.step(); }
+      for (const ev of rs.events) if (ev.type === 'hit') { const pm = personMeshes[ev.i]; pm.userData.parts.forEach(m => (m.material = hitMat)); if (pm.userData.helmet) pm.userData.helmet.visible = false; }
+      rs.events.length = 0;
+    }
+    hitStop = 0; fovKick = 0; flashT = 0; reasonEl.style.opacity = 0; acc = 0;
+    replay = { i: i0, end }; sim = rs; replayTag.hidden = false;
+    snapCamera();
+  }
+  function setCam(c) {
+    replayCam = c;
+    try { localStorage.setItem('trolley.replayCam', c); } catch (e) { }
+    document.querySelectorAll('.cam').forEach(b => b.classList.toggle('on', b.dataset.cam === c));
+    if (replay) startReplay(paused ? replay.i : undefined);
+  }
+  document.querySelectorAll('.cam').forEach(b => (b.onclick = () => setCam(b.dataset.cam)));
+  setCam(replayCam);
+
+  // ---------- カメラ ----------
+  // default：本番と同じ / onboard：車体の後ろ上に固定した車載 / rails：分岐の先、左右の線路の間の地面すれすれ / top：真上から
+  let camFov = 55;
+  const railLook = new THREE.Vector3(0, 0.6, 10), topC = new THREE.Vector3(0, 0, -6);
+  const RAIL_CAM = new THREE.Vector3();   // ステージごと：作業員の後ろから分岐の方を見る
+  const railCamPos = RAIL_CAM.clone();
+  const V = new THREE.Vector3();
+  function defaultTarget(tPos, tLook) {
+    // 洞窟では分岐を過ぎたら後ろから追う（坑道の奥は岩壁で見えないため）
+    if (sim && !sim.reason && STAGE.followAfter !== undefined && sim.front.seg !== 'stem' && sim.front.s > STAGE.followAfter) {
+      const p = sim.pose, d = p.dir;
+      tPos.set(p.x - d.x * 6, 9, p.z - d.z * 6); tLook.set(p.x + d.x * 6, 0.4, p.z + d.z * 6); return 3;
+    }
+    if (!sim || !sim.reason) {
+      const F = sim ? sim.pose.F : PATHS.stem.sample(LS - FIRST_GAP);
+      const fz = Math.max(F.z, 6), fx = F.z > 6 ? F.x : 0;   // 曲がった坑道ではトロッコの横位置も追う
+      tPos.set(fx, 8, fz + 8.5); tLook.set(fx * 0.6, 0, fz - 13); return 8;
+    }
+    const p = sim.trolleyBody.position;
+    // 洞窟では壁より高い位置から見下ろす（低い位置だと手前の壁で見えなくなる）
+    if (STAGE.scenery === 'cave') { tPos.set(p.x * 0.6, 10.5, p.z + 7); tLook.set(p.x, 0.4, p.z - 2); return 2.2; }
+    tPos.set(p.x + 6, 3.4, p.z + 8.5); tLook.set(p.x, 0.6, p.z - 1.5); return 2.2;
+  }
+  function snapCamera() {
+    const tPos = new THREE.Vector3(), tLook = new THREE.Vector3();
+    defaultTarget(tPos, tLook); camPos.copy(tPos); camLook.copy(tLook);
+    RAIL_CAM.set(...STAGE.railCam.pos); railCamPos.copy(RAIL_CAM);
+    if (sim) { const p = sim.trolleyBody.position, [bx, bz] = STAGE.railCam.look; railLook.set(bx + (p.x - bx) * 0.55, 0.5, bz + (p.z - bz) * 0.45); topC.set(p.x * 0.5, 0, Math.min(2, p.z * 0.5 - 6)); }
+  }
+  function updateCamera(mode, dt) {
+    camera.up.set(0, 1, 0);
+    if (mode === 'onboard' && sim) {
+      const b = sim.trolleyBody;
+      // 前面のライトの位置。地面にめり込む時だけ高さを持ち上げる
+      const p = b.pointToWorldFrame(new CANNON.Vec3(0, 0.15, -2.0)), t = b.pointToWorldFrame(new CANNON.Vec3(0, -0.05, -10));
+      const up = b.vectorToWorldFrame(new CANNON.Vec3(0, 1, 0));
+      camera.position.set(p.x, Math.max(0.12, p.y), p.z); camera.up.set(up.x, up.y, up.z); camera.lookAt(t.x, t.y, t.z);
+      camFov = 76; return b.position;
+    }
+    if (mode === 'rails' && sim) {
+      const p = sim.trolleyBody.position;
+      // 作業員が画面に残るよう、分岐の方を基準にしてトロッコを半分だけ追う
+      const [bx, bz] = STAGE.railCam.look;
+      railLook.lerp(V.set(bx + (p.x - bx) * 0.55, 0.5 + Math.max(0, p.y - 0.65) * 0.5, bz + (p.z - bz) * 0.45), 1 - Math.exp(-dt * 6));
+      // 真上を通過する瞬間に向きが裏返らないよう、少しだけ奥へずらして見る
+      // 車体がカメラに重なったら、カメラを車体の脇へ弾き出す（車体の中が映らないように）
+      const b = sim.trolleyBody, lp = b.pointToLocalFrame(new CANNON.Vec3(RAIL_CAM.x, RAIL_CAM.y, RAIL_CAM.z));
+      let want = RAIL_CAM;
+      if (Math.abs(lp.x) < 1.0 && Math.abs(lp.y) < 0.9 && Math.abs(lp.z) < 2.2) {
+        const w = b.pointToWorldFrame(new CANNON.Vec3((lp.x < 0 ? -1 : 1) * 1.05, lp.y, lp.z));
+        want = V.set(w.x, Math.max(0.2, w.y), w.z);
+      }
+      railCamPos.lerp(want, 1 - Math.exp(-dt * 25));
+      camera.position.copy(railCamPos); camera.lookAt(railLook.x, railLook.y, railLook.z + (Math.abs(railLook.z - railCamPos.z) < 0.6 ? 0.6 : 0));
+      camFov = 70; return railCamPos;
+    }
+    if (mode === 'top' && sim) {
+      const p = sim.trolleyBody.position;
+      topC.lerp(V.set(p.x * 0.5, 0, Math.min(2, p.z * 0.5 - 6)), 1 - Math.exp(-dt * 2));
+      camera.up.set(0, 0, -1); camera.position.set(topC.x, 32, topC.z + 0.01); camera.lookAt(topC.x, 0, topC.z);
+      camFov = 50; return topC;
+    }
+    const tPos = new THREE.Vector3(), tLook = new THREE.Vector3();
+    const k = defaultTarget(tPos, tLook);
+    const f = 1 - Math.exp(-dt * k);
+    camPos.lerp(tPos, f); camLook.lerp(tLook, f);
+    camera.position.copy(camPos); camera.lookAt(camLook);
+    camFov = 55; return camLook;
+  }
+
+  // ---------- ループ ----------
+  let last = performance.now(), acc = 0, clock = 0;
+  function timeScale() {
+    if (!sim) return 1;
+    if (sim.state === 'rail') {
+      const fz = sim.pose.F.z;
+      if (fz < 3.0 && (sim.tail.seg === 'stem' || sim.tail.s < TONGUE + 0.3)) return 0.25;
+      return 1;
+    }
+    if (sim.reason) { const t = sim.derailT; return t < 0.5 ? 0.28 : t < 1.2 ? 0.28 + (t - 0.5) / 0.7 * 0.72 : 1; }
+    return 1;
+  }
+
+  function frame(now) {
+    const realDt = Math.min(0.05, (now - last) / 1000); last = now; clock += realDt;
+    if (!replay && (keys.ArrowLeft || keys.a)) lever = Math.max(0, lever - realDt * 2.5);
+    if (!replay && (keys.ArrowRight || keys.d)) lever = Math.min(1, lever + realDt * 2.5);
+    leverFeedback();
+    if (!replay && paused) setPaused(false);
+    if (pbar.hidden !== !replay) pbar.hidden = !replay;
+    // 一時停止中は演出の時間も止める（カメラの寄りだけは動く）
+    const fDt = replay && paused ? 0 : realDt;
+
+    if (sim && (running || replay)) {
+      if (paused && replay) { if (stepReq > 0) { acc += stepReq * DT; stepReq = 0; } }
+      else if (hitStop > 0) hitStop -= realDt; else acc += realDt * timeScale();
+      let n = 0;
+      while (acc >= DT && n < 30) {
+        if (replay) {
+          lever = rec[Math.min(replay.i, rec.length - 1)] ?? 0;
+          sim.p = lever; sim.step(); replay.i++;
+        } else { sim.p = lever; rec.push(lever); sim.step(); }
+        acc -= DT; n++;
+        if (replay && replay.i >= replay.end) { startReplay(); break; }
+      }
+      for (const ev of sim.events.splice(0)) {
+        if (ev.type === 'clunk') clunk();
+        if (ev.type === 'cross') beep(ev.axle === 'front' ? 520 : 400, 0.06, 'triangle', 0.05);
+        if (ev.type === 'derail') {
+          noise(0.7, 0.5, 900); noise(0.35, 0.25, 5000); shake = 0.75;
+          hitStop = 0.09; fovKick = 9; flashT = 1;
+          emitSparks(ev.x, 0.2, ev.z, 90, ev.vx, ev.vz, 4, 5);
+          emitDebris(ev.x, ev.z, 16, ev.vx, ev.vz);
+          emitDust(ev.x, ev.z, 9, 1.6, 1.2);
+          reasonEl.textContent = REASON_LABEL[ev.reason]; reasonEl.style.opacity = 1; reasonTimer = 1.6;
+        }
+        if (ev.type === 'wall') { noise(0.25, 0.4, 500); shake = Math.max(shake, 0.35); }
+        if (ev.type === 'wallHit') emitSparks(ev.x, ev.y, ev.z, 40, 0, 0, 4, 3);
+        if (ev.type === 'derail2') { noise(0.5, 0.45, 700); shake = Math.max(shake, 0.4); emitSparks(ev.x, 0.2, ev.z, 50, 0, -8, 3, 4); emitDust(ev.x, ev.z, 5, 1.3, 0.8); }
+        if (ev.type === 'impact') {
+          const k = Math.min(1, ev.v / 6);
+          noise(0.25, 0.25 + 0.3 * k, 260); shake = Math.max(shake, 0.15 + 0.3 * k);
+          emitDust(ev.x, ev.z, 2 + Math.round(4 * k), 1.0 + k, 0.6); emitSparks(ev.x, ev.y, ev.z, 8 + Math.round(24 * k), 0, 0, 3, 3);
+          if (k > 0.6) emitDebris(ev.x, ev.z, 4, 0, 0);
+        }
+        if (ev.type === 'ballImpact') emitDust(ev.x, ev.z, 1, 0.7, 0.2);
+        if (ev.type === 'cross') emitSparks(0, 0.15, 0, 6, 0, -8, 1, 1.5);
+        if (ev.type === 'hit') {
+          beep(140, 0.18, 'sawtooth', 0.05);
+          const pm = personMeshes[ev.i], hel = pm.userData.helmet, L = looseHelmets[ev.i], pb = sim.people[ev.i];
+          pm.userData.parts.forEach(m => (m.material = hitMat));
+          if (hel) {
+            hel.getWorldPosition(L.h.position); hel.visible = false; L.h.visible = true; L.live = true;
+            L.v.set(pb.velocity.x * 0.6 + jitter(1.5), 5 + rnd() * 2.5, pb.velocity.z * 0.6 + jitter(1.5)); L.w.set(jitter(12), 0, jitter(12));
+          }
+          emitDust(pb.position.x, pb.position.z, 2, 0.9, 0.3);
+        }
+        if (ev.type === 'derail' && !replay) keyStep = rec.length;
+        if (ev.type === 'hit' && !replay) lastHitStep = rec.length;
+        if (ev.type === 'cross' && ev.axle === 'front' && !replay && crossStep === null) crossStep = rec.length;
+        if (ev.type === 'done' && !replay) { doneStep = rec.length; running = false; showResult(); }
+      }
+      if (sim.state === 'rail' && !replay) {
+        const mm = sim.q > BAND_LO && sim.q < BAND_HI;
+        alarmT -= realDt; if (mm && alarmT <= 0) { beep(880, 0.08, 'square', 0.03); alarmT = 0.25; }
+      }
+    } else if (sim) {
+      sim.world.step(DT);
+    }
+    if (reasonTimer > 0) { reasonTimer -= fDt; if (reasonTimer <= 0) reasonEl.style.opacity = 0; }
+
+    // 分岐器：走行中はシミュレーションの値、それ以外はバーに追従する見た目用のバネ
+    if (sim && (running || replay) && (sim.state === 'rail' || sim.carsOnRail)) { prevSw.q = sim.q; prevSw.v = sim.qv; }
+    else previewSwitch(realDt);
+    updateSwitch(prevSw.q, clock);
+
+    // 同期
+    if (sim) {
+      trolley.position.copy(sim.trolleyBody.position); trolley.quaternion.copy(sim.trolleyBody.quaternion);
+      sim.cars.forEach((c, j) => { carMeshes[j].position.copy(c.body.position); carMeshes[j].quaternion.copy(c.body.quaternion); });
+      sim.ballPositions().forEach((p, i) => {
+        ballMeshes[i].position.set(p.x, p.y, p.z);
+        if (p.q) ballMeshes[i].quaternion.copy(p.q);
+      });
+      sim.people.forEach((b, i) => { personMeshes[i].position.copy(b.position); personMeshes[i].quaternion.copy(b.quaternion); });
+      const fxDt = hitStop > 0 || (paused && replay) ? 0 : realDt * timeScale();
+      if (sim.reason && sim.state === 'derailed') slideSparks(fxDt);
+      updateFX(fxDt);
+    } else {
+      const nb = STAGE.balls.length;
+      [trolley, ...carMeshes].forEach((mesh, j) => {
+        const P = PATHS.stem.sample(LS - FIRST_GAP - WHEELBASE / 2 - j * (WHEELBASE + CAR_GAP)), yaw = Math.atan2(-P.tx, -P.tz), c = Math.cos(yaw), sn = Math.sin(yaw);
+        mesh.position.set(P.x, BODY_Y, P.z); mesh.quaternion.setFromEuler(new THREE.Euler(0, yaw, 0));
+        STAGE.balls.forEach(([lx, ly, lz], i) => ballMeshes[j * nb + i].position.set(P.x + lx * c + lz * sn, BODY_Y + BODY_HALF[1] + BALL_R + ly, P.z - lx * sn + lz * c));
+      });
+      STAGE.people.forEach((pp, i) => personMeshes[i].position.set(pp.x, pp.kind ? ANIMAL[pp.kind].half[1] : 0.85, pp.z));
+    }
+
+    // カメラ
+    const mode = replay ? replayCam : 'default';
+    { const show = mode !== 'rails'; if (pillarMeshes.length && pillarMeshes[0].visible !== show) pillarMeshes.forEach(m => (m.visible = show)); }
+    const focus = updateCamera(mode, realDt);
+    if (shake > 0 && fDt > 0) { shake = Math.max(0, shake - realDt); camera.position.x += (Math.random() - 0.5) * shake * 0.6; camera.position.y += (Math.random() - 0.5) * shake * 0.6; }
+    fovKick *= Math.exp(-fDt * 5);
+    const fov = camFov - fovKick;
+    // 車載で坑口を越えたら暗転し、そのまま真っ暗
+    let dark = 0;
+    if (mode === 'onboard' && sim && STAGE.portalZ !== undefined) {
+      const depth = STAGE.portalZ - camera.position.z;
+      if (depth > 0 && Math.abs(Math.abs(camera.position.x) - (STAGE.portalX ?? 3.2)) < 1.6 && camera.position.y < 3.4) dark = Math.min(1, depth / 1.2);
+    }
+    tunnelEl.style.opacity = dark.toFixed(3);
+    if (Math.abs(camera.fov - fov) > 0.01) { camera.fov = fov; camera.updateProjectionMatrix(); }
+    if (flashT > 0) { flashT = Math.max(0, flashT - fDt * 5); flashEl.style.opacity = (flashT * 0.7).toFixed(3); }
+    sun.position.set(focus.x - 14, 12, focus.z + 9); sun.target.position.set(focus.x, 0, focus.z);
+    updateSnow(fDt, camera.position.x, camera.position.z - 12);
+
+    renderer.render(scene, camera);
+    drawBoard(clock);
+    drawLever();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // テスト用
+  window.__game = { get sim() { return sim; }, get replay() { return replay; }, setLever(v) { lever = v; }, encodeRec, setPaused, get paused() { return paused; }, start() { document.getElementById('startBtn').click(); }, setCam };
+}
+</script>
+</body>
+</html>
