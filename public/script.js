@@ -207,7 +207,7 @@ function showDailySpotlight(spotlightItems) {
   }
 }
 
-fetch("spotlight-guides.csv?v=20261014-all-works")
+fetch("spotlight-guides.csv?v=20261014-bessatsu")
   .then((response) => {
     if (!response.ok) {
       throw new Error("Failed to load spotlight guides.");
