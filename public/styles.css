@@ -651,7 +651,13 @@ h2,
 .work-thumb-cddomi {
   background:
     linear-gradient(150deg, transparent 42%, rgba(14, 15, 31, 0.28)),
-    url("assets/work-cddomi-bg.svg") center 35% / cover no-repeat,
+    url("assets/work-cddomi-portrait-v1.webp") center 35% / cover no-repeat,
+    #181b2b;
+}
+
+.work-thumb-trolley {
+  background:
+    url("assets/work-trolley-portrait-v1.webp") center 45% / cover no-repeat,
     #181b2b;
 }
 
