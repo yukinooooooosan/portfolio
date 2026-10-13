@@ -4,6 +4,35 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>TROLLEY: Beyond the Switch</title>
+<script>
+  (() => {
+    // Keep local previews and simulation tools out of production analytics.
+    const host = window.location.hostname;
+    if (!['yukinooooooosan.cc', 'yukinooooooosan.github.io'].includes(host) ||
+        new URLSearchParams(window.location.search).has('heatmap')) return;
+    const measurementId = 'G-8WPQNSFFEQ';
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+    const tag = document.createElement('script');
+    tag.async = true;
+    tag.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+    document.head.appendChild(tag);
+    window.gtag('js', new Date());
+    window.gtag('config', measurementId);
+    window.trackTrolleyStart = function (stageId, stageName) {
+      try {
+        if (![1, 2, 3].includes(stageId)) return;
+        window.gtag('event', `trolley_s${stageId}_start`, {
+          send_to: measurementId,
+          level_name: `S${stageId}`,
+          stage_name: stageName
+        });
+      } catch (_) {
+        // Analytics must never interrupt a game run.
+      }
+    };
+  })();
+</script>
 <meta name="description" content="そのレバーで、運命が変わる。トロッコの進路を切り替えるブラウザゲーム。">
 <link rel="canonical" href="https://yukinooooooosan.cc/games/trolley/">
 <meta property="og:type" content="website">
@@ -1596,6 +1625,7 @@ function startGame() {
     const F = sim.pose.F;
     camPos.set(0, 8, F.z + 8.5); camLook.set(0, 0, F.z - 13);
     running = true;
+    window.trackTrolleyStart?.(STAGE.id, STAGE.short);
   }
 
   // ---------- 音 ----------
