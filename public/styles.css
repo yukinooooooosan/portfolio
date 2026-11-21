@@ -655,6 +655,12 @@ h2,
     #181b2b;
 }
 
+.work-thumb-slimecam {
+  background:
+    url("assets/work-slimecam-bg.jpg") 28% 40% / cover no-repeat,
+    #101112;
+}
+
 .work-thumb-trolley {
   background:
     url("assets/work-trolley-portrait-v1.webp") center 45% / cover no-repeat,

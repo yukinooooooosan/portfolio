@@ -1,0 +1,7 @@
+Three.js is provided under the MIT license. See THREE-LICENSE.txt.
+The canonical face model and MediaPipe HairSegmenter are by Google and the MediaPipe authors. https://github.com/google-ai-edge/mediapipe
+The photo recognizer bundles TensorFlow.js 4.22.0 and TensorFlow.js MediaPipe face detection and landmark models. https://github.com/tensorflow/tfjs-models
+HairSegmenter float32 v1 uses the original model weights with tensor layouts converted for TensorFlow.js WASM.
+https://storage.googleapis.com/mediapipe-models/image_segmenter/hair_segmenter/float32/1/hair_segmenter.tflite
+See Apache-2.0.txt for the Apache License, Version 2.0.
+Press Start 2P is by CodeMan38 and is licensed under the SIL Open Font License. See ../assets/font-license.txt.

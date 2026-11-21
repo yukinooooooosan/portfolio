@@ -719,3 +719,11 @@ macOS標準の画像操作コマンド。
 - 画像が表示される。
 - リンク先が意図通り。
 - スマホ幅でも崩れない。
+
+## SLIME CAMの自動公開（2026-11-22）
+
+- 一般向けの公開先は `https://yukinooooooosan.cc/games/slimecam/`。作品カードと本日のご案内から案内する。
+- 編集元は別の非公開リポジトリ `yukinooooooosan/slimecam`。その `main` のChecksが成功すると、配信用ファイルだけが本館リポジトリへ同期される。
+- 本館の `public/games/slimecam/` と `public/assets/work-slimecam-bg.jpg` は自動生成される。ゲームの修正は編集元で行う。
+- `public/games/slimecam/release.json` に配信元のコミットを記録し、公開内容とGitHubを照合できる。
+- 専用のデプロイ鍵で本館へ通常pushし、既存のCloudflare Pages連携とGitHub Pages workflowを起動する。認証情報はGitHub Secretsで管理する。

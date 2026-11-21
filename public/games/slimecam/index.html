@@ -1,0 +1,105 @@
+<!doctype html><html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#08090a">
+<title>SLIME CAM ｜ 写真スライムシミュレーター</title><meta name="description" content="カラーの的や球、毛束にスライムを飛ばして遊べます。自分の写真でも試せます。"><meta property="og:title" content="SLIME CAM"><link rel="icon" href="assets/icon.svg"><link rel="stylesheet" href="style.css">
+<link rel="canonical" href="https://yukinooooooosan.cc/games/slimecam/">
+<meta property="og:url" content="https://yukinooooooosan.cc/games/slimecam/">
+<meta property="og:image" content="https://yukinooooooosan.cc/games/slimecam/assets/preview.jpg">
+</head><body>
+<svg class="symbols" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="i-stamp" viewBox="0 0 24 24"><path d="M5 16h14l1 3H4l1-3Zm4-1c1-2 2-4 1-6a3 3 0 1 1 4 0c-1 2 0 4 1 6M4 22h16"/></symbol>
+<symbol id="i-aim" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 2v6m0 8v6M2 12h6m8 0h6"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-capture" viewBox="0 0 24 24"><path d="M3 3h7v8H3zM16 3h5v5M5 16v5h16V11M9 17l3-4 3 3 3-5"/><path d="M6.5 5v4M4.5 7h4"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24"><path d="M4 3h13l4 4v14H3V3zM7 3v6h9V3M7 21v-8h10v8M13 4v3"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M6 3.8a.8.8 0 0 1 1.2-.7l13.5 8.2a.8.8 0 0 1 0 1.4L7.2 20.9a.8.8 0 0 1-1.2-.7z"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><rect x="5" y="4" width="5" height="16" rx="1"/><rect x="14" y="4" width="5" height="16" rx="1"/></symbol>
+<symbol id="i-focus" viewBox="0 0 24 24"><path d="M3 9V3h6m6 0h6v6m0 6v6h-6m-6 0H3v-6"/><path d="M9 12h6m-3-3v6"/></symbol>
+<symbol id="i-tune" viewBox="0 0 24 24"><path d="M3 6h5m4 0h9M3 12h11m4 0h3M3 18h4m4 0h10M8 3v6m6 0v6M7 15v6"/></symbol>
+<symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2c-1 4-8 9-8 14a8 7 0 0 0 16 0c0-5-6-10-8-14Z"/><path d="M8 15c0 2 1 3 3 3"/></symbol>
+<symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 11a8 8 0 1 1 1 6M4 4v7h7"/></symbol>
+<symbol id="i-hand" viewBox="0 0 24 24"><path d="M9 13V5a2 2 0 0 1 4 0v6l2-1 5 2v5l-3 5h-7l-7-8 2-2 4 3z"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><path d="M5 10h14v11H5zM8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><path d="M7 3h10l4 4v10l-4 4H7l-4-4V7zM9 9a3 3 0 0 1 6 0c0 3-3 2-3 5m0 2v2"/></symbol>
+</defs></svg>
+<header><div class="headwrap"><div class="brand"><canvas class="brand-slime" width="32" height="28" aria-hidden="true"></canvas><div><h1>SLIME <span>CAM</span></h1><p>写真スライムシミュレーター</p></div></div><button id="help" class="help"><svg><use href="#i-help"/></svg><span>使いかた</span></button></div></header>
+<main>
+<section class="viewer box" aria-label="ビューファインダー">
+ <div class="bar viewer-bar">
+  <h2><svg><use href="#i-focus"/></svg>VIEWFINDER</h2>
+  <div class="mode-switch" role="group" aria-label="操作モード">
+   <button type="button" id="cannonMode" aria-label="キャノンモード" aria-pressed="true"><svg><use href="#i-aim"/></svg>キャノン</button>
+   <button type="button" id="pourMode" aria-label="注ぐモード" aria-pressed="false"><svg><use href="#i-drop"/></svg>注ぐ</button>
+   <button type="button" id="stampMode" aria-label="スタンプモード" aria-pressed="false" disabled><svg><use href="#i-stamp"/></svg>スタンプ</button>
+  </div>
+ </div>
+ <div class="stage cannon-aim" id="stage" tabindex="0" role="group" aria-label="照準操作" aria-describedby="stageHint">
+  <canvas id="scene" aria-label="照準を合わせるプレビュー"></canvas>
+  <div id="stampPlane" class="stamp-plane" inert></div>
+  <div class="marks" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="stage-meta"><span class="mode"><i></i><span id="mode">TARGET</span></span><span id="trackText">練習用の的</span><button hidden id="closePhoto" aria-label="写真を閉じて的に戻る" title="写真を閉じる">×</button></div>
+  <div id="notice" role="status"></div>
+  <div class="photo-tools">
+  <div class="playback" role="group" aria-label="シミュレーションの再生操作">
+   <button type="button" id="play" disabled aria-label="再生" aria-pressed="true" title="再生"><svg aria-hidden="true"><use href="#i-play"/></svg></button>
+   <button type="button" id="pause" disabled aria-label="一時停止" aria-pressed="false" title="一時停止"><svg aria-hidden="true"><use href="#i-pause"/></svg></button>
+  </div>
+  <label class="stamp-visibility" id="stampVisibility" hidden><input id="showStamps" type="checkbox" checked>スタンプ表示</label>
+  <div class="aim-readout" id="aimReadout" aria-hidden="true"><span>X <b id="aimX">50</b></span><span>Y <b id="aimY">50</b></span></div>
+  </div>
+  <div id="reticle" class="reticle" aria-hidden="true"><i></i><b></b></div>
+  <div class="tap-hint"><svg><use id="hintIcon" href="#i-aim"/></svg><span id="stageHint">タップ・ドラッグで照準を移動</span></div>
+ </div>
+ <div id="mobileStampSlot"></div>
+ <div class="trigger-row" id="triggerRow">
+  <button disabled id="pour" class="btn trigger"><svg><use id="triggerIcon" href="#i-aim"/></svg><strong id="triggerText">発射</strong><small id="triggerHint">長押しで連射</small></button>
+  <button id="reset" class="btn reset" aria-label="スライムをリセット" title="スライムをリセット"><svg><use href="#i-reset"/></svg></button>
+ </div>
+<div class="aim-control sliders" id="aimControl">
+ <label for="aimOpacity"><span>照準の不透明度</span><output id="aimOpacityOut" for="aimOpacity">100%</output><input id="aimOpacity" aria-label="照準の不透明度" type="range" min="0" max="100" step="1" value="100" aria-valuetext="100%"></label>
+</div>
+<div class="tilt-control" id="tiltControl">
+ <label for="targetTilt"><span class="tilt-gauge" aria-hidden="true"><i></i></span>的の傾き</label>
+ <output id="targetTiltOut" for="targetTilt">90°</output>
+ <div class="tilt-scale"><span>水平</span><input id="targetTilt" aria-label="的の傾き" type="range" min="0" max="90" step="1" value="90"><span>直立</span></div>
+</div>
+<div class="photo-actions"><button disabled id="openPhoto" class="btn"><svg><use href="#i-capture"/></svg><span>写真を選ぶ</span></button><input hidden type="file" id="imageFile" accept="image/*"><button disabled id="save" class="btn"><svg><use href="#i-save"/></svg>静止画を保存</button><button hidden type="button" id="cancelPhoto" class="btn">読み込みをやめる</button></div></section>
+<section id="slimeSettings" class="settings box" aria-label="スライム設定"><div class="bar"><h2><svg><use href="#i-tune"/></svg>SLIME CONTROL</h2><span class="vents" aria-hidden="true"></span></div>
+<div class="panel-body"><div class="label-line"><h3>スライムカラー</h3></div>
+<div class="material" id="material"><div class="material-art"><div class="sprite-shadow"></div><canvas id="slimeSprite" width="32" height="28" aria-hidden="true"></canvas></div><div class="mat-name"><small id="matNumber">SLIME / 01</small><strong id="matTitle">LIME</strong><span id="matJp">ライムグリーン</span></div></div>
+<div class="palette" id="palette" aria-label="色を選択"></div>
+<div class="sliders">
+<label class="mix-control" for="coreRatio"><span>二層の配合</span><output id="coreRatioOut" for="coreRatio">光沢 40% ／ 色 60%</output>
+<input id="coreRatio" type="range" min="0" max="100" value="60" aria-label="色層の割合" aria-valuetext="光沢層40%、色層60%"></label>
+<label><span>透明度</span><output id="opacityOut" for="opacity">35%</output><input id="opacity" type="range" min="0" max="100" value="35"></label>
+<label><span>粘度</span><output id="viscosityOut" for="viscosity">70%</output><input id="viscosity" type="range" min="0" max="100" value="70"></label>
+<label><span>量</span><output id="amountOut" for="amount">60%</output><input id="amount" type="range" min="5" max="100" value="60"></label>
+</div>
+</div></section>
+<section id="stampPanel" class="settings stamp-panel box" aria-label="スタンプ編集" hidden>
+ <div class="bar"><h2><svg><use href="#i-stamp"/></svg>STAMP</h2><span id="stampCount">配置 0</span></div>
+ <div class="stamp-body">
+  <div class="stamp-formats" role="group" aria-label="文字の向き"><button id="horizontalStamps" type="button" aria-pressed="true">横書き</button><button id="verticalStamps" type="button" aria-pressed="false">縦書き</button></div>
+  <div class="stamp-grid" id="stampGrid" role="group" aria-label="スタンプを選ぶ"></div>
+  <div class="sliders stamp-adjust">
+   <label for="stampSize"><span>大きさ</span><output id="stampSizeOut" for="stampSize">28%</output><input aria-label="スタンプの大きさ" id="stampSize" type="range" min="6" max="100" value="28"></label>
+   <label for="stampAngle"><span>回転</span><output id="stampAngleOut" for="stampAngle">0°</output><input aria-label="スタンプの回転" id="stampAngle" type="range" min="-180" max="180" value="0"></label>
+  </div>
+  <button class="btn" type="button" id="deleteStamp" disabled>選択したスタンプを削除</button>
+ </div>
+</section>
+</main>
+<footer><span><svg><use href="#i-lock"/></svg>画像はサーバーに保存されません</span><b>SLIME CAM <em>v0.11</em></b></footer>
+<dialog id="guide" aria-labelledby="guideTitle">
+ <div class="bar"><h2 id="guideTitle">使いかた</h2><button class="close" id="close" aria-label="閉じる">×</button></div>
+ <div class="guide-body">
+  <p>まずは的で遊んでみよう。「写真を選ぶ」で、顔の写った写真でも遊べます。</p>
+  <ol>
+   <li><strong>スライムをかける</strong><br>的をタップして「発射」。長押しで連射できます。「注ぐ」では照準を合わせて「長押しで注ぐ」を押すと、同じ横位置の画面の上端外から落ち、照準の位置で付着します。押したまま別の指でプレビューをドラッグすると照準を動かせます。タップなら一滴だけ置けます。キーボードではプレビューにフォーカスし、矢印キーで位置を選んでEnterで一滴置けます。Shift＋矢印キーで大きく移動します。</li>
+   <li><strong>照準の濃さを変える</strong><br>「照準の不透明度」で0〜100%に調整できます。0%で照準が見えなくなっても、狙う位置やスライムの濃さは変わりません。</li>
+   <li><strong>スタンプで飾る</strong><br>「スタンプ」を開くと動きが止まります。絵柄を選んで、置きたい場所をタップ。</li>
+   <li><strong>画像を保存する</strong><br>「静止画を保存」を押すと、表示中のスタンプも一緒にPNGで保存できます。</li>
+  </ol>
+  <p class="guide-privacy">選んだ写真も完成した画像も端末内で処理され、サーバーには保存されません。</p>
+ </div>
+</dialog>
+<div id="toast" role="status"></div>
+<script type="module" src="app.js"></script></body></html>
