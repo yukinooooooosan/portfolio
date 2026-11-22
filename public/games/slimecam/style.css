@@ -26,6 +26,11 @@ header{background:#0e0f10;border-bottom:1px solid var(--frame)}
 .help svg{color:var(--orange);width:17px;height:17px}
 button:not(:disabled):hover{border-color:var(--bright)}
 main{display:grid;grid-template-columns:minmax(0,1fr) minmax(292px,30.7%);gap:22px;align-items:start;margin-block:30px 0}
+#slimeSettings{min-width:0}
+.affiliate-link{margin:0 0 12px;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
+.affiliate-link a{color:var(--bright);text-decoration:underline;text-underline-offset:3px}
+.affiliate-link a:hover{color:var(--text)}
+.affiliate-link a:focus-visible{outline:2px solid #fff1c9;outline-offset:3px}
 .box{min-width:0;overflow:hidden;border:1px solid var(--frame);border-radius:5px;background:var(--panel)}
 .bar{min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 16px;background:#181818;border-bottom:1px solid var(--frame)}
 .bar h2{display:flex;gap:10px;align-items:center;margin:0;font:12px/1.3 var(--pixel);color:#f3ece4;letter-spacing:.04em}
@@ -112,7 +117,8 @@ input[type=range]::-moz-range-track{height:5px;background:#343332}
 input[type=range]::-moz-range-progress{height:5px;background:var(--orange)}
 input[type=range]::-webkit-slider-thumb{appearance:none;width:13px;height:18px;margin-top:-6px;background:#f1e5db;border:2px solid #1a1715;border-radius:2px;box-shadow:0 0 0 1px #a97554}
 input[type=range]::-moz-range-thumb{width:10px;height:15px;background:#f1e5db;border:2px solid #1a1715;border-radius:2px}
-footer{display:flex;align-items:center;justify-content:space-between;gap:9px;border-top:1px solid var(--line);margin-top:26px;padding:14px 0 24px;color:var(--muted);font-size:12px}
+footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:9px;border-top:1px solid var(--line);margin-top:26px;padding:14px 0 24px;color:var(--muted);font-size:12px}
+.affiliate-disclosure{flex-basis:100%;margin:4px 0 0;font-size:12px;line-height:1.7}
 footer span{display:flex;align-items:center;gap:6px}
 footer svg{width:14px;height:14px;color:var(--orange)}
 footer b{font:9px var(--pixel)}
@@ -193,3 +199,4 @@ dialog .close{border:0;background:none;color:var(--bright);font-size:28px}
  .stamp-adjust{grid-template-columns:1fr 1fr;column-gap:14px;padding-top:6px}
  #deleteStamp{justify-self:end;padding:3px 9px;min-height:32px}
 }
+
