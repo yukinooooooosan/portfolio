@@ -1,6 +1,28 @@
 <!doctype html><html lang="ja"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#08090a">
 <title>SLIME CAM ｜ 写真スライムシミュレーター</title><meta name="description" content="カラーの的や球、毛束にスライムを飛ばして遊べます。自分の写真でも試せます。"><meta property="og:title" content="SLIME CAM"><link rel="icon" href="assets/icon.svg"><link rel="stylesheet" href="style.css">
+  <script>
+    (function(){
+      const analyticsId = 'G-8WPQNSFFEQ';
+      const host = window.location.hostname;
+      const localHosts = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
+      if (localHosts.has(host) || host.endsWith('.local')) {
+        return;
+      }
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      window.gtag = window.gtag || gtag;
+
+      const analyticsScript = document.createElement('script');
+      analyticsScript.async = true;
+      analyticsScript.src = `https://www.googletagmanager.com/gtag/js?id=${analyticsId}`;
+      document.head.appendChild(analyticsScript);
+
+      window.gtag('js', new Date());
+      window.gtag('config', analyticsId);
+    }());
+  </script>
 <link rel="canonical" href="https://yukinooooooosan.cc/games/slimecam/">
 <meta property="og:url" content="https://yukinooooooosan.cc/games/slimecam/">
 <meta property="og:image" content="https://yukinooooooosan.cc/games/slimecam/assets/preview.jpg">
