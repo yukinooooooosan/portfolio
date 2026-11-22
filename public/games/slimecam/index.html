@@ -33,6 +33,7 @@
 <symbol id="i-capture" viewBox="0 0 24 24"><path d="M3 3h7v8H3zM16 3h5v5M5 16v5h16V11M9 17l3-4 3 3 3-5"/><path d="M6.5 5v4M4.5 7h4"/></symbol>
 <symbol id="i-save" viewBox="0 0 24 24"><path d="M4 3h13l4 4v14H3V3zM7 3v6h9V3M7 21v-8h10v8M13 4v3"/></symbol>
 <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 3.8a.8.8 0 0 1 1.2-.7l13.5 8.2a.8.8 0 0 1 0 1.4L7.2 20.9a.8.8 0 0 1-1.2-.7z"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="1"/></symbol>
 <symbol id="i-pause" viewBox="0 0 24 24"><rect x="5" y="4" width="5" height="16" rx="1"/><rect x="14" y="4" width="5" height="16" rx="1"/></symbol>
 <symbol id="i-focus" viewBox="0 0 24 24"><path d="M3 9V3h6m6 0h6v6m0 6v6h-6m-6 0H3v-6"/><path d="M9 12h6m-3-3v6"/></symbol>
 <symbol id="i-tune" viewBox="0 0 24 24"><path d="M3 6h5m4 0h9M3 12h11m4 0h3M3 18h4m4 0h10M8 3v6m6 0v6M7 15v6"/></symbol>
@@ -60,19 +61,17 @@
   <div class="stage-meta"><span class="mode"><i></i><span id="mode">TARGET</span></span><span id="trackText">練習用の的</span><button hidden id="closePhoto" aria-label="写真を閉じて的に戻る" title="写真を閉じる">×</button></div>
   <div id="notice" role="status"></div>
   <div class="photo-tools">
-  <div class="playback" role="group" aria-label="シミュレーションの再生操作">
-   <button type="button" id="play" disabled aria-label="再生" aria-pressed="true" title="再生"><svg aria-hidden="true"><use href="#i-play"/></svg></button>
-   <button type="button" id="pause" disabled aria-label="一時停止" aria-pressed="false" title="一時停止"><svg aria-hidden="true"><use href="#i-pause"/></svg></button>
-  </div>
   <label class="stamp-visibility" id="stampVisibility" hidden><input id="showStamps" type="checkbox" checked>スタンプ表示</label>
   <div class="aim-readout" id="aimReadout" aria-hidden="true"><span>X <b id="aimX">50</b></span><span>Y <b id="aimY">50</b></span></div>
   </div>
   <div id="reticle" class="reticle" aria-hidden="true"><i></i><b></b></div>
-  <div class="tap-hint"><svg><use id="hintIcon" href="#i-aim"/></svg><span id="stageHint">タップ・ドラッグで照準を移動</span></div>
+  <div class="tap-hint" id="tapHint"><svg><use id="hintIcon" href="#i-aim"/></svg><span id="stageHint">タップ・ドラッグで照準を移動</span></div>
  </div>
  <div id="mobileStampSlot"></div>
  <div class="trigger-row" id="triggerRow">
   <button disabled id="pour" class="btn trigger"><svg><use id="triggerIcon" href="#i-aim"/></svg><strong id="triggerText">発射</strong><small id="triggerHint">長押しで連射</small></button>
+  <button type="button" disabled id="playToggle" class="btn playback-toggle" aria-label="シミュレーションを停止" aria-pressed="true" title="停止"><svg aria-hidden="true"><use id="playbackIcon" href="#i-stop"/></svg></button>
+  <button type="button" id="toggleHud" class="btn hud-toggle" aria-label="HUDを非表示" aria-pressed="false" title="HUDを非表示">HUD</button>
   <button id="reset" class="btn reset" aria-label="スライムをリセット" title="スライムをリセット"><svg><use href="#i-reset"/></svg></button>
  </div>
 <div class="aim-control sliders" id="aimControl">
@@ -83,7 +82,6 @@
  <output id="targetTiltOut" for="targetTilt">90°</output>
  <div class="tilt-scale"><span>水平</span><input id="targetTilt" aria-label="的の傾き" type="range" min="0" max="90" step="1" value="90"><span>直立</span></div>
 </div>
-<p class="tilt-hint" id="tiltHint" hidden>写真は回転せず、スライムが流れる面の傾きが変わります。</p>
 <div class="photo-actions"><button disabled id="openPhoto" class="btn"><svg><use href="#i-capture"/></svg><span>写真を選ぶ</span></button><input hidden type="file" id="imageFile" accept="image/*"><button disabled id="save" class="btn"><svg><use href="#i-save"/></svg>静止画を保存</button><button hidden type="button" id="adjustPhoto" class="btn">写真の範囲を調整</button><button hidden type="button" id="cancelPhoto" class="btn">読み込みをやめる</button></div></section>
 <section id="slimeSettings" class="settings" aria-label="スライム設定">
 <p class="affiliate-link"><a href="https://link.amazon/B01n7l1jQ" target="_blank" rel="sponsored nofollow noopener">【PR】あなたのお顔にも。ニベア スキンミルク しっとり 200g（Amazon）</a></p>
@@ -135,8 +133,9 @@
   <p>まずは的で遊んでみよう。「写真を選ぶ」で、顔の写った写真でも遊べます。</p>
   <ol>
    <li><strong>写真の範囲を決める</strong><br>写真を選んだら、倍率・横位置X・縦位置Yを調整して「この範囲で使う」を押します。ドラッグでも移動できます。「写真の範囲を調整」からやり直せます。確定後は顔と髪を解析し、スライムとスタンプをリセットします。取り消した場合は元の編集を保ちます。</li>
-   <li><strong>面の傾きを変える</strong><br>的も写真も0°（水平）〜90°（直立）に調整できます。写真そのものは回転せず、付着したスライムの流れ方が変わります。顔の凹凸に沿う流れは水平でも残ります。</li>
+   <li><strong>面の傾きを変える</strong><br>的も写真も0°（水平）〜90°（直立）に調整できます。付着したスライムの流れ方が変わります。顔の凹凸に沿う流れは水平でも残ります。</li>
    <li><strong>スライムをかける</strong><br>的をタップして「発射」。長押しで連射できます。「注ぐ」では照準を合わせて「長押しで注ぐ」を押すと、同じ横位置の画面の上端外から落ち、照準の位置で付着します。押したまま別の指でプレビューをドラッグすると照準を動かせます。タップなら一滴だけ置けます。キーボードではプレビューにフォーカスし、矢印キーで位置を選んでEnterで一滴置けます。Shift＋矢印キーで大きく移動します。</li>
+   <li><strong>表示と再生を切り替える</strong><br>発射・注ぐの右のボタンで再生／停止を切り替えます。「HUD」で照準・座標・枠・操作ヒントの表示を切り替えます。発射・注ぐの操作中と、操作を終えてから3秒間はヒントを隠します。</li>
    <li><strong>照準の濃さを変える</strong><br>「照準の不透明度」で0〜100%に調整できます。0%で照準が見えなくなっても、狙う位置やスライムの濃さは変わりません。</li>
    <li><strong>スタンプで飾る</strong><br>「スタンプ」を開くと動きが止まります。絵柄を選んで、置きたい場所をタップ。</li>
    <li><strong>画像を保存する</strong><br>「静止画を保存」を押すと、表示中のスタンプも一緒にPNGで保存できます。</li>

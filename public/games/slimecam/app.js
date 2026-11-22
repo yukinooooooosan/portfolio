@@ -19,6 +19,7 @@ let photoFile=null,photoSelection=null;
 const tiltAngles={target:90,photo:90};
 let drawHz=40,ratio=Math.min(devicePixelRatio,1.5),frameAt=0,lastTime=0,simDebt=0;
 let noticeTimer=0,toastTimer=0,needsDraw=true,chosen=0;
+let hintTimer=0,hudHidden=false;
 const hasPhoto=()=>source!==photo;
 function cancelPhotoLoad(){
  const job=photoLoad;
@@ -28,7 +29,7 @@ function cancelPhotoLoad(){
 }
 function updatePhotoControls(){
  const loading=!!photoLoad;
- for(const id of ['cannonMode','pourMode','stampMode','save','reset','play','pause','closePhoto','targetTilt','aimOpacity','adjustPhoto'])$(id).disabled=!ready||loading;
+ for(const id of ['cannonMode','pourMode','stampMode','save','reset','playToggle','toggleHud','closePhoto','targetTilt','aimOpacity','adjustPhoto'])$(id).disabled=!ready||loading;
  $('pour').disabled=!ready||paused||loading;
  $('cancelPhoto').hidden=!loading;
  stage.setAttribute('aria-busy',String(loading));
@@ -119,7 +120,6 @@ function showPhoto(pixels,points,hair){
  tiltInput.value=String(tiltAngles[hasPhoto()?'photo':'target']);updateTilt();
  $('tiltLabel').textContent=hasPhoto()?'写真の面の傾き':'的の傾き';
  tiltInput.setAttribute('aria-label',hasPhoto()?'写真の面の傾き':'的の傾き');
- $('tiltHint').hidden=!hasPhoto();
  $('adjustPhoto').hidden=!hasPhoto();
  $('openPhoto').querySelector('span').textContent=hasPhoto()?'写真を変更':'写真を選ぶ';
  $('trackText').textContent=hasPhoto()?'読み込み写真':'練習用の的';
@@ -185,6 +185,7 @@ function moveAim(x,y) {
 }
 function placePour(x,y){
  if(!canPour())return;
+ suppressHint();restoreHintLater();
  moveAim(x,y);sampleIdle=false;
  s.splash(x*s.aspect,y);needsDraw=true;
 }
@@ -203,11 +204,18 @@ function stopInteractions(){
  stopAction();
 }
 function stopAction() {
+ const wasActive=s.firing||s.pouring;
  if(mode==='pour'&&s.pouring)cancelAimDrag();
  s.pouring=s.firing=false;
  triggerPointer=null;
  trigger.classList.remove('down');
  $('triggerText').textContent=mode==='cannon'?'発射':'長押しで注ぐ';
+ if(wasActive)restoreHintLater();
+}
+function suppressHint(){clearTimeout(hintTimer);$('tapHint').hidden=true;}
+function restoreHintLater(){
+ clearTimeout(hintTimer);
+ hintTimer=setTimeout(()=>{$('tapHint').hidden=false;},3000);
 }
 function updateStageHint(){
  if(mode==='stamp'){
@@ -216,7 +224,7 @@ function updateStageHint(){
  }
  const hint='上から照準へ注ぐ・タップで一滴';
  const actionHint=mode==='cannon'?'タップ・ドラッグで照準を移動':hint;
- $('stageHint').textContent=paused?'一時停止中':actionHint;
+ $('stageHint').textContent=paused?'停止中':actionHint;
  $('hintIcon').setAttribute('href',paused?'#i-pause':mode==='cannon'?'#i-aim':'#i-hand');
 }
 function setPaused(next){
@@ -225,15 +233,24 @@ function setPaused(next){
  if(paused)stopInteractions();
  lastTime=0;
  trigger.disabled=paused;
- $('play').setAttribute('aria-pressed',String(!paused));
- $('pause').setAttribute('aria-pressed',String(paused));
+ $('playToggle').setAttribute('aria-pressed',String(!paused));
+ $('playToggle').setAttribute('aria-label',paused?'シミュレーションを再生':'シミュレーションを停止');
+ $('playToggle').title=paused?'再生':'停止';
+ $('playbackIcon').setAttribute('href',paused?'#i-play':'#i-stop');
  updateStageHint();
 }
-$('play').onclick=()=>{
- if(mode==='stamp')changeMode(previousMode);
- setPaused(false);
+$('playToggle').onclick=()=>{
+ if(photoLoad||!ready)return;
+ if(mode==='stamp'){changeMode(previousMode);setPaused(false);}
+ else setPaused(!paused);
 };
-$('pause').onclick=()=>setPaused(true);
+$('toggleHud').onclick=()=>{
+ if(photoLoad||!ready)return;
+ hudHidden=!hudHidden;stage.classList.toggle('hud-hidden',hudHidden);
+ $('toggleHud').setAttribute('aria-pressed',String(hudHidden));
+ $('toggleHud').setAttribute('aria-label',hudHidden?'HUDを表示':'HUDを非表示');
+ $('toggleHud').title=hudHidden?'HUDを表示':'HUDを非表示';
+};
 function changeMode(next) {
  if(photoLoad)return;
  stopInteractions();
@@ -248,7 +265,9 @@ function changeMode(next) {
  stage.classList.toggle('cannon-aim',cannon);
  stage.classList.toggle('stamping',editing);
  $('reticle').hidden=$('aimReadout').hidden=editing;
- $('triggerRow').hidden=editing;
+ $('triggerRow').hidden=false;
+ $('triggerRow').classList.toggle('is-stamp',editing);
+ trigger.hidden=$('reset').hidden=editing;
  $('aimControl').hidden=editing;
  $('tiltControl').hidden=editing;
  $('slimeSettings').hidden=editing;
@@ -264,6 +283,7 @@ function changeMode(next) {
 for(const name of ['cannon','pour','stamp'])$(name+'Mode').onclick=()=>changeMode(name);
 function startAction() {
  if(!ready || photoLoad || paused || s.firing || s.pouring) return false;
+ suppressHint();
  sampleIdle=false;needsDraw=true;
  if(mode==='cannon') s.startFiring();
  else {s.pouring=true;s.emitPour();}
