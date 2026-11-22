@@ -1,10 +1,16 @@
 // Decode in the browser so EXIF orientation is applied to the same pixels used by the detector and renderer.
-export async function readPhoto(file){
+export async function decodePhoto(file){
  const url=URL.createObjectURL(file);
  const image=new Image();
  try{
   image.src=url;
   await image.decode();
+  return image;
+ }finally{URL.revokeObjectURL(url);}
+}
+
+export async function readPhoto(file){
+  const image=await decodePhoto(file);
   const scale=Math.min(1,2048/Math.max(image.naturalWidth,image.naturalHeight));
   const pixels=document.createElement('canvas');
   pixels.width=Math.max(1,Math.round(image.naturalWidth*scale));
@@ -14,7 +20,6 @@ export async function readPhoto(file){
   ctx.fillRect(0,0,pixels.width,pixels.height);
   ctx.drawImage(image,0,0,pixels.width,pixels.height);
   return pixels;
- }finally{URL.revokeObjectURL(url);}
 }
 
 export function capturePhoto(renderer,canvas,stage,frame,pixels,previewRatio){

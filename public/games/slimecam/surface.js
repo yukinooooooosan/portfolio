@@ -52,7 +52,7 @@ export class Surface{
  constructor(){
   this.points=null;this.aspect=1;this.anchors=[];this.film=new WetFilm(SIZE);this.falling=[];this.hanging=[];this.field=new Float32Array(SIZE*SIZE);this.bytes=new Uint8Array(SIZE*SIZE);this.dirty=true;
   this.hair=null;this.hairDepth=0;this.mesh=faceMesh;
-  this.setTargetTilt(90);
+  this.setTargetTilt(90);this.setPhotoTilt(90);
   this.core=new CoreLayer(SIZE);this.coreRatio=.60;
   this.shots=[];this.aim={x:.5,y:.5};this.firing=false;this.nextShot=0;
   this.viscosity=.7;this.amount=.6;this.time=0;this.pouring=false;this.nextPour=0;
@@ -64,8 +64,14 @@ export class Surface{
   this.targetGravityY=angle===90?1:Math.sin(radians);
   this.targetGravityZ=angle===90?0:-Math.cos(radians);
  }
- get gravityY(){return this.mesh.kind==='target'?this.targetGravityY:1;}
- get gravityZ(){return this.mesh.kind==='target'?this.targetGravityZ:0;}
+ setPhotoTilt(degrees){
+  if(!Number.isFinite(degrees))return;
+  const angle=Math.max(0,Math.min(90,degrees)), radians=angle*Math.PI/180;
+  this.photoGravityY=angle===90?1:Math.sin(radians);
+  this.photoGravityZ=angle===90?0:-Math.cos(radians);
+ }
+ get gravityY(){return this.mesh.kind==='target'?this.targetGravityY:this.photoGravityY;}
+ get gravityZ(){return this.mesh.kind==='target'?this.targetGravityZ:this.photoGravityZ;}
  get flowViscosity(){
   // A core-rich mixture resists flow more than clear gel at the same viscosity setting.
   return this.viscosity+(this.coreRatio-.60)*(.22+.16*(1-this.viscosity))*(this.coreRatio>.60?1-this.viscosity:this.viscosity);
@@ -95,6 +101,7 @@ export class Surface{
   this.mesh=mesh;this.aspect=aspect;this.source=source;
   this.points=points?points.map(([x,y,z])=>[(source.mirror?1-x:x)*source.w+source.x,y*source.h+source.y,-z*source.w]):null;
   if(!this.points)return;
+  this.minDepth=Math.min(...this.points.map(p=>p[2]));
   this.faceWidth=mesh.referenceWidth?mesh.referenceWidth*source.w:Math.hypot(...this.points[454].map((q,i)=>q-this.points[234][i]));
   this.hairDepth=mesh.kind==='target' ? .004*source.w : Math.max(...this.points.map(p=>p[2]))+.006;
   // Cache candidates for the static photo; a burst tests only the triangles near its aim.
@@ -267,7 +274,7 @@ export class Surface{
    const driveE=gy*ey+gz*ez, driveF=gy*fy+gz*fz;
    const du=(ff*driveE-ef*driveF)/det, dv=(ee*driveF-ef*driveE)/det;
    const slope=Math.sqrt(Math.max(0,Math.min(1,du*driveE+dv*driveF)));
-   const load=this.mesh.kind==='target'?a.volume*Math.sqrt(slope):a.volume;
+   const load=a.volume*(this.mesh.kind==='target'?Math.sqrt(slope):gy+(1-gy)*Math.sqrt(slope));
    if(load<=threshold)break;
    const speed=mobility*Math.min(3.6,Math.sqrt(load/threshold-1));
    const u=du*speed,v=dv*speed,vel=[-u-v,u,v];
@@ -297,7 +304,7 @@ export class Surface{
   const ex=q[0]-p[0], ey=q[1]-p[1], ez=q[2]-p[2];
   const fx=r[0]-p[0], fy=r[1]-p[1], fz=r[2]-p[2];
   const nx=ey*fz-ez*fy, ny=ez*fx-ex*fz, nz=ex*fy-ey*fx;
-  const down=ny*(this.source.mirror?1:-1)/Math.max(1e-10,Math.hypot(nx,ny,nz));
+  const down=(ny*this.gravityY+nz*this.gravityZ)*(this.source.mirror?1:-1)/Math.max(1e-10,Math.hypot(nx,ny,nz));
   if (Math.abs(a.u-.5)<.062 && a.v>.398 && a.v<.469 && down>.34-margin) return 'nose';
   if (a.v<.13 && Math.abs(a.u-.5)<.23 && down>.38-margin) return 'chin';
   return null;
@@ -344,7 +351,7 @@ export class Surface{
    if(hair){this.land(hair,volume);return;}
    this.drop(p.x,y,z,volume,true);
    this.falling.at(-1).hairOnly=true;
-  }else this.drop(p.x,y,p.z,volume,false);
+  }else this.drop(p.x,y,z,volume,false);
  }
  emitPour() {
    this.nextPour=this.time+.070;
@@ -387,11 +394,11 @@ export class Surface{
     const t=j/3,atX=x0+(d.x-x0)*t,atY=y0+(d.y-y0)*t,atZ=z0+(d.z-z0)*t;
     const surface=d.hairOnly?this.hairHit(atX,atY):this.visibleHit(atX,atY);
     if(!surface||(d.fromHair&&surface.hair))continue;
-    if(this.mesh.kind==='target'&&(atZ>surface.z+d.r||atZ<surface.z-d.r))continue;
+    if(atZ>surface.z+d.r||atZ<surface.z-d.r)continue;
     hit=surface;
    }
    if(hit) { this.falling.splice(i,1);this.land(hit,d.volume); }
-   else if(d.y>1.2 || (this.mesh.kind==='target' && d.z<-.18*this.source.w))this.falling.splice(i,1);
+   else if(d.y>1.2 || d.z<(this.points?this.minDepth:0)-.18*(this.source?.w||1))this.falling.splice(i,1);
   }
   if(!this.points)return;
   // Turning a nose or chin upward brings a supported bead back onto the skin.

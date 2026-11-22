@@ -62,8 +62,8 @@ export class PhotoHair {
   const capacity=1.02+.75*viscosity;
   for(const b of this.beads) {
    if(b.tip){
-    if(b.volume<=capacity)continue;
-    b.neck+=dt*(1.25+Math.min(4,b.volume/capacity-1)*2.3)/(.5+viscosity);
+    if(b.volume*downhill<=capacity)continue;
+    b.neck+=dt*downhill*(1.25+Math.min(4,b.volume*downhill/capacity-1)*2.3)/(.5+viscosity);
     if(b.neck>=1){
      const residue=.16*capacity, r=this.radius(b.volume);
      release(b.u,b.v+downhill*r*(1.3+2.4*Math.min(1,b.neck)),b.volume-residue);

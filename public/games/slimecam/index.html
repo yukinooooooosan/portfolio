@@ -79,11 +79,12 @@
  <label for="aimOpacity"><span>照準の不透明度</span><output id="aimOpacityOut" for="aimOpacity">100%</output><input id="aimOpacity" aria-label="照準の不透明度" type="range" min="0" max="100" step="1" value="100" aria-valuetext="100%"></label>
 </div>
 <div class="tilt-control" id="tiltControl">
- <label for="targetTilt"><span class="tilt-gauge" aria-hidden="true"><i></i></span>的の傾き</label>
+ <label for="targetTilt"><span class="tilt-gauge" aria-hidden="true"><i></i></span><span id="tiltLabel">的の傾き</span></label>
  <output id="targetTiltOut" for="targetTilt">90°</output>
  <div class="tilt-scale"><span>水平</span><input id="targetTilt" aria-label="的の傾き" type="range" min="0" max="90" step="1" value="90"><span>直立</span></div>
 </div>
-<div class="photo-actions"><button disabled id="openPhoto" class="btn"><svg><use href="#i-capture"/></svg><span>写真を選ぶ</span></button><input hidden type="file" id="imageFile" accept="image/*"><button disabled id="save" class="btn"><svg><use href="#i-save"/></svg>静止画を保存</button><button hidden type="button" id="cancelPhoto" class="btn">読み込みをやめる</button></div></section>
+<p class="tilt-hint" id="tiltHint" hidden>写真は回転せず、スライムが流れる面の傾きが変わります。</p>
+<div class="photo-actions"><button disabled id="openPhoto" class="btn"><svg><use href="#i-capture"/></svg><span>写真を選ぶ</span></button><input hidden type="file" id="imageFile" accept="image/*"><button disabled id="save" class="btn"><svg><use href="#i-save"/></svg>静止画を保存</button><button hidden type="button" id="adjustPhoto" class="btn">写真の範囲を調整</button><button hidden type="button" id="cancelPhoto" class="btn">読み込みをやめる</button></div></section>
 <section id="slimeSettings" class="settings" aria-label="スライム設定">
 <p class="affiliate-link"><a href="https://link.amazon/B01n7l1jQ" target="_blank" rel="sponsored nofollow noopener">【PR】あなたのお顔にも。ニベア スキンミルク しっとり 200g（Amazon）</a></p>
 <div class="box"><div class="bar"><h2><svg><use href="#i-tune"/></svg>SLIME CONTROL</h2><span class="vents" aria-hidden="true"></span></div>
@@ -111,13 +112,30 @@
  </div>
 </section>
 </main>
-<footer><span><svg><use href="#i-lock"/></svg>画像はサーバーに保存されません</span><b>SLIME CAM <em>v0.11</em></b>
+<footer><span><svg><use href="#i-lock"/></svg>画像はサーバーに保存されません</span><b>SLIME CAM <em>v0.12</em></b>
 <p class="affiliate-disclosure">Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。</p></footer>
+<dialog id="photoCrop" class="photo-crop" aria-labelledby="cropTitle" aria-describedby="cropHint">
+ <div class="bar"><h2 id="cropTitle">写真の範囲を調整</h2><span class="vents" aria-hidden="true"></span></div>
+ <div class="crop-body">
+  <p id="cropHint">倍率と位置を調整して、使いたい範囲を決めてください。写真をドラッグしても移動できます。</p>
+  <canvas id="cropPreview" tabindex="0" role="group" aria-label="写真のトリミングプレビュー" aria-describedby="cropKeys"></canvas>
+  <p class="crop-keys" id="cropKeys">矢印キーでも位置を調整できます。確定すると写真を解析し、スライムとスタンプはリセットされます。</p>
+  <label class="crop-aspect" for="cropAspect">切り抜き比率<select id="cropAspect"><option value="original">元の写真</option><option value="1">正方形 1:1</option><option value="0.8">縦長 4:5</option><option value="1.3333333333333333">横長 4:3</option></select></label>
+  <div class="sliders crop-sliders">
+   <label for="cropZoom"><span>倍率</span><output id="cropZoomOut" for="cropZoom">100%</output><input id="cropZoom" type="range" min="1" max="4" step="0.01" value="1"></label>
+   <label for="cropX"><span>横位置 X</span><output id="cropXOut" for="cropX">0%</output><input id="cropX" type="range" min="0" max="100" step="0.1" value="50"></label>
+   <label for="cropY"><span>縦位置 Y</span><output id="cropYOut" for="cropY">0%</output><input id="cropY" type="range" min="0" max="100" step="0.1" value="50"></label>
+  </div>
+  <div class="crop-actions"><button type="button" id="resetCrop" class="btn">リセット</button><button type="button" id="cancelCrop" class="btn">取り消す</button><button type="button" id="applyCrop" class="btn crop-apply">この範囲で使う</button></div>
+ </div>
+</dialog>
 <dialog id="guide" aria-labelledby="guideTitle">
  <div class="bar"><h2 id="guideTitle">使いかた</h2><button class="close" id="close" aria-label="閉じる">×</button></div>
  <div class="guide-body">
   <p>まずは的で遊んでみよう。「写真を選ぶ」で、顔の写った写真でも遊べます。</p>
   <ol>
+   <li><strong>写真の範囲を決める</strong><br>写真を選んだら、倍率・横位置X・縦位置Yを調整して「この範囲で使う」を押します。ドラッグでも移動できます。「写真の範囲を調整」からやり直せます。確定後は顔と髪を解析し、スライムとスタンプをリセットします。取り消した場合は元の編集を保ちます。</li>
+   <li><strong>面の傾きを変える</strong><br>的も写真も0°（水平）〜90°（直立）に調整できます。写真そのものは回転せず、付着したスライムの流れ方が変わります。顔の凹凸に沿う流れは水平でも残ります。</li>
    <li><strong>スライムをかける</strong><br>的をタップして「発射」。長押しで連射できます。「注ぐ」では照準を合わせて「長押しで注ぐ」を押すと、同じ横位置の画面の上端外から落ち、照準の位置で付着します。押したまま別の指でプレビューをドラッグすると照準を動かせます。タップなら一滴だけ置けます。キーボードではプレビューにフォーカスし、矢印キーで位置を選んでEnterで一滴置けます。Shift＋矢印キーで大きく移動します。</li>
    <li><strong>照準の濃さを変える</strong><br>「照準の不透明度」で0〜100%に調整できます。0%で照準が見えなくなっても、狙う位置やスライムの濃さは変わりません。</li>
    <li><strong>スタンプで飾る</strong><br>「スタンプ」を開くと動きが止まります。絵柄を選んで、置きたい場所をタップ。</li>
@@ -128,4 +146,3 @@
 </dialog>
 <div id="toast" role="status"></div>
 <script type="module" src="app.js"></script></body></html>
-

@@ -1,7 +1,8 @@
 import {createStampEditor} from './stamps.js';
 import {bindAimDrag} from './aim-drag.js';
 import {bindPourTap} from './pour-tap.js';
-import {readPhoto,capturePhoto} from './photo-input.js';
+import {decodePhoto,capturePhoto} from './photo-input.js';
+import {createPhotoCropper} from './photo-crop.js';
 import {analyzePhoto} from './cpu-tracker.js';
 import {Surface} from './surface.js';
 import {HAIR_SIZE,PhotoHair} from './hair.js';
@@ -14,6 +15,8 @@ const $=id=>document.getElementById(id),stage=$('stage'),s=new Surface();
 const photo=new Image();photo.src='assets/target.webp';
 let canvas=$('scene'),renderer,software=false,source=photo,raw=targetMesh.points;
 let sampleIdle=true, sampleHair=null, photoLoad=null;
+let photoFile=null,photoSelection=null;
+const tiltAngles={target:90,photo:90};
 let drawHz=40,ratio=Math.min(devicePixelRatio,1.5),frameAt=0,lastTime=0,simDebt=0;
 let noticeTimer=0,toastTimer=0,needsDraw=true,chosen=0;
 const hasPhoto=()=>source!==photo;
@@ -25,7 +28,7 @@ function cancelPhotoLoad(){
 }
 function updatePhotoControls(){
  const loading=!!photoLoad;
- for(const id of ['cannonMode','pourMode','stampMode','save','reset','play','pause','closePhoto','targetTilt','aimOpacity'])$(id).disabled=!ready||loading;
+ for(const id of ['cannonMode','pourMode','stampMode','save','reset','play','pause','closePhoto','targetTilt','aimOpacity','adjustPhoto'])$(id).disabled=!ready||loading;
  $('pour').disabled=!ready||paused||loading;
  $('cancelPhoto').hidden=!loading;
  stage.setAttribute('aria-busy',String(loading));
@@ -40,6 +43,7 @@ function finishPhotoLoad(job){
 let ready=false,paused=false,triggerPointer=null;
 let mode='cannon',previousMode='cannon',pausedBeforeStamps=false,aimFrame=0;
 const stamps=createStampEditor();
+const cropper=createPhotoCropper();
 const cancelAimDrag=bindAimDrag(stage,()=>ready&&!photoLoad&&(mode==='cannon'||mode==='pour'&&s.pouring),moveAim);
 const canPour=()=>ready&&!photoLoad&&!paused&&mode==='pour';
 const cancelPourTap=bindPourTap(stage,()=>canPour()&&!s.pouring,placePour);
@@ -95,7 +99,8 @@ updateAimOpacity();
 const tiltInput=$('targetTilt');
 function updateTilt(){
  const degrees=tiltInput.valueAsNumber;
- s.setTargetTilt(degrees);
+ tiltAngles[hasPhoto()?'photo':'target']=degrees;
+ if(hasPhoto())s.setPhotoTilt(degrees);else s.setTargetTilt(degrees);
  $('targetTiltOut').value=degrees+'°';
  tiltInput.setAttribute('aria-valuetext',degrees===0?'0度、水平':degrees===90?'90度、直立':degrees+'度');
  tiltInput.style.setProperty('--fill',degrees/90*100+'%');
@@ -110,7 +115,12 @@ function showPhoto(pixels,points,hair){
  simDebt=0;sampleIdle=true;
  $('mode').textContent=hasPhoto()?'PHOTO':'TARGET';
  $('closePhoto').hidden=!hasPhoto();
- $('tiltControl').hidden=hasPhoto();
+ $('tiltControl').hidden=false;
+ tiltInput.value=String(tiltAngles[hasPhoto()?'photo':'target']);updateTilt();
+ $('tiltLabel').textContent=hasPhoto()?'写真の面の傾き':'的の傾き';
+ tiltInput.setAttribute('aria-label',hasPhoto()?'写真の面の傾き':'的の傾き');
+ $('tiltHint').hidden=!hasPhoto();
+ $('adjustPhoto').hidden=!hasPhoto();
  $('openPhoto').querySelector('span').textContent=hasPhoto()?'写真を変更':'写真を選ぶ';
  $('trackText').textContent=hasPhoto()?'読み込み写真':'練習用の的';
  renderer.setSource(source);frame();
@@ -122,16 +132,20 @@ function showPhoto(pixels,points,hair){
  needsDraw=true;
 }
 function sample(){
- cancelPhotoLoad();showPhoto(photo,targetMesh.points,sampleHair);notice('');
+ cancelPhotoLoad();photoFile=photoSelection=null;showPhoto(photo,targetMesh.points,sampleHair);notice('');
 }
 $('openPhoto').addEventListener('click',()=>$('imageFile').click());
 $('closePhoto').addEventListener('click',()=>sample());
 $('cancelPhoto').addEventListener('click',()=>{
  cancelPhotoLoad();notice('写真の読み込みをやめました。',3500);
 });
-$('imageFile').addEventListener('change',async e=>{
+$('imageFile').addEventListener('change',e=>{
  const file=e.target.files[0];
  e.target.value='';
+ if(file)loadPhoto(file);
+});
+$('adjustPhoto').addEventListener('click',()=>{if(photoFile&&!photoLoad)loadPhoto(photoFile,photoSelection);});
+async function loadPhoto(file,selection=null){
  if(!file||!ready)return;
  cancelPhotoLoad();
  const job=new AbortController();
@@ -140,7 +154,11 @@ $('imageFile').addEventListener('change',async e=>{
  notice('写真を読み込んでいます…');
  let phase='decode';
  try{
-  const pixels=await readPhoto(file);
+  let image=await decodePhoto(file);
+  job.signal.throwIfAborted();
+  phase='crop';notice('写真の範囲を調整してください');
+  const cropped=await cropper.edit(image,job.signal,selection),{pixels}=cropped;
+  image=null;
   job.signal.throwIfAborted();
   phase='detect';
   notice('写真の顔と髪を解析しています…');
@@ -153,13 +171,14 @@ $('imageFile').addEventListener('change',async e=>{
   const hair=result.mask?new PhotoHair(result.mask,result.rgba,result.region,result.faceSpan):null;
   finishPhotoLoad(job);
   showPhoto(pixels,result.points,hair);
+  photoFile=file;photoSelection=cropped.selection;
   notice(hair?'':'髪の解析を利用できなかったため、顔への付着で開きました。',6500);
- }catch{
-  if(!job.signal.aborted)notice(phase==='decode'?'写真を開けませんでした。JPEGやPNGの写真を選んでください。':'写真を解析できませんでした。もう一度、写真を選んでください。',7000);
+ }catch(error){
+  if(!job.signal.aborted)notice(error.name==='AbortError'?'写真の調整を取り消しました。':phase==='decode'?'写真を開けませんでした。JPEGやPNGの写真を選んでください。':phase==='crop'?'写真を切り抜けませんでした。もう一度、写真を選んでください。':'写真を解析できませんでした。もう一度、写真を選んでください。',7000);
  }finally{
   finishPhotoLoad(job);
  }
-});
+}
 function moveAim(x,y) {
  s.setAim(x,y);
  queueAimPaint();
@@ -231,7 +250,7 @@ function changeMode(next) {
  $('reticle').hidden=$('aimReadout').hidden=editing;
  $('triggerRow').hidden=editing;
  $('aimControl').hidden=editing;
- $('tiltControl').hidden=editing||hasPhoto();
+ $('tiltControl').hidden=editing;
  $('slimeSettings').hidden=editing;
  stamps.setActive(editing);
  stage.setAttribute('aria-label',editing?'スタンプの配置':cannon?'照準操作':'スライムをかける位置');
