@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#171316">
+  <meta name="description" content="こはくとすずから相手を選ぶ１対１のダイスゲーム。SHOW TIMEとレイズでチップを奪い切ろう。">
+  <title>SHOW TIME DUEL — サイコロの一騎打ち</title>
+  <script>
+    (() => {
+      try {
+        // Match the portfolio's production hosts; omit local and debug sessions.
+        const host = window.location.hostname;
+        if (!['yukinooooooosan.cc', 'yukinooooooosan.github.io'].includes(host) ||
+            new URLSearchParams(window.location.search).get('debug') === '1') return;
+        const measurementId = 'G-8WPQNSFFEQ';
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+        const tag = document.createElement('script');
+        tag.async = true;
+        tag.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+        document.head.appendChild(tag);
+        window.gtag('js', new Date());
+        window.gtag('config', measurementId);
+        window.trackShowtimeStart = function (opponentId, opponentName) {
+          try {
+            if (!['kohaku', 'suzu'].includes(opponentId)) return;
+            window.gtag('event', `showtime_${opponentId}_start`, {
+              send_to: measurementId,
+              opponent_id: opponentId,
+              opponent_name: opponentName
+            });
+          } catch (_) {
+            // Analytics must never interrupt a game run.
+          }
+        };
+      } catch (_) {
+        // The game remains playable when analytics is unavailable.
+      }
+    })();
+  </script>
+  <link rel="preload" as="image" type="image/webp" href="./art/marquee.webp">
+  <link rel="stylesheet" href="./style.css?v=11">
+  <link rel="stylesheet" href="./portrait-layout.css?v=6">
+  <script src="./portrait-assets.js?v=3" defer></script>
+  <script src="./portrait-motion.js?v=3" defer></script>
+  <script src="./verdict-portrait.js?v=8" defer></script>
+  <script src="./battle-portrait.js?v=7" defer></script>
+  <script src="./stage.js?v=7" defer></script>
+  <script src="./companion.js?v=2" defer></script>
+  <script src="./character-dialogue.js?v=1" defer></script>
+  <script src="./game.js?v=19" defer></script>
+</head>
+<body>
+  <div class="game-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="SHOW TIME DUEL"><i class="brand-icon" aria-hidden="true"></i><div><strong>Show Time</strong><small>DUEL</small></div></div>
+      <nav class="top-tools" aria-label="ゲーム設定">
+        <button id="fullscreen-button" class="subtle-button" type="button" aria-label="全画面にする" title="全画面にする" aria-pressed="false" hidden><i class="expand-mark" aria-hidden="true"></i><span>全画面</span></button>
+        <button id="sound-button" class="subtle-button sound-button" type="button" aria-label="効果音" aria-pressed="true"><i class="sound-icon" aria-hidden="true">♪</i><span>音 ON</span></button>
+        <button id="rules-button" class="subtle-button" type="button"><i class="help-icon" aria-hidden="true">?</i> 遊び方</button>
+      </nav>
+    </header>
+    <span id="display-note" role="status"></span>
+    <div id="match-hud" hidden>
+      <section id="round-hud" aria-label="ラウンドの進行" hidden></section>
+      <section id="chip-gauge" aria-label="対戦ゲージ">
+        <div class="chip-gauge-labels">
+          <span class="chip-gauge-balance gauge-you">
+            <span>あなた</span><strong id="gauge-you"></strong><small id="gauge-you-delta" class="gauge-delta" hidden></small>
+          </span>
+          <span id="gauge-pot" class="chip-gauge-pot"></span>
+          <span class="chip-gauge-balance gauge-rival">
+            <small id="gauge-rival-delta" class="gauge-delta" hidden></small><strong id="gauge-rival"></strong><span id="gauge-rival-name"></span>
+          </span>
+        </div>
+        <div class="gauge-rail" aria-hidden="true">
+        <i class="wallet-port" data-wallet="you"></i><div class="chip-gauge-track">
+          <span class="chip-gauge-fill gauge-fill-you"></span>
+          <span class="chip-gauge-fill gauge-fill-pot"></span>
+          <span class="chip-gauge-fill gauge-fill-rival"></span>
+        </div><i class="wallet-port" data-wallet="rival"></i></div>
+      </section>
+    </div>
+    <span class="sr-only" id="phase-announcement" role="status" aria-atomic="true"></span>
+    <main id="game"></main>
+  </div>
+  <div id="coin-flight-layer" aria-hidden="true"></div>
+  <div id="scene-fx" aria-hidden="true" hidden></div>
+  <dialog id="bust-dialog" aria-labelledby="bust-title" aria-describedby="bust-quote">
+    <div class="bust-art">
+      <picture><source media="(orientation: landscape)"><img alt=""></picture>
+      <h2 id="bust-title"><small>あなたのバースト負け</small><span lang="en">BUST</span></h2>
+    </div>
+    <div class="bust-footer">
+      <div><strong id="bust-winner" lang="en"></strong><p id="bust-quote"></p></div>
+      <button type="button" class="primary-button" autofocus></button>
+    </div>
+  </dialog>
+  <dialog id="photo-dialog" class="photo-dialog" aria-labelledby="photo-title">
+    <div class="photo-mat"><img alt="" decoding="async"></div>
+    <div class="photo-footer"><div><h2 id="photo-title"></h2><p></p></div>
+      <form method="dialog"><button class="secondary-button" type="submit" autofocus>卓に戻る</button></form>
+    </div>
+  </dialog>
+  <dialog id="rules-dialog" aria-labelledby="rules-heading" class="rules-dialog">
+    <div class="dialog-heading"><h2 id="rules-heading">遊び方</h2><button class="icon-button" id="close-rules" type="button" aria-label="閉じる">×</button></div>
+    <details class="rule-group" open><summary>公開とSHOW TIME</summary><ul class="rules-list">
+      <li><strong>３個振って、１個を公開。</strong>自分だけが３個を見て、見せる１個を選びます。</li>
+      <li><strong>SHOW TIME。</strong>もう１個公開すると得点＋２。公開した２個が同じ目なら、残りも同じ目だと「トリプル宣言」できます。宣言は嘘でも構いません。</li>
+      <li><strong>通常戦のリロール。</strong>各自１回戦に１回、手元から２枚を相手に渡して、選んだ伏せ目１個を振り直せます。出た目はすぐ公開され、SHOWの＋２がつきます。最後の２枚を使ったときも、その回の決着まで勝負に残ります。</li>
+      <li><strong>MAX。</strong>相手の公開済みの出目から届く最大点です。トリプル宣言中は宣言成功時の最大点を示します。</li>
+    </ul></details>
+    <details class="rule-group"><summary>ベットとチップ</summary><ul class="rules-list">
+      <li><strong>卓の延長料。</strong>5回戦ごとに、次の回戦へ進むときだけ、あなたが店に2ドルを払います（チップ1枚＝1ドル）。開始時の手持ちが2枚なら1ドル、1枚なら免除です。その後、双方が通常の参加料をポットに出します。</li>
+      <li><strong>２枚か４枚でベット。</strong>チェックで回すこともできます。トリプル宣言は２枚を自動でベット。足りなければ残りすべてを出します。</li>
+      <li><strong>コール、レイズ、フォールド。</strong>コールは差額を出して続行。レイズは差額に、直前の有効な上げ幅（最低２枚）を上乗せします。降りると、出したチップは場に残ります。</li>
+      <li><strong>対戦ゲージ。</strong>左があなたの手元、中央のグレーが場に出ているチップ、右が相手の手元です。精算すると、場のチップが手元に移ります。</li>
+      <li><strong>オールイン。</strong>手持ちのすべてでベットできます。相手の額に届かなくても、残りのチップすべてでコールできます。２人が同じ額まで出した分を争い、余った分は持ち主に戻ります。</li>
+    </ul></details>
+    <details class="rule-group"><summary>勝敗と精算</summary><ul class="rules-list">
+      <li><strong>決着。</strong>出目と役の得点が高い方が、場のチップを取ります。相手が降りれば手を伏せたまま勝利。先にベットを選ぶ順番は毎回交代します。</li>
+      <li><strong>チップを奪い切った方が勝ち。</strong>２人とも20枚で開始。参加料は第１回戦の１枚から、１枚ずつ上がって５枚で止まります。足りなければ残りすべてで参加し、精算後にどちらかが０枚ならバーストです。相手がバーストした局に衣装を買うと、相手に手持ちが戻って対戦が続きます。</li>
+    </ul></details>
+    <details class="rule-group"><summary>衣装の買取と決着の一枚絵</summary><ul class="rules-list">
+      <li><strong>バーストした相手から１着10ドルで買取。</strong>精算後、相手の手持ちが０枚になったときだけ選べます。１回目は上着、２回目はブラウス。買うには、次の局用の１枚を含む11枚が必要です。</li>
+      <li><strong>勝利を確定するか、もう一局か。</strong>買わずに席を立てば、そこで勝利。買えば、相手は代金の10枚で復帰します。買い取った衣装と表情の変化は対戦終了まで続きます。</li>
+      <li><strong>３回目のバーストで完全勝利。</strong>「グラスを差し出す」とお酌エンド。「全額で勝負する」を選ぶと、あなたの全チップと相手の魂を賭けた最後の対戦へ進みます。</li>
+      <li><strong>魂戦のリロールは双方無料。</strong>各自、1投につき1回だけ、SHOW TIMEで伏せたダイス1個を振り直して公開できます。出目と役・宣言で判定し、追加ベットや参加料・延長料はありません。</li>
+      <li><strong>引き分けは同じ賭けでもう一投。</strong>全チップを場に残し、双方が新しい手と無料リロール1回を得ます。勝てば相手が力尽きる「最後の一枚」、負ければ相手が全チップを得て逆転勝利です。</li>
+    </ul></details>
+    <details class="rule-group"><summary>得点の計算と役</summary><div class="score-guide">
+      <span>３個の出目を足し、当てはまるボーナスを加えます。</span>
+      <span>ペア（２個だけ同じ目）＋2 ／ 連番（３個が連続した目）＋4</span>
+      <span>SHOWで２個目を公開 ＋2</span>
+      <span>トリプル（ゾロ目）の宣言成功 ＋16。ピンゾロ（1・1・1）の宣言成功は特別に ＋37。</span>
+      <span>３個揃っていても、宣言しなければ出目の合計とSHOW分だけです。</span>
+      <strong>例　3 ＋ 3 ＋ 3 ＋ 2〈SHOW〉＋ 16〈トリプル宣言〉＝ 27点</strong>
+    </div></details>
+    <p class="fine-print">同点はポットを分配します。トリプル宣言が嘘だった人は配分の対象から外れます。２人とも宣言が失敗した場合は、得点で判定します。チップはゲーム内だけで使い、金銭のやり取りはありません。</p>
+    <button id="rules-done" class="primary-button full-width" type="button">わかった</button>
+  </dialog>
+</body>
+</html>

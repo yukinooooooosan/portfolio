@@ -1,0 +1,158 @@
+/* Transparent standing portraits share a camera and an outfit-specific room. */
+.character-scene.standing-scene,
+.soul-offer > .character-scene,
+.roster-portrait:has(> [data-portrait="square"]),
+.round-splash:has(> [data-portrait="square"]),
+.phase-panel:has(> [data-portrait="square"]),
+.fx-panel:has(> [data-portrait="square"]),
+.verdict-banner:has([data-portrait="square"]) {
+  background: linear-gradient(0deg, #100b163b, #100b1610 65%),
+    var(--scene-background) center 48% / cover no-repeat, #21151f;
+}
+
+/* Darken only the room, keeping the invitation portrait and flames luminous. */
+.soul-offer > .character-scene {
+  background-image: linear-gradient(0deg, #08050de6, #08050dbf 65%, #08050dd9),
+    var(--scene-background);
+}
+
+.roster-portrait:has(> [data-portrait="square"]),
+.round-splash:has(> [data-portrait="square"]),
+.phase-panel:has(> [data-portrait="square"]),
+.fx-panel:has(> [data-portrait="square"]),
+.square-shot {
+  /* Retain each panel's positioning; ROUND must overlay the entire dice panel. */
+  container-type: inline-size;
+  overflow: hidden;
+}
+.roster-portrait:has(> [data-portrait="square"]) { position: relative; }
+.square-shot { position: absolute; inset: 0; }
+
+/* Soul-battle artwork keeps the complete repaired silhouette and its 3:2 ratio. */
+.character-scene.soul-battle-scene,
+.round-splash:has(> [data-portrait="soul"]),
+.phase-panel:has(> [data-portrait="soul"]),
+.fx-panel:has(> [data-portrait="soul"]),
+.verdict-banner:has([data-portrait="soul"]) {
+  background: radial-gradient(ellipse at 55% 40%, var(--soul-accent), #140f18 80%);
+}
+:is(.character-scene, .round-splash, .phase-panel, .fx-panel, .showdown-portrait)
+    > img[data-portrait="soul"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: none;
+  mask-image: none;
+}
+
+/* Keep the wide soul pose clear of the SHOW TIME heading on narrow screens. */
+.phase-panel[data-tone="show"] > img[data-portrait="soul"] {
+  left: auto;
+  width: 64%;
+  object-position: right bottom;
+}
+.phase-panel[data-tone="show"]:has(> [data-portrait="soul"]) .phase-panel-copy {
+  max-width: 50%;
+}
+
+/* Measure both position and size from the face, retaining the image's 1:1 ratio.
+   The width limit keeps side hair and arms inside narrow phone panels. */
+:is(.character-scene, .roster-portrait, .round-splash, .phase-panel, .fx-panel,
+    .showdown-portrait, .square-shot) > img[data-portrait="square"] {
+  --render-height: min(var(--portrait-height), 105cqw);
+  position: absolute;
+  inset: auto;
+  top: max(calc(1.8% - var(--source-head-top) * var(--render-height)),
+    calc(27% - var(--source-face-y) * var(--render-height)));
+  left: var(--portrait-centre, 50%);
+  width: auto;
+  height: var(--render-height);
+  max-width: none;
+  aspect-ratio: 1;
+  transform: translateX(calc(-1 * var(--portrait-face-x)));
+  object-fit: contain;
+  object-position: center top;
+  mask-image: none;
+}
+.standing-scene > .battle-motion { mask-image: none; }
+.square-motion {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+  max-width: none;
+  transform: none;
+  mask-image: none;
+}
+.square-motion[hidden] { display: none; }
+.rival.folded .square-motion { filter: saturate(.65); }
+.phase-panel:has([data-portrait="square"]),
+.fx-panel:has([data-portrait="square"]) { --portrait-centre: 73%; }
+.showdown-portrait:has([data-portrait="square"]),
+.square-shot { --portrait-centre: 64%; }
+.roster-portrait:has([data-portrait="square"]) { --portrait-centre: 50%; }
+.verdict-banner:has([data-portrait="square"]) .verdict-caption { max-width: 53%; }
+.verdict-banner:has([data-portrait="square"]) .verdict-quote { max-width: 64%; }
+
+.character-scene.standing-scene > .speech-bubble {
+  align-self: end;
+  max-width: min(86%, 42ch);
+  margin: 0 12px 12px;
+  z-index: 2;
+}
+.character-scene.standing-scene .character-label,
+.character-scene.standing-scene .speech-toggle { z-index: 3; }
+.gameover .duel-finale .standing-scene .result-overlay { z-index: 2; }
+.gameover .duel-finale .standing-scene .result-overlay .speech-bubble { max-width: min(100%, 50ch); }
+
+.portrait-avatar { position: relative; overflow: hidden; display: inline-block; }
+.portrait-avatar > img[data-portrait="square"] {
+  position: absolute; width: auto; height: 440%; max-width: none;
+  left: 50%; top: calc(50% - var(--source-face-y) * 440%);
+  transform: translateX(calc(-1 * var(--portrait-face-x)));
+  object-fit: contain; mask-image: none;
+}
+.photo-dialog[data-standing="square"] { width: min(96vw, 1000px); }
+.photo-dialog[data-standing="square"] .photo-mat {
+  background: var(--scene-background) center / cover no-repeat, #21151f;
+}
+.photo-dialog[data-standing="square"] .photo-mat img {
+  width: min(100%, 75dvh); height: auto; max-height: 75dvh; aspect-ratio: 1;
+}
+
+@media (max-width: 660px) and (orientation: portrait) {
+  .phase-panel[data-tone="show"]:has(> [data-portrait="soul"]) .phase-panel-copy {
+    max-width: 55%;
+  }
+  .phase-panel[data-tone="show"]:has(> [data-portrait="soul"]) .phase-title {
+    font-size: clamp(1.65rem, 7.8vw, 2.35rem);
+  }
+  .arena .rival > .character-scene.duel-portrait.standing-scene {
+    min-height: 180px;
+    height: clamp(180px, min(78vw, calc(100dvh - 465px)), 370px);
+  }
+  .arena .rival[data-bubble-row] .duel-portrait.standing-scene > .speech-bubble {
+    grid-area: 2 / 1;
+    align-self: end;
+    max-width: min(88%, 38ch);
+    max-height: none;
+    margin: 0 10px 7px;
+    padding: 6px 10px;
+    overflow: visible;
+    font-size: clamp(12px, 3.2vw, 14px);
+    line-height: 1.42;
+  }
+  .standing-scene .speech-toggle { min-height: 36px; }
+  .phase-panel:has([data-portrait="square"]),
+  .fx-panel:has([data-portrait="square"]) { --portrait-centre: 66%; }
+  .verdict-banner:has([data-portrait="square"]) .verdict-caption { max-width: 58%; }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .arena .rival > .character-scene.duel-portrait.standing-scene { min-height: 170px; }
+  .standing-scene > .speech-bubble { font-size: 12px; margin: 0 8px 8px; }
+}

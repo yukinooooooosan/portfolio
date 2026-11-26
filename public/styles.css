@@ -667,6 +667,12 @@ h2,
     #181b2b;
 }
 
+.work-thumb-showtime {
+  background:
+    url("games/showtime/art/marquee.webp") 74% center / cover no-repeat,
+    #241719;
+}
+
 .work-thumb-party {
   background:
     url("assets/work-nomi-party-bg.jpg") center 48% / cover no-repeat,
